@@ -31,7 +31,7 @@ carSpeed  DB 100H
 ```
 
 ### Procedures
-- Procedures should be in `PascalCase`.
+- Procedures should be written in `PascalCase`.
 - Procedures should be preceded by a description specifying what they do, the parameters they take and the registers they use.
 ```Assembly
 
