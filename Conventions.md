@@ -1,6 +1,6 @@
-## ✍️ Naming Conventions
+## ✍️ Conventions
 
-Some Naming conventions to be followed while writing code.  
+Some conventions to be followed while writing code.  
 
 Definitions:  
 1. `PascalCase` - First letter of each word is capitalized
@@ -10,6 +10,15 @@ Definitions:
 
 ### Files Names
 Files Names should be written in `lower_case` and should be descriptive of the contents of the file.
+
+### Instructions
+- All instructions and registers should be written in `UPPER_CASE`.
+```Assembly
+
+; Load value from memory into AX register
+MOV AX, [MemoryLocation]
+
+```
 
 ### Variables
 - Variables should be written in `camelCase`
