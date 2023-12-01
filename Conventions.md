@@ -22,17 +22,46 @@ carSpeed  DB 100H
 ```
 
 ### Procedures
-- Procedures should be starting by `PROC` then an underscore `_`, then the name of Procedure in `PascalCase`.
-- Procedures should be preceded by a description specifying what they do, the parameters they take and the registers it uses.
+- Procedures should be in `PascalCase`.
+- Procedures should be preceded by a description specifying what they do, the parameters they take and the registers they use.
 ```Assembly
 
 ;; Description: 
 ;; Input:
 ;; Registers:
-PROC PROC_ClearScreen
+PROC ClearScreen
 
 ;code
 
-ENDP PROC_ClearScreen
+ENDP ClearScreen
 
 ```
+
+### Macros
+- Macros should be written in `PascalCase`.
+- Macros should be preceded by a description specifying what they do.
+```Assembly
+
+;; Description:
+SetCursorAtRowCol MACRO row, col
+
+;code
+
+ENDM
+
+```
+
+### Labels & Loops
+- Labels should be always written at the beginning of the line without any indentation
+- Use specific and meaningful labels names.
+
+### Commenting
+- **Section Comments**: Clearly explain the purpose of each section.
+```Assembly
+
+; ***************************************
+; Section: Data Initialization
+; ***************************************
+
+```
+- **Instruction Comments**: Add comments for complex or non-obvious instructions.
