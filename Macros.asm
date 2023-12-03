@@ -21,8 +21,15 @@ ENDM
 
 CloseFile Macro
 
-    mov ah, 3Eh         ; DOS function: close file
+    MOV ah, 3Eh         ; DOS function: close file
     INT 21H
 
 ENDM
 
+ChangeVideoMode Macro videoMode
+
+    MOV AH, 0
+    MOV AL, videoMode
+    INT 10H
+
+ENDM
