@@ -1,4 +1,5 @@
-EXTRN DrawTrack:FAR
+EXTRN DrawTrackHorizontal:FAR
+EXTRN DrawTrackVertical:FAR
 EXTRN FillScreen:FAR
 PUBLIC TRACK_IMAGE_HEIGHT, TRACK_IMAGE_WIDTH, buffer, SCREEN_HEIGHT, SCREEN_WIDTH
 
@@ -53,18 +54,16 @@ START PROC FAR
     MOV AL, 00H         ;set the color in al to black
     CALL FillScreen     ;fill the screen with black
 
-    push SCREEN_WIDTH
-    push TRACK_IMAGE_WIDTH
-    push TRACK_IMAGE_HEIGHT
+
     MOV SI, OFFSET buffer
-    MOV DI, 3200 + 320/2 - TRACK_IMAGE_WIDTH/2 ;STARTING PIXEL
-    CALL FAR PTR DrawTrack
+    MOV DI, 32000 + 320/2 - TRACK_IMAGE_HEIGHT/2 ;STARTING PIXEL
+    CALL FAR PTR DrawTrackVertical
 
-    MOV DI, 32000 + 320/2 - TRACK_IMAGE_WIDTH/2 ;STARTING PIXEL
-    CALL FAR PTR DrawTrack
-
-    MOV DI, 12800 + 320/2 - TRACK_IMAGE_WIDTH/2 ;STARTING PIXEL
-    CALL FAR PTR DrawTrack
+    MOV DI, 15680 + 320/2 - TRACK_IMAGE_WIDTH/2 ;STARTING PIXEL
+    CALL FAR PTR DrawTrackHorizontal
+;
+;    MOV DI, 12800 + 320/2 - TRACK_IMAGE_WIDTH/2 ;STARTING PIXEL
+;    CALL FAR PTR DrawTrackHorizontal
 
 
 
