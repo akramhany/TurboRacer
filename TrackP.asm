@@ -1,12 +1,12 @@
 PUBLIC DrawTrack, FillScreen
 
-SCREEN_WIDTH equ 320
-SCREEN_HEIGHT equ 200
+Include Const.inc
 
 .MODEL SMALL
 .CODE
+
 ;; Description: Draws an image from the buffer into the screen without using interrupts given the starting pixel in DI
-;; Input:   TRACK_IMAGE_HEIGHT, TRACK_IMAGE_WIDTH, buffer, SCREEN_WIDTH
+;; Input:   TRACK_IMAGE_HEIGHT, TRACK_IMAGE_WIDTH, SCREEN_WIDTH
 ;; Registers:   AX, ES, SI, DX, CX, DI
 DrawTrack PROC FAR
 
@@ -23,7 +23,7 @@ DrawTrack PROC FAR
     MOV AX, 0A000h      ;the start of the screen in memory
     MOV ES, AX          ;set the ES to point at the start of the screen
 
-    MOV SI, offset BYTE PTR [BP + 10]       ;make si point to the beginning of the image buffer
+
     MOV DX, [BP + 6]
 
 REPEAT:
@@ -34,7 +34,7 @@ REPEAT:
         DEC CX
         JNZ DRAW_LINE_OF_IMG
     
-    MOV AX, [BP + 12]
+    MOV AX, [BP + 10]
     SUB AX, [BP + 8]
     ADD DI, AX   ;inc di to draw the second line of the image
     DEC DX
