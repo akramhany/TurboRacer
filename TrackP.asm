@@ -36,9 +36,10 @@ REPEAT:
     
     MOV AX, [BP + 10]
     SUB AX, [BP + 8]
-    ADD DI, AX   ;inc di to draw the second line of the image
+    ADD DI, AX   ;inc di to draw the second line of the image (AX = SCREEN_WIDTH - TRACK_IMAGE_WIDTH)
     DEC DX
     JNZ REPEAT
+
 
     POP DI
     POP CX
