@@ -1,7 +1,8 @@
+EXTRN GenerateTrack:FAR
 EXTRN DrawTrackHorizontal:FAR
 EXTRN DrawTrackVertical:FAR
 EXTRN FillScreen:FAR
-PUBLIC TRACK_IMAGE_HEIGHT, TRACK_IMAGE_WIDTH, buffer, SCREEN_HEIGHT, SCREEN_WIDTH
+PUBLIC upDist, downDist, leftDist, rightDist
 
 Include Macros.inc
 Include Const.inc
@@ -22,7 +23,10 @@ buffer db BUFFER_SIZE dup(?)    ;allocate 2000 byte
 
 emptyByte db 0
 
-
+upDist dw 0
+downDist dw (TRACK_IMAGE_WIDTH * 320)
+leftDist dw -(TRACK_IMAGE_WIDTH)
+rightDist dw 0
 
 ;---------------------------------------------
 
@@ -44,9 +48,9 @@ START PROC FAR
     CloseFile                   ;close the file
 
 
-;********************************************
-;   Draw an Image from the buffer
-;********************************************
+;*****************************************************
+;   Generate A Track with a set of specific commands
+;*****************************************************
     ChangeVideoMode 13H
 
     MOV AX, 0A000h      ;the start of the screen in memory
@@ -54,21 +58,25 @@ START PROC FAR
     MOV AL, 00H         ;set the color in al to black
     CALL FillScreen     ;fill the screen with black
 
+    MOV SI, OFFSET buffer       ;Make SI point to the start of the buffer (which stores the image)
+    MOV DI, 10 * 320 + 100     ;The starting pixel to Generate the track from
+    
+    PUSH LEFT
+    PUSH UP
+    PUSH RIGHT
+    PUSH DOWN
 
-    MOV SI, OFFSET buffer
-    MOV DI, 32000 + 320/2 - TRACK_IMAGE_HEIGHT/2 ;STARTING PIXEL
-    CALL FAR PTR DrawTrackVertical
-
-    MOV DI, 15680 + 320/2 - TRACK_IMAGE_WIDTH/2 ;STARTING PIXEL
-    CALL FAR PTR DrawTrackHorizontal
-;
-;    MOV DI, 12800 + 320/2 - TRACK_IMAGE_WIDTH/2 ;STARTING PIXEL
-;    CALL FAR PTR DrawTrackHorizontal
-
+    CALL FAR PTR GenerateTrack
 
 
 
-    HLT
-    RET
+
+    MOV AH, 00H     
+    INT 16H         ;wait for user input to prevent the program from ending
+
+    MOV AH,4CH
+    INT 21H
+    
 START ENDP
+
 END START
