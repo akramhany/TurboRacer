@@ -1,9 +1,9 @@
 ;*****************************
 ;   General Constants
 ;*****************************
-BUFFER_SIZE equ 1000            ;Size of buffer that would contain the image (in bytes)
-TRACK_IMAGE_HEIGHT equ 20 - 1   ;Minus 1 to fix some bugs in drawing (even though image height is 20)
-TRACK_IMAGE_WIDTH equ 50
+BUFFER_SIZE equ 2000            ;Size of buffer that would contain the image (in bytes)
+TRACK_IMAGE_HEIGHT equ 32   ;Minus 1 to fix some bugs in drawing (even though image height is 20)
+TRACK_IMAGE_WIDTH equ 60
 SCREEN_WIDTH equ 320
 SCREEN_HEIGHT equ 200
 OPEN_ATTRIBUTE equ 0    ;0 is read only

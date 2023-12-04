@@ -17,9 +17,9 @@ Include Const.inc
 ;*************************************
 .DATA
 
-fileName db 'Track.bin'         ;image file name (image is in binary)
+fileName db 'TrackN.bin'         ;image file name (image is in binary)
 
-buffer db BUFFER_SIZE dup(?)    ;allocate 2000 byte
+buffer db BUFFER_SIZE dup(?)    ;allocate 1000 byte
 
 emptyByte db 0
 
@@ -59,7 +59,7 @@ START PROC FAR
     CALL FillScreen     ;fill the screen with black
 
     MOV SI, OFFSET buffer       ;Make SI point to the start of the buffer (which stores the image)
-    MOV DI, 10 * 320 + 100     ;The starting pixel to Generate the track from
+    MOV DI, 100 * 320 + 100      ;The starting pixel to Generate the track from
     
     PUSH LEFT
     PUSH UP
@@ -80,3 +80,6 @@ START PROC FAR
 START ENDP
 
 END START
+
+
+;;TODO: 1- make a variable to store the last direction, 2- put images for corners and handle them
