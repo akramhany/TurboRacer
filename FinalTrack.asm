@@ -16,7 +16,7 @@
     LastDirection db  1       ;indicat the last direction if 0->up 1->right  2->left  3->down
     Status        db  0       ; 0->inside window   1->out of the border of window
     Intersect     db  0       ;0->no intersection  1->intersected
-    RoadNum       db  23      ;nubmer of blocks
+    RoadNum       db  16      ;nubmer of blocks
     CurrentBlock  db  0       ; the counter when it equel to RoadNum stop generat another number
     seed          dw  1234    ;used in generating random nubmer
     BI            DB  0       ; flage to indicat if there is any intersection will happen before going to that dirction
