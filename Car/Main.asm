@@ -181,6 +181,8 @@ CHECK:
     ;COMPARE IF THE CHARACTER ENTERED IS ESCAPE CHARACTER
     CMP shouldExit, 01H   
     jz EXITP10 
+    CMP moveDirectionDown, 1
+    JE BACK1
     CMP moveDirectionUp, 1                  ;check if up arrow is pressed
     JNZ BACK1                   ;if not go check for down
     CALL FAR PTR RESETCAR1      ;if up is pressed delete the car, 
@@ -212,7 +214,10 @@ CHECK:
     EXITP10: jmp EXITP11
     ;;;;;;;;;;;;
 
-    BACK1: CMP moveDirectionDown, 1           ;check if down arrow is pressed
+    BACK1:
+    CMP moveDirectionUP, 1
+    JE RIGHT1
+    CMP moveDirectionDown, 1           ;check if down arrow is pressed
     JNZ RIGHT1
     CALL FAR PTR RESETCAR1
     MOV AX,WORD PTR State1
@@ -241,7 +246,10 @@ CHECK:
     EXITP11:JMP EXITP12
 
 ;;;;;;;;;this dosn't work
-    RIGHT1: CMP moveDirectionRight, 1
+    RIGHT1:
+    CMP moveDirectionLeft, 1
+    JE LEFT1
+    CMP moveDirectionRight, 1
     JNZ LEFT1
     CALL FAR PTR RESETCAR1
     MOV AX,WORD PTR State1
@@ -270,6 +278,8 @@ CHECK:
     ;ASSIGN THE NEW VALUES OF BEGINNING AND ENDING POSITION OF THE CAR IN THE MEMORY
     ;THEN REDRAW THE CAR WITH NEW POSITIOINS  
     LEFT1:
+    CMP moveDirectionRight, 1
+    JE CheckP11
     CMP moveDirectionLeft, 1
     JNZ CheckP11
     CALL FAR PTR RESETCAR1
