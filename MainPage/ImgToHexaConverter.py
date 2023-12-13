@@ -1,5 +1,5 @@
 from PIL import Image
-filename = 'carP.png'
+filename = 'carPN.png'
 im = Image.open(filename)
 width, height = im.size
 pixels = list(im.getdata())

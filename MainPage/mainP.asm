@@ -26,11 +26,31 @@ CloseFile Macro
 
 ENDM
 
+SetCursor MACRO row, col
+
+    MOV DH, row
+    MOV DL, col
+    MOV BH, 0
+    MOV AH, 02
+    INT 10H
+
+ENDM
+
+DisplayString MACRO strToDisp
+
+    MOV AH, 09
+    MOV DX, offset strToDisp
+    INT 21H
+
+ENDM
 
 .MODEL SMALL
 STACK 64
 .DATA 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;CONSTANTS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 SCREEN_WIDTH equ 320
 SCREEN_HEIGHT equ 200
 BUFFER_SIZE_LOGO equ 6400
@@ -39,20 +59,46 @@ LOGO_IMAGE_HEIGHT equ 40
 BUFFER_SIZE_CAR equ 4000
 CAR_IMAGE_WIDTH equ 80
 CAR_IMAGE_HEIGHT equ 50
-logoFileName db 'LogoN.bin'
 OPEN_ATTRIBUTE equ 0    ;0 is read only
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IMAGES BUFFERS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+logoFileName db 'LogoN.bin'
 logoBuffer db BUFFER_SIZE_LOGO dup(?)
+
 TEMP  db ?
-strToDisp db 'Hi how are you ?$'
-    db ?
-TEMP2 DB 00
 
 carFileName db 'carP.bin'
-tt db ?
 carBuffer db BUFFER_SIZE_CAR dup(?)
+
+tt db ?
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;MESSAGES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+userName1M db 'User1 Name:$'
+TEMP2 DB 00
+userName2M db 'User2 Name:$'
+
 asdf db 00
 dada db ?
+
+;;The actual string is stored at user1Data or at userName1 + 2
+userName1 LABEL BYTE
+user1MaxLen DB 30
+user1ActualLen DB ?
+user1Data DB 30 DUP('$')
+
+ db ?
+
+;;The actual string is stored at user2Data or at userName2 + 2
+userName2 LABEL BYTE
+user2MaxLen DB 30
+user2ActualLen DB ?
+user2Data DB 30 DUP('$')
 
 .CODE
 
@@ -78,26 +124,37 @@ MAIN PROC
     MOV AX, 0A000h      ;the start of the screen in memory
     MOV ES, AX          ;set the ES to point at the start of the screen
 
-
+;;Draw Logo
     MOV DI, 320 * 10 + 80
     CALL FAR PTR DrawLogo
 
+;;Draw Car
     MOV DI, 320 * 140 + 120
     CALL FAR PTR DrawCarImage
 
+;;Fill Screen with a certain color
     MOV AL, 201
     CALL FillScreen
-;
-;    MOV DX, 0C0DH
-;    MOV BH, 0
-;    MOV AH, 02
-;    INT 10H
-;
-;    MOV AH, 09
-;    MOV DX, offset strToDisp
-;    INT 21H
 
+;;Display the first message to get username of player 1
+    SetCursor 12, 10
+    DisplayString userName1M
 
+;;Get user 1 name
+    MOV AH, 0AH
+    MOV DX, offset userName1
+    INT 21H
+
+;;Display the second message to get username of player 2
+    SetCursor 13, 10
+    DisplayString userName2M
+
+;;Get user 2 name
+    MOV AH, 0AH
+    MOV DX, offset userName2
+    INT 21H
+
+;;make the program wait to not end
     MOV AH, 0
     INT 16H
 
@@ -216,7 +273,7 @@ REPEAT_CAR_IMAGE:
         JLE DONT_DRAW_CHECK
         JMP DRAW
         DONT_DRAW_CHECK:
-            CMP DS:[SI], BYTE PTR 1CH
+            CMP DS:[SI], BYTE PTR 1dH
             JLE DRAW
             JMP DONT_DRAW
         DRAW:
