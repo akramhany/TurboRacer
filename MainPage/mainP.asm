@@ -41,6 +41,8 @@ OPEN_ATTRIBUTE equ 0    ;0 is read only
 
 buffer db BUFFER_SIZE dup(?)
 TEMP  db ?
+strToDisp db 'Hi how are you ?$'
+    db ?
 TEMP2 DB 00
 
 .CODE
@@ -64,19 +66,27 @@ MAIN PROC
     MOV ES, AX          ;set the ES to point at the start of the screen
 
 
-    MOV DI, 320 * 20 + 80
+    MOV DI, 320 * 10 + 80
     CALL FAR PTR DrawLogo
 
     MOV AL, 201
     CALL FillScreen
 
+    MOV DX, 0C0DH
+    MOV BH, 0
+    MOV AH, 02
+    INT 10H
+
+    MOV AH, 09
+    MOV DX, offset strToDisp
+    INT 21H
 
 
+    MOV AH, 0
+    INT 16H
 
-
-
-    HLT
-    RET
+    MOV AH, 4CH
+    INT 21H
 MAIN ENDP
 
 ;; Description: fill the screen (A000H MUST BE IN ES) with a given color in AL
