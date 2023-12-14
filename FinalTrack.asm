@@ -2,7 +2,7 @@
 .STACK 64
 
 .DATA
-    TrackWidth    equ 12         ;half track width
+    TrackWidth    equ 12           ;half track width
     GenTrack      db  31h          ;the key to generate another track
     EndKey        db  1bh          ;the key to end
     StatingPointX dw  12           ;starting point in x-axis
@@ -17,7 +17,7 @@
     Status        db  0            ; 0->inside window   1->out of the border of window
     Intersect     db  0            ;0->no intersection  1->intersected
     CurrentBlock  db  0            ; the counter when it equel to RoadNum stop generat another number
-    seed          dw  1234         ;used in generating random nubmer
+    seed          dw  12         ;used in generating random nubmer
     notvalid      DB  0            ; flage to indicat if there is any intersection will happen before going to that dirction or will go out of window
     ArrDir        db  16 dup(?)
     FUp           db  0
@@ -26,6 +26,7 @@
     FDown         db  0
     FLAGE         DB  0
     HalfStep      equ 8
+    divider       equ  7
 
 .CODE
 MAIN PROC FAR
@@ -64,21 +65,22 @@ MAIN ENDP
     ;generate random number
     ;***********************************************************************
 GeneratRandomNumber proc near
-                        mov  ax, seed
-                        mov  bl,205
-                        mov  bh ,RandomValue
-                        mov  cx, 5245
-                        imul bx
-                        add  ax, cx
-                        mov  seed,ax
-    ; Generate random number in range 0 to 10
-                        mov  dx, seed
-                        xor  ah, ah                    ; Clear the upper byte of DX
-                        mov  bx, 10                    ; Maximum value (exclusive)
-                        xor  dx, dx                    ; Clear the upper word of DX
-                        div  bx
-                        mov  ax, dx                    ; Resulting random number is stored in AX
-                        mov  RandomValue,al
+                        MOV  AH, 2ch                   ;get sysytem time to get the dx mellisecond
+                        INT  21h
+                        MOV  AX, DX
+                        MOV  Cx ,seed
+                        xor  dx,dx
+                        IMUL CX
+                        inc  cx
+                        mov  seed ,cx
+
+    ;mov to ax to be diveded by 10 to generate random number form (0->9)
+                        MOV  CX, 10                    ;the inverval of the random number  from (0 to bx)
+                        xor  dx,dx
+                        DIV  CX                        ;dx have the random number
+
+                        MOV  RandomValue,DL            ;keep the random number in the variable RandomValue
+
                         ret
 GeneratRandomNumber endp
     ;***********************************************************************
