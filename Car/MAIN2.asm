@@ -1,3 +1,12 @@
+Delay MACRO 
+
+MOV     CX, 00H
+MOV     DX, 02240H
+MOV     AH, 86H
+INT     15H
+
+ENDM
+
 PUBLIC WIDTH1
 PUBLIC WIDTH2
 PUBLIC HEIGHT1
@@ -32,10 +41,167 @@ STATE2 DB 0                  ; 0 => UP    1 => RIGHT  2=> LEFT  3=>DOWN
 PIXELS1 DB 119 DUP (?)
 PIXELS2 DB 105 DUP(?)
 DB 0
+
+;-------------------HANDELING TAKING MORE THAN ONE KEY INPUT AT THE SAME TIME---------------------------
+origIntOffset dw 0
+origIntSegment dw 0
+shouldExit db 0
+
+moveDirectionRightC1 db 0      ;1 up, 2 right, 3 left, 4 down
+moveDirectionUpC1 db 0      ;1 up, 2 right, 3 left, 4 down
+moveDirectionLeftC1 db 0
+moveDirectionDownC1 db 0
+
+moveDirectionRightC2 db 0      ;1 up, 2 right, 3 left, 4 down
+moveDirectionUpC2 db 0      ;1 up, 2 right, 3 left, 4 down
+moveDirectionLeftC2 db 0
+moveDirectionDownC2 db 0
+
+
 .CODE
+
+
+;------------------------------THE PROC WHICH WILL OVER RIDE INT 9 TO ALLOW TAKING MORE THAN ONE INPUT---------------------
+OverRideInt9 PROC FAR
+    IN AL, 60H      ;READ SCAN CODE
+
+    CMP AL, 48H        ;CHECK UP KEY
+    JNE UP_NOT_PRESSED
+    MOV moveDirectionUpC1, 1
+    JMP CONT
+
+UP_NOT_PRESSED:
+    CMP AL, 48H + 80H
+    JNE UP_NOT_RELEASED
+    MOV moveDirectionUpC1, 0
+    JMP CONT
+
+UP_NOT_RELEASED:
+    CMP AL, 4DH                 ;Check for right pressed
+    JNE RIGHT_NOT_PRESSED
+    MOV moveDirectionRightC1, 1
+    JMP CONT
+    
+
+RIGHT_NOT_PRESSED:
+    CMP AL, 4DH + 80H           ;Check for right released
+    JNE RIGHT_NOT_RELEASED           
+    MOV moveDirectionRightC1, 0
+    JMP CONT
+
+CONT_HELP:
+JMP CONT
+
+HELPER_JUMP:
+JMP DOWN_NOT_RELEASED
+
+RIGHT_NOT_RELEASED:
+    CMP AL, 4BH                 ;Check for left pressed
+    JNE LEFT_NOT_PRESSED
+    MOV moveDirectionLeftC1, 1
+    JMP CONT
+
+LEFT_NOT_PRESSED:
+    CMP AL, 4BH + 80H           ;Check for left released
+    JNE LEFT_NOT_RELEASED
+    MOV moveDirectionLeftC1, 0
+    JMP CONT
+
+LEFT_NOT_RELEASED:
+    CMP AL, 50H                 ;Check for down pressed
+    JNE DOWN_NOT_PRESSED
+    MOV moveDirectionDownC1, 1
+    JMP CONT
+
+DOWN_NOT_PRESSED:
+    CMP AL, 50H + 80H           ;Check for down released
+    JNE DOWN_NOT_RELEASED
+    MOV moveDirectionDownC1, 0
+    JMP CONT
+
+DOWN_NOT_RELEASED:
+    CMP AL, 11H                 ;CHECK UP PRESSED FOR CAR 2
+    JNE W_NOT_PRESSED
+    MOV moveDirectionUpC2, 1
+    JMP CONT
+
+W_NOT_PRESSED:
+    CMP AL, 11H + 80H           ;CHECK UP RELEASED FOR CAR 2
+    JNE W_NOT_RELEASED
+    MOV moveDirectionUpC2, 0
+    JMP CONT
+
+W_NOT_RELEASED:
+    CMP AL, 20H                 ;CHECK RIGHT PRESSED FOR CAR 2
+    JNE D_NOT_PRESSED
+    MOV moveDirectionRightC2, 1
+    JMP CONT
+
+D_NOT_PRESSED:
+    CMP AL, 20H + 80H           ;CHECK RIGHT RELEASED FOR CAR 2
+    JNE D_NOT_RELEASED
+    MOV moveDirectionRightC2, 0
+    JMP CONT
+
+D_NOT_RELEASED:
+    CMP AL, 1EH                 ;CHECK LEFT PRESSED FOR CAR 2
+    JNE A_NOT_PRESSED
+    MOV moveDirectionLeftC2, 1
+    JMP CONT
+
+A_NOT_PRESSED:
+    CMP AL, 1EH + 80H           ;CHECK LEFT RELEASED FOR CAR 2
+    JNE A_NOT_RELEASED
+    MOV moveDirectionLeftC2, 0
+    JMP CONT
+
+A_NOT_RELEASED:
+    CMP AL, 1FH                 ;CHECK DOWN PRESSED FOR CAR 2
+    JNE S_NOT_PRESSED
+    MOV moveDirectionDownC2, 1
+    JMP CONT
+
+S_NOT_PRESSED:
+    CMP AL, 1FH + 80H           ;CHECK DOWN RELEASED FOR CAR 2
+    JNE S_NOT_RELEASED
+    MOV moveDirectionDownC2, 0
+    JMP CONT
+
+S_NOT_RELEASED:
+    CMP AL, 1H                  ;Check for escape pressed
+    JNE CONT
+    MOV shouldExit, 1
+
+CONT:
+    MOV AL, 20H
+    OUT 20H, AL
+    IRET
+OverRideInt9 ENDP
+
+
 MAIN PROC FAR
 MOV AX ,@DATA
 MOV DS,AX
+
+;;Handle interrupt 9 procedure
+CLI
+
+MOV AX, 3509h
+INT 21H
+
+MOV origIntOffset, BX
+MOV origIntSegment, ES
+    
+PUSH DS
+MOV AX, CS
+MOV DS, AX
+MOV AX, 2509h
+LEA DX, OverRideInt9
+INT 21H
+POP DS
+
+STI
+
 
 MOV AX,0A000H
 MOV ES,AX
@@ -49,15 +215,20 @@ CALL FAR PTR ORIG1
 CALL FAR PTR CAR1
 CALL FAR PTR ORIG2
 CALL FAR PTR CAR2
+
 AGAIN:
-CHECK: mov ah,1
-int 16h
-jz CHECK
-mov ah,0
-int 16h
+CHECK: 
+;mov ah,1
+;int 16h
+;jz CHECK
+;mov ah,0
+;int 16h
 
 
-CMP AH,48H
+CMP shouldExit, 01H             ;;CHECK IF THE EXIT KEY IS PRESSED
+JE EXIT1
+
+CMP moveDirectionUpC1, 1          ;;CHECK IF THE UP ARROW KEY IS PRESSED
 JNZ RIGHT1 
 CALL FAR PTR RESETCAR1
 MOV DL,0
@@ -65,10 +236,10 @@ MOV STATE1,DL
 SUB CENTER1,320
 CALL FAR PTR ORIG1
 CALL FAR PTR CAR1
-JMP AGAIN
+JMP RIGHT1
 
 RIGHT1:
-CMP AH,4DH
+CMP moveDirectionRightC1, 1       ;;CHECK IF THE RIGHT ARROW KEY IS PRESSED
 JNZ LEFT1 
 CALL FAR PTR RESETCAR1
 MOV DL , 1
@@ -76,10 +247,10 @@ MOV STATE1 ,DL
 ADD CENTER1,1
 CALL FAR PTR ORIG1
 CALL FAR PTR CAR1
-JMP AGAIN
+JMP LEFT1
 
 LEFT1: 
-CMP AH,4BH
+CMP moveDirectionLeftC1, 1
 JNZ DOWN1
 CALL FAR PTR RESETCAR1
 MOV DL,2
@@ -87,10 +258,13 @@ MOV STATE1,DL
 SUB CENTER1,1
 CALL FAR PTR ORIG1
 CALL FAR PTR CAR1
-JMP AGAIN
+JMP DOWN1
+
+EXIT1:
+JMP EXIT
 
 DOWN1:
-CMP AH,50H
+CMP moveDirectionDownC1, 1
 JNZ UP2
 CALL FAR PTR RESETCAR1
 MOV DL,3
@@ -98,10 +272,12 @@ MOV STATE1,DL
 ADD CENTER1,320
 CALL FAR PTR ORIG1
 CALL FAR PTR CAR1
-AGAIN2:JMP AGAIN
+JMP UP2
+
+
 
 UP2:
-CMP AH,11H
+CMP moveDirectionUpC2, 1
 JNZ RIGHT2
 CALL FAR PTR RESETCAR2
 MOV DL,0
@@ -109,11 +285,14 @@ MOV STATE2,DL
 SUB CENTER2,320
 CALL FAR PTR ORIG2
 CALL FAR PTR CAR2
-JMP AGAIN2
+JMP RIGHT2
 
+AGAIN2:
+Delay
+JMP AGAIN
 
 RIGHT2:
-CMP AH,20H
+CMP moveDirectionRightC2, 1
 JNZ LEFT2
 CALL FAR PTR RESETCAR2
 MOV DL , 1
@@ -121,11 +300,11 @@ MOV STATE2 ,DL
 ADD CENTER2,1
 CALL FAR PTR ORIG2
 CALL FAR PTR CAR2
-JMP AGAIN2
+JMP LEFT2
 
 
 LEFT2:
-CMP AH,1EH
+CMP moveDirectionLeftC2, 1
 JNZ DOWN2
 CALL FAR PTR RESETCAR2
 MOV DL,2
@@ -133,10 +312,10 @@ MOV STATE2,DL
 SUB CENTER2,1
 CALL FAR PTR ORIG2
 CALL FAR PTR CAR2
-JMP AGAIN2
+JMP DOWN2
 
 DOWN2:
-CMP AH,1FH
+CMP moveDirectionDownC2, 1
 JNZ AGAIN2
 CALL FAR PTR RESETCAR2
 MOV DL,3
@@ -147,10 +326,26 @@ CALL FAR PTR CAR2
 
 JMP AGAIN2
 
+EXIT:
+
+;Return Interrupt 9
+CLI
+mov ax, origIntOffset
+mov dx, origIntSegment
+    
+push ds
+mov ds, ax
+
+mov ax, 2509h
+int 21h
+
+; Re-enable interrupts
+pop ds
+STI
 
 
-MOV AH,0
-INT 16H
+;MOV AH,0
+;INT 16H
 MOV AH,4CH
 INT 21H
 MAIN ENDP
