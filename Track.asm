@@ -1156,12 +1156,19 @@ GENERATE_NEW_RANDOM_OB:
     MOV AX, OB_EndY
     MOV ObstaclePosY, AX
 
-        MOV AH, 0CH
-        MOV AL, 05
-        MOV BH, 0
-        MOV CX, ObstaclePosX
-        MOV DX, ObstaclePosY
-        INT 10H
+    CALL FAR PTR DrawObstacle
+
+    CALL FAR PTR GetNextDirection
+
+    MOV AX, OB_EndX
+    MOV OB_StartX, AX
+
+    MOV AX, OB_EndY
+    MOV OB_StartY, AX
+    
+    MOV AX, OB_Direction
+    CMP OB_Direction, OB_NO_DIRECTION
+    JNE GENERATE_NEW_RANDOM_OB
 
 
     POP DX
@@ -1171,6 +1178,74 @@ GENERATE_NEW_RANDOM_OB:
 
     RET
 GenerateObstacles ENDP
+
+;description
+GetNextDirection PROC FAR
+    
+    PUSH CX
+    PUSH DX
+
+OB_CHECK_UP:
+    CMP OB_Direction, OB_DOWN       ;CHECK TO AVOID THE DIRECTION WE CAME FROM
+    JE OB_CHECK_RIGHT               ;JMP TO THE NEXT CHECK IF THIS IS THE DIRECTION WE CAME FROM
+    MOV CX, OB_EndX                 ;MOVE TO CX THE X VALUE OF THE END PIXEL
+    MOV DX, OB_EndY                 ;MOVE TO DX THE Y VALUE OF THE END PIXEL
+    SUB DX, 4                       ;SUB 3 FROM Y TO CHECK THE PIXEL
+    GetPixelColor                   ;GET THE PIXEL COLOR
+    CMP AL, 0FH                     ;IF THE PIXEL IS WHITE THEN THIS IS THE DIRECTION WE WANT TO CONTINUE AT
+    JNE OB_CHECK_RIGHT              ;IF NOT JMP TO NEXT CHECK
+    MOV OB_Direction, OB_UP
+    JMP OB_EXIT                     ;EXIT BEC WE FOUND THE DIRECTION
+
+
+OB_CHECK_RIGHT:
+    CMP OB_Direction, OB_LEFT      ;CHECK TO AVOID THE DIRECTION WE CAME FROM
+    JE OB_CHECK_LEFT                ;JMP TO THE NEXT CHECK IF THIS IS THE DIRECTION WE CAME FROM
+    MOV CX, OB_EndX                 ;MOVE TO CX THE X VALUE OF THE END PIXEL
+    MOV DX, OB_EndY                 ;MOVE TO DX THE Y VALUE OF THE END PIXEL
+    ADD CX, 4                       ;ADD 3 TO Y TO CHECK THE PIXEL
+    GetPixelColor                   ;GET THE PIXEL COLOR
+    CMP AL, 0FH                     ;IF THE PIXEL IS WHITE THEN THIS IS THE DIRECTION WE WANT TO CONTINUE AT
+    JNE OB_CHECK_LEFT               ;IF NOT JMP TO NEXT CHECK
+    MOV OB_Direction, OB_RIGHT
+    JMP OB_EXIT                     ;EXIT BEC WE FOUND THE DIRECTION
+
+OB_CHECK_LEFT:
+    CMP OB_Direction, OB_RIGHT       ;CHECK TO AVOID THE DIRECTION WE CAME FROM
+    JE OB_CHECK_DOWN                ;JMP TO THE NEXT CHECK IF THIS IS THE DIRECTION WE CAME FROM
+    MOV CX, OB_EndX                 ;MOVE TO CX THE X VALUE OF THE END PIXEL
+    MOV DX, OB_EndY                 ;MOVE TO DX THE Y VALUE OF THE END PIXEL
+    SUB CX, 4                       ;SUB 3 FROM X TO CHECK THE PIXEL
+    GetPixelColor                   ;GET THE PIXEL COLOR
+    CMP AL, 0FH                     ;IF THE PIXEL IS WHITE THEN THIS IS THE DIRECTION WE WANT TO CONTINUE AT
+    JNE OB_CHECK_DOWN               ;IF NOT JMP TO NEXT CHECK
+    MOV OB_Direction, OB_LEFT
+    JMP OB_EXIT                     ;EXIT BEC WE FOUND THE DIRECTION
+
+OB_CHECK_DOWN:
+    CMP OB_Direction, OB_UP       ;CHECK TO AVOID THE DIRECTION WE CAME FROM
+    JE OB_CHECK_END                 ;JMP TO THE NEXT CHECK IF THIS IS THE DIRECTION WE CAME FROM
+    MOV CX, OB_EndX                 ;MOVE TO CX THE X VALUE OF THE END PIXEL
+    MOV DX, OB_EndY                 ;MOVE TO DX THE Y VALUE OF THE END PIXEL
+    ADD DX, 4                       ;ADD 3 TO Y TO CHECK THE PIXEL
+    GetPixelColor                   ;GET THE PIXEL COLOR
+    CMP AL, 0FH                     ;IF THE PIXEL IS WHITE THEN THIS IS THE DIRECTION WE WANT TO CONTINUE AT
+    JNE OB_CHECK_END                ;IF NOT JMP TO NEXT CHECK
+    MOV OB_Direction, OB_DOWN
+    JMP OB_EXIT                     ;EXIT BEC WE FOUND THE DIRECTION
+
+OB_CHECK_END:
+    MOV OB_Direction, OB_NO_DIRECTION
+    JMP OB_EXIT
+
+OB_EXIT:
+
+    POP DX
+    POP CX
+
+    RET
+
+GetNextDirection ENDP
 
 ;description
 GetEndOfCurrentTrackComp PROC FAR
@@ -1260,7 +1335,7 @@ OB_OUTER_LOOP:
 
     OB_INNER_LOOP:
         MOV AH, 0CH
-        MOV AL, 05
+        MOV AL, 0FH
         MOV BH, 0
         MOV CX, ObstaclePosX
         MOV DX, ObstaclePosY
