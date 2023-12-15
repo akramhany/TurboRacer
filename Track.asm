@@ -14,8 +14,8 @@ ENDM
     TrackWidth    equ 12           ;half track width
     GenTrack      db  31h          ;the key to generate another track
     EndKey        db  1bh          ;the key to end
-    StatingPointX equ  12           ;starting point in x-axis
-    StatingPointY equ  170          ;starting point in y-axis
+    StatingPointX dw  12           ;starting point in x-axis
+    StatingPointY dw  170          ;starting point in y-axis
     XAxis         dw  0            ;x-axis for the middel of road
     YAxis         dw  0            ;y-axis for the middel point of road
     RandomValue   db  0            ;to generate the track -> if the number >=2 go right  number >=5 go left number >=8 go up else go down
@@ -1140,25 +1140,41 @@ GenerateObstacles PROC FAR
     PUSH ES
     PUSH BX
     PUSH DX
+    PUSH CX
 
-    MOV OB_Direction, OB_RIGHT         ;INITIAL DIRECTION IS RIGHT
+    MOV OB_Direction, OB_RIGHT          ;INITIAL DIRECTION IS RIGHT
     
-    MOV AX, StatingPointX
-    MOV OB_StartX, AX
+    MOV AX, StatingPointX               ;Set the OB_StartX with the starting pointX
+    MOV OB_StartX, AX                   
 
-    MOV AX, StatingPointY
+    MOV AX, StatingPointY               ;Set the OB_StartY with the starting pointY
     MOV OB_StartY, AX
 
 GENERATE_NEW_RANDOM_OB:
-    CALL FAR PTR GetEndOfCurrentTrackComp           ;GET END OF CURRENT TRACK COMP AND STORE IN OB_End
-    MOV AX, OB_EndX
+    CALL FAR PTR GetEndOfCurrentTrackComp           ;GET END OF CURRENT TRACK COMP AND STORE IN OB_EndX, OB_EndY
+    
+    CALL GeneratRandomNumber
+
+    CMP RandomValue, 6                              ;CHECK IF THE RANDOM VALUE IS GREATER THAN 6 THEN DON'T DRAW AN OBSTACLE
+    JG OB_CONT
+    
+    MOV BL, RandomValue
+    MOV BH, 0
+    MOV CX, OB_StartX
+    MOV DX, OB_EndX
+    CALL FAR PTR GenerateRandomNumBetTwoNums
+
     MOV ObstaclePosX, AX
+
+    
     MOV AX, OB_EndY
     MOV ObstaclePosY, AX
 
     CALL FAR PTR DrawObstacle
 
     CALL FAR PTR GetNextDirection
+
+    OB_CONT:
 
     MOV AX, OB_EndX
     MOV OB_StartX, AX
@@ -1170,7 +1186,7 @@ GENERATE_NEW_RANDOM_OB:
     CMP OB_Direction, OB_NO_DIRECTION
     JNE GENERATE_NEW_RANDOM_OB
 
-
+    POP CX
     POP DX
     POP BX
     POP ES
@@ -1179,11 +1195,51 @@ GENERATE_NEW_RANDOM_OB:
     RET
 GenerateObstacles ENDP
 
+;description: generates a random value between two random values in CX, DX given a third value IN BX
+;the randomv value at the end would be in AX
+;the equation is -> ((X - Y) / 7) * Z + Y, where X is the bigger value and Y is the lower value and Z is the random value
+GenerateRandomNumBetTwoNums PROC
+    PUSH BX
+    PUSH CX
+    PUSH DX
+
+    CMP CX, DX              ;Compare CX, DX to see which is bigger
+    JL DX_BIGGER            ;if DX is bigger then go and swap them
+    JMP CONT_GRNBTN         ;if CX is bigger then its okay
+
+DX_BIGGER:
+    XCHG DX, CX             ;Swap DX, CX
+
+CONT_GRNBTN:
+    SUB CX, DX              ;Subtract DX (smaller one) from CX
+    MOV AX, CX              ;Move CX to AX
+    MOV CX, 7               ;Set CX with 7 to divide by it
+    PUSH DX                 ;Store the initial value of DX
+
+    MOV DX, 0               ;Set DX with 0 to divide
+    DIV CX                  ;Divide the difference between Start and End by 7 (stored in CX)
+
+    MOV AH, 0               ;Set AH with 0
+    MOV DX, 0               ;Set DX with 0 to multiply
+    MUL BX                  ;Multiply the value in AX with the Random Value
+
+    POP DX                  ;Restore DX
+    ADD AX, DX              ;Add AX ,after performing the above instructions on it, to DX and store in AX
+
+
+    POP DX
+    POP CX
+    POP BX
+
+    RET
+GenerateRandomNumBetTwoNums ENDP
+
 ;description
 GetNextDirection PROC FAR
     
     PUSH CX
     PUSH DX
+    PUSH AX
 
 OB_CHECK_UP:
     CMP OB_Direction, OB_DOWN       ;CHECK TO AVOID THE DIRECTION WE CAME FROM
@@ -1240,6 +1296,7 @@ OB_CHECK_END:
 
 OB_EXIT:
 
+    POP AX
     POP DX
     POP CX
 
@@ -1335,7 +1392,7 @@ OB_OUTER_LOOP:
 
     OB_INNER_LOOP:
         MOV AH, 0CH
-        MOV AL, 0FH
+        MOV AL, 05H
         MOV BH, 0
         MOV CX, ObstaclePosX
         MOV DX, ObstaclePosY
