@@ -82,12 +82,12 @@ MAIN PROC FAR
     ;MOV  CL, RoadNum
     ;CMP  CurrentBlock,CL
                         CALL FAR PTR ENDTRACK
-                        CALL FAR PTR GenerateObstacles  ;Generate Random Obstacles
                         JZ   CheckKey
                         JMP  CheckKey                  ;return to check key pressed
     EndProgram:
 
     GenerateOb:
+                        CALL FAR PTR GenerateObstacles  ;Generate Random Obstacles
 
                         MOV AH, 0
                         INT 16H
@@ -1272,8 +1272,8 @@ DX_BIGGER:
     XCHG DX, CX             ;Swap DX, CX
 
 CONT_GRNBTN:
-    ADD DX, 5
-    SUB CX, 5
+    ADD DX, 3
+    SUB CX, 3
 
     SUB CX, DX              ;Subtract DX (smaller one) from CX
     MOV AX, CX              ;Move CX to AX
@@ -1449,13 +1449,13 @@ DrawObstacle PROC FAR
     PUSH ObstaclePosY
     PUSH DI
 
-    MOV BL, 5
-    MOV DI, 5
-    Sub ObstaclePosX, 2
-    Sub ObstaclePosY, 2
+    MOV BL, 4
+    MOV DI, 4
+    Sub ObstaclePosX, 1
+    Sub ObstaclePosY, 1
 
 OB_OUTER_LOOP:
-    MOV BL, 5
+    MOV BL, 4
 
     OB_INNER_LOOP:
         MOV AH, 0CH
@@ -1469,7 +1469,7 @@ OB_OUTER_LOOP:
         DEC BL
         JNZ OB_INNER_LOOP
     INC ObstaclePosY
-    SUB ObstaclePosX, 5
+    SUB ObstaclePosX, 4
     DEC DI
     JNZ OB_OUTER_LOOP
 
