@@ -10,7 +10,7 @@ ENDM
 Delay MACRO 
 
 MOV     CX, 00H
-MOV     DX, 05240H
+MOV     DX, 02240H
 MOV     AH, 86H
 INT     15H
 
