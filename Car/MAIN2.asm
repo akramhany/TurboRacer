@@ -1,7 +1,7 @@
 Delay MACRO 
 
 MOV     CX, 00H
-MOV     DX, 02240H
+MOV     DX, 05240H
 MOV     AH, 86H
 INT     15H
 
@@ -21,10 +21,12 @@ PUBLIC IMG1
 PUBLIC IMG2
 PUBLIC PIXELS1
 PUBLIC PIXELS2
+
 PUBLIC CANMOVE1
 PUBLIC CANMOVE2
 PUBLIC EXPECTEDSTATE1
 PUBLIC EXPECTEDSTATE2
+
 EXTRN CAR1:FAR
 EXTRN CAR2:FAR
 EXTRN RESETCAR1:FAR
@@ -33,6 +35,7 @@ EXTRN ORIG1:FAR
 EXTRN ORIG2:FAR
 EXTRN CheckColisionCar1:FAR
 EXTRN CheckColisionCar2:FAR
+
 .MODEL SMALL
 .STACK 64
 .DATA
@@ -62,10 +65,12 @@ SPEEDDOWN_CAR1      DB 0                        ;FLAG IF CAR1 HAS A SPEED DOWN P
 SPEEDDOWN_CAR2      DB 0                        ;FLAG IF CAR2 HAS A SPEED DOWN POWER UP OR NOT
 OBSTACLE_CAR1       DB 0                        ;FLAG IF CAR1 HAS AN OBSTACLE POWER UP OR NOT
 OBSTACLE_CAR2       DB 0                        ;FLAG IF CAR2 HAS AN OBSTACLE POWER UP OR NOT
+
 EXPECTEDSTATE1      DB ?
 EXPECTEDSTATE2      DB ?                        
 CANMOVE1            DB ?
 CANMOVE2            DB ?
+
 ;-------------------HANDELING TAKING MORE THAN ONE KEY INPUT AT THE SAME TIME---------------------------
 origIntOffset       dw 0
 origIntSegment      dw 0
@@ -299,6 +304,7 @@ LLL:
     ADD DI,315
     CMP DX,0
     JNZ LLL
+
         ;draw obstacle to test check colision procedure
 ;{
     mov cx,120
@@ -316,12 +322,14 @@ LLL:
     JNZ obstacle1
 ;}
 
+
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 AGAIN:
 CHECK: 
 
     CMP shouldExit, 01H             ;;CHECK IF THE EXIT KEY IS PRESSED
+
     JE AA2
 
     CMP moveDirectionUpC1, 1          ;;CHECK IF THE UP ARROW KEY IS PRESSED
@@ -331,6 +339,7 @@ CHECK:
     CALL FAR PTR CheckColisionCar1 
     CMP CANMOVE1,0
     JZ RIGHT1  
+
     CALL FAR PTR RESETCAR1
     MOV STATE1,0
     MOV AX,320
@@ -344,6 +353,7 @@ CHECK:
     CALL FAR PTR CAR1
 
     JMP RIGHT1
+
 AA2:JMP AA
 
 RIGHT1:
@@ -369,11 +379,13 @@ AA: JMP EXIT1
     LEFT1: 
     CMP moveDirectionLeftC1, 1
     JNZ DOWN1
+
     MOV AL,2
     MOV EXPECTEDSTATE1,AL
     CALL FAR PTR CheckColisionCar1 
     CMP CANMOVE1,0
     JZ DOWN1
+
     CALL FAR PTR RESETCAR1
     MOV STATE1,2
     MOV AX,SPEED1
@@ -392,11 +404,13 @@ EXIT1:
 DOWN1:
     CMP moveDirectionDownC1, 1
     JNZ UP2
+
     MOV AL,3
     MOV EXPECTEDSTATE1,AL
     CALL FAR PTR CheckColisionCar1 
     CMP CANMOVE1,0
     JZ UP2
+
     CALL FAR PTR RESETCAR1
     MOV STATE1,3
     MOV AX,320
@@ -416,11 +430,13 @@ DOWN1:
 UP2:
     CMP moveDirectionUpC2, 1
     JNZ RIGHT2
+
     MOV AL,0
     MOV EXPECTEDSTATE2,AL
     CALL FAR PTR CheckColisionCar2 
     CMP CANMOVE2,0
     JZ RIGHT2 
+
     CALL FAR PTR RESETCAR2
     MOV STATE2,0
     MOV AX,320
@@ -439,11 +455,13 @@ UP2:
 RIGHT2:
     CMP moveDirectionRightC2, 1
     JNZ LEFT2
+
     MOV AL,1
     MOV EXPECTEDSTATE2,AL
     CALL FAR PTR CheckColisionCar2 
     CMP CANMOVE2,0
     JZ LEFT2
+
     CALL FAR PTR RESETCAR2
     MOV STATE2 ,1
     MOV AX,SPEED2
@@ -469,11 +487,13 @@ ASD:
 LEFT2:
     CMP moveDirectionLeftC2, 1
     JNZ DOWN2
+
     MOV AL,2
     MOV EXPECTEDSTATE2,AL
     CALL FAR PTR CheckColisionCar2 
     CMP CANMOVE2,0
     JZ DOWN2
+
     CALL FAR PTR RESETCAR2
     MOV STATE2,2
     MOV AX,SPEED2
@@ -488,11 +508,13 @@ LEFT2:
 DOWN2:
     CMP moveDirectionDownC2, 1
     JNZ AGAIN2
+
     MOV AL,3
     MOV EXPECTEDSTATE2,AL
     CALL FAR PTR CheckColisionCar2 
     CMP CANMOVE2,0
     JZ DOWN2_5312
+
     CALL FAR PTR RESETCAR2
     MOV STATE2,3
     MOV AX,320
@@ -504,7 +526,9 @@ DOWN2:
     CALL FAR PTR SPEEDDOWN2
     CALL FAR PTR OBSTACLECAR2
     CALL FAR PTR CAR2
+
 DOWN2_5312:
+
     JMP AGAIN2
 
 EXIT:
