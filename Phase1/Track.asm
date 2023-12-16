@@ -94,14 +94,35 @@ EXTRN CheckColisionCar2:FAR
     OB_EndY       DW 0
 
 ;---------------------------------------CAR DATA---------------------------------------
+    dw '0'
+    dw 0
+    dw 0
+    dd 0
+    dw '0'
+    dw 0
+    dw 0
+    dd 0
+    INCLUDE IMAGE1.INC
+    db '0'
+    
+    dw '0'
+    dw 0
+    dw 0
+    dd 0
+    INCLUDE IMAGE2.INC
+    db '1'
 
+        dw '0'
+    dw 0
+    dw 0
+    dd 0
 
     db ?
     WIDTH1              DW 5                        ;WIDTH OF CAR1                  
     HEIGHT1             DW 9                       ;HEIGHT OF CAR1   
     WIDTH2              DW 5                        ;WIDTH OF CAR2
     HEIGHT2             DW 9                       ;HEIGHT OF CAR2
-    CENTER1             DW 50 * 320 + 20           ;CENTER  OF CAR1
+    CENTER1             DW 50 * 320 + 1           ;CENTER  OF CAR1
     CENTER2             DW 165 * 320 + 20           ;CENTER OF CAR2
     TOP1                DW ?                        ;INITIALIZED IN ORIGINAL PROCEDURE IN THE BEFINNING
     TOP2                DW ?                        ;INITIALIZED IN ORIGINAL PROCEDURE IN THE BEGINNING
@@ -143,9 +164,6 @@ EXTRN CheckColisionCar2:FAR
     moveDirectionLeftC2 db 0
     moveDirectionDownC2 db 0
 
-    db ?
-    INCLUDE IMAGE1.INC
-    INCLUDE IMAGE2.INC
 
 
 .CODE
