@@ -122,6 +122,12 @@ fsdal db 00
 errorTwo db 'Error:username must start with a letter$'
 errorOccured db 0 
 aaalal db ?
+msg1 db 'To start the game press F1$'
+db ?
+msg2 db 'To start chatting press F2$'
+db ?
+msg3 db 'To exit press F3$'
+db ?
 
 ;The actual string is stored at user1Data or at userName1 + 2
 userName1 LABEL BYTE
@@ -147,6 +153,8 @@ MAIN PROC FAR
     MOV DS, AX
 
     CALL FAR PTR DisplayFirstPage
+
+    CALL FAR PTR DisplayMainPage
 
 
     MOV AH, 0
@@ -449,5 +457,24 @@ CONT_EXEC:
 
 RET
 DisplayFirstPage ENDP 
+
+;description
+DisplayMainPage PROC FAR
+
+    MOV AL, BACKGROUND_COLOR
+    MOV BP, 60 * 320
+    MOV widthToFill, 320
+    MOV heightToFill, 140
+    CALL FAR PTR FillScreen
+
+    SetCursor 12, 7
+    DisplayString msg1
+    SetCursor 14, 7
+    DisplayString msg2
+    SetCursor 16, 7
+    DisplayString msg3
+
+RET    
+DisplayMainPage ENDP 
 
 END MAIN
