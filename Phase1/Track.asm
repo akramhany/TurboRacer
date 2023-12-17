@@ -56,6 +56,7 @@ ENDM
 
 DisplayString MACRO strToDisp
 
+
     MOV AH, 09
     MOV DX, offset strToDisp
     INT 21H
@@ -81,6 +82,7 @@ DisplayPromptMessages MACRO
     SetCursor 15, 2
     DisplayString inputRules2
 
+
 ENDM
 
 PUBLIC WIDTH1
@@ -97,9 +99,13 @@ PUBLIC IMG1
 PUBLIC IMG2
 PUBLIC PIXELS1
 PUBLIC PIXELS2
+PUBLIC SPEED1
+PUBLIC SPEED2
 
-PUBLIC CANMOVE1
-PUBLIC CANMOVE2
+PUBLIC CANMOVEOBSTACLE1
+PUBLIC CANMOVEOBSTACLE2
+PUBLIC CANMOVETRACK1
+PUBLIC CANMOVETRACK2
 PUBLIC EXPECTEDSTATE1
 PUBLIC EXPECTEDSTATE2
 
@@ -112,7 +118,7 @@ EXTRN ORIG2:FAR
 EXTRN CheckColisionCar1:FAR
 EXTRN CheckColisionCar2:FAR
 
-.MODEL SMALL
+.MODEL MEDIUM
 .STACK 64
 
 .DATA
@@ -154,6 +160,7 @@ EXTRN CheckColisionCar2:FAR
     db ? 
     db ?
     ;;;Obstacles Varaibles
+
     GenerateObstaclesKey equ     32H               ;NUMBER 2 IN KEYBOARD
     ObstaclePosX         DW      0
     ObstaclePosY         DW      0
@@ -301,6 +308,58 @@ EXTRN CheckColisionCar2:FAR
     db ?
     msg3 db 'To exit press F3$'
     db ?
+
+    WIDTH1              DW 5                        ;WIDTH OF CAR1                  
+    HEIGHT1             DW 9                       ;HEIGHT OF CAR1   
+    WIDTH2              DW 5                        ;WIDTH OF CAR2
+    HEIGHT2             DW 9                       ;HEIGHT OF CAR2
+    CENTER1             DW 175 * 320 + 20           ;CENTER  OF CAR1
+    CENTER2             DW 165 * 320 + 20           ;CENTER OF CAR2
+    TOP1                DW ?                        ;INITIALIZED IN ORIGINAL PROCEDURE IN THE BEFINNING
+    TOP2                DW ?                        ;INITIALIZED IN ORIGINAL PROCEDURE IN THE BEGINNING
+    STATE1              DB 1                        ; 0 => UP    1 => RIGHT  2=> LEFT  3=>DOWN
+    STATE2              DB 1                        ; 0 => UP    1 => RIGHT  2=> LEFT  3=>DOWN
+    PIXELS1             DB 45 DUP (?)              ;ORIGINAL PIXELS IN THE PLACE OF CAR1
+    PIXELS2             DB 45 DUP(?)               ;ORIGINAL PIXELS IN THE PLACE OF CAR2
+    SPEED1              DW 1                        ;SPEED OF CAR1
+    SPEED2              DW 1                        ;CAR2 SPEED
+    OBSWIDTH            DW 5                        ;OBSTACLE WIDTH
+    OBSHEIGHT           DW 5                        ;OBSTACLE HEIGHT
+    POWCAR1             DB 0                        ;FLAG IF THE CAR1 HAS POWER UP
+    POWCAR2             DB 0                        ;FLAG IF THE CAR2 HAS POWER UP
+    SPEEDUP_CAR1        DB 0                        ;FLAG IF CAR1 HAS A SPEED UP POWER UP OR NOT
+    SPEEDUP_CAR2        DB 0                        ;FLAG IF CAR2 HAS A SPEED UP POWER UP OR NOT
+    SPEEDDOWN_CAR1      DB 0                        ;FLAG IF CAR1 HAS A SPEED DOWN POWER UP OR NOT
+    SPEEDDOWN_CAR2      DB 0                        ;FLAG IF CAR2 HAS A SPEED DOWN POWER UP OR NOT
+    OBSTACLE_CAR1       DB 0                        ;FLAG IF CAR1 HAS AN OBSTACLE POWER UP OR NOT
+    OBSTACLE_CAR2       DB 0                        ;FLAG IF CAR2 HAS AN OBSTACLE POWER UP OR NOT
+    PASS_CAR1           DB 0
+    PASS_CAR2           DB 0
+    CANPASS_CAR1        DB 0
+    CANPASS_CAR2        DB 0
+    STARTTIME1          DB 0
+    STARTTIME2          DB 0
+    COUNT1              DB 0
+    COUNT2              DB 0
+
+    EXPECTEDSTATE1      DB ?
+    EXPECTEDSTATE2      DB ?                        
+    CANMOVEOBSTACLE1    DB ?
+    CANMOVEOBSTACLE2    DB ?
+    CANMOVETRACK1       DB ?
+    CANMOVETRACK2       DB ?
+    CHECKPASSEDOBSTACLE1 DB ?
+    CHECKPASSEDOBSTACLE2 DB ?  
+    SPEEDUPCOLOR        DB 5
+    SPEEDDOWNCOLOR      DB 9
+    GENERATEOBSTACLECOLOR    DB 3
+    PASSOBSTACLECOLOR   DB 13
+    ACTIVEUP_CAR1       DB 0
+    ACTIVEUP_CAR2       DB 0
+    ACTIVEDOWN_CAR1     DB 0
+    ACTIVEDOWN_CAR2     DB 0
+
+
 
     ;The actual string is stored at user1Data or at userName1 + 2
     userName1 LABEL BYTE
@@ -543,215 +602,477 @@ MAIN PROC FAR
                                 CALL          FAR PTR ORIG1
                                 CALL          FAR PTR CAR1
 
+    MOV CX,10
+    MOV DI,2000
+    MOV AL,SPEEDUPCOLOR
+    REP STOSB
+
+    MOV CX,10
+    MOV DI,2150
+    MOV AL,SPEEDDOWNCOLOR
+    REP STOSB
+    MOV CX,10
+    MOV DI,2100
+    MOV AL,GENERATEOBSTACLECOLOR
+    REP STOSB
+    MOV CX,10
+    MOV DI,2200
+    MOV AL,PASSOBSTACLECOLOR
+    REP STOSB
+
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    AGAIN:                      
-    ;CAR_CHECK:
 
-                                CMP           shouldExit, 01H                        ;;CHECK IF THE EXIT KEY IS PRESSED
+AGAIN:
+;CAR_CHECK: 
 
-                                JE            AA2
-
-                                CMP           moveDirectionUpC1, 1                   ;;CHECK IF THE UP ARROW KEY IS PRESSED
-                                JNZ           RIGHT1
-                                MOV           AL,0
-                                MOV           EXPECTEDSTATE1,AL
-                                CALL          FAR PTR CheckColisionCar1
-                                CMP           CANMOVE1,0
-                                JZ            RIGHT1
-
-                                CALL          FAR PTR RESETCAR1
-                                MOV           STATE1,0
-                                MOV           AX,320
-                                MOV           DX,SPEED1
-                                MUL           DX
-                                SUB           CENTER1,AX
-                                CALL          FAR PTR ORIG1
-                                CALL          FAR PTR SPEEDUP1
-                                CALL          FAR PTR SPEEDDOWN1
-                                CALL          FAR PTR OBSTACLECAR1
-                                CALL          FAR PTR CAR1
-
-                                JMP           RIGHT1
-
-    AA2:                        JMP           AA
-
-    RIGHT1:                     
-                                CMP           moveDirectionRightC1, 1                ;;CHECK IF THE RIGHT ARROW KEY IS PRESSED
-                                JNZ           LEFT1
-                                MOV           AL,1
-                                MOV           EXPECTEDSTATE1,AL
-                                CALL          FAR PTR CheckColisionCar1
-                                CMP           CANMOVE1,0
-                                JZ            LEFT1
-                                CALL          FAR PTR RESETCAR1
-                                MOV           STATE1 ,1
-                                MOV           AX,SPEED1
-                                ADD           CENTER1,AX
-                                CALL          FAR PTR ORIG1
-                                CALL          FAR PTR SPEEDUP1
-                                CALL          FAR PTR SPEEDDOWN1
-                                CALL          FAR PTR OBSTACLECAR1
-                                CALL          FAR PTR CAR1
-
-                                JMP           LEFT1
-    AA:                         JMP           EXIT1
-    LEFT1:                      
-                                CMP           moveDirectionLeftC1, 1
-                                JNZ           DOWN1
-
-                                MOV           AL,2
-                                MOV           EXPECTEDSTATE1,AL
-                                CALL          FAR PTR CheckColisionCar1
-                                CMP           CANMOVE1,0
-                                JZ            DOWN1
-
-                                CALL          FAR PTR RESETCAR1
-                                MOV           STATE1,2
-                                MOV           AX,SPEED1
-                                SUB           CENTER1,AX
-                                CALL          FAR PTR ORIG1
-                                CALL          FAR PTR SPEEDUP1
-                                CALL          FAR PTR SPEEDDOWN1
-                                CALL          FAR PTR OBSTACLECAR1
-                                CALL          FAR PTR CAR1
-
-                                JMP           DOWN1
-
-    EXIT1:                      
-                                JMP           CAR_EXIT
-
-    DOWN1:                      
-                                CMP           moveDirectionDownC1, 1
-                                JNZ           UP2
-
-                                MOV           AL,3
-                                MOV           EXPECTEDSTATE1,AL
-                                CALL          FAR PTR CheckColisionCar1
-                                CMP           CANMOVE1,0
-                                JZ            UP2
-
-                                CALL          FAR PTR RESETCAR1
-                                MOV           STATE1,3
-                                MOV           AX,320
-                                MOV           DX,SPEED1
-                                MUL           DX
-                                ADD           CENTER1,AX
-                                CALL          FAR PTR ORIG1
-                                CALL          FAR PTR SPEEDUP1
-                                CALL          FAR PTR SPEEDDOWN1
-                                CALL          FAR PTR OBSTACLECAR1
-                                CALL          FAR PTR CAR1
-
-                                JMP           UP2
+   
+    CMP COUNT1,0
+    JE CONT1
+    MOV  AH, 2ch                   ;get sysytem time to get the dx mellisecond
+    INT  21h
+    CMP DH,STARTTIME1
+    JE CONT1
+    MOV STARTTIME1,DH
+    DEC COUNT1
+    CMP COUNT1,0 
+    JNE CONT1
+    CMP ACTIVEUP_CAR1 , 1
+    JNE CONT2
+    DEC SPEED1
+    MOV ACTIVEUP_CAR1 , 0
+    JMP CONT1
+CONT2:
+    INC SPEED2
+    MOV ACTIVEDOWN_CAR1 , 0
 
 
+CONT1:
+    CMP COUNT2,0
+    JE CONT3
+    MOV  AH, 2ch                   ;get sysytem time to get the dx mellisecond
+    INT  21h
+    CMP DH,STARTTIME2
+    JE CONT3
+    MOV STARTTIME2,DH
+    DEC COUNT2
+    CMP COUNT2,0
+    JNE CONT3
+    CMP ACTIVEUP_CAR2 , 1
+    JNE CONT4
+    DEC SPEED2
+    MOV ACTIVEUP_CAR2 , 0
+    JMP CONT3
+CONT4:
+    MOV ACTIVEDOWN_CAR2 , 0
+    INC SPEED1
 
-    UP2:                        
-                                CMP           moveDirectionUpC2, 1
-                                JNZ           RIGHT2
+CONT3:
+    CMP shouldExit, 01H             ;;CHECK IF THE EXIT KEY IS PRESSED
 
-                                MOV           AL,0
-                                MOV           EXPECTEDSTATE2,AL
-                                CALL          FAR PTR CheckColisionCar2
-                                CMP           CANMOVE2,0
-                                JZ            RIGHT2
+    JE AA2_1
+    
+     CMP moveDirectionUpC1, 1          ;;CHECK IF THE UP ARROW KEY IS PRESSED
+    JNZ RIGHT1_1
+    MOV AL,0
+    MOV EXPECTEDSTATE1,AL
+    CALL FAR PTR CheckColisionCar1 
+    CMP CANMOVETRACK1,0
+    JZ EXITUP1
+    CMP CANMOVEOBSTACLE1,1
+    JZ  LABELUP1
+    CMP CANPASS_CAR1,1
+    JZ LABELUP2
+    JMP EXITUP1
+    AA2_1:JMP AA2
+    RIGHT1_1:JMP RIGHT1
+    STARTUP1:
+    CALL FAR PTR RESETCAR1
+    MOV STATE1,0
+    MOV AX,320
+    MOV DX,SPEED1
+    MUL DX
+    SUB CENTER1,AX
+    CALL FAR PTR ORIG1
+    CMP ACTIVEUP_CAR1,1
+    JE CONT5        
+    CMP ACTIVEDOWN_CAR1,1
+    JE CONT5
+    CMP CANPASS_CAR1,1
+    JE CONT5        
+    CALL FAR PTR SPEEDUP1
+    CALL FAR PTR SPEEDDOWN1
+    CALL FAR PTR OBSTACLECAR1
+    CALL FAR PTR PASSOBSTACLE_CAR1
+CONT5: CALL FAR PTR CAR1
+    JMP EXITUP1
+LABELUP1:
+        CMP CHECKPASSEDOBSTACLE1,0
+        JZ STARTUP1
+        MOV CANPASS_CAR1,0
+        MOV CHECKPASSEDOBSTACLE1,0
+        JMP STARTUP1
+    LABELUP2:
+    MOV CHECKPASSEDOBSTACLE1,1
+    JMP STARTUP1
+    EXITUP1:
+    JMP RIGHT1
 
-                                CALL          FAR PTR RESETCAR2
-                                MOV           STATE2,0
-                                MOV           AX,320
-                                MOV           DX,SPEED2
-                                MUL           DX
-                                SUB           CENTER2,AX
-                                CALL          FAR PTR ORIG2
-                                CALL          FAR PTR SPEEDUP2
-                                CALL          FAR PTR SPEEDDOWN2
-                                CALL          FAR PTR OBSTACLECAR2
-                                CALL          FAR PTR CAR2
-                                JMP           RIGHT2
+AA2:JMP AA
+
+RIGHT1:
+    CMP moveDirectionRightC1, 1       ;;CHECK IF THE RIGHT ARROW KEY IS PRESSED
+    JNZ LEFT1_1
+    MOV AL,1
+    MOV EXPECTEDSTATE1,AL
+    CALL FAR PTR CheckColisionCar1 
+    CMP CANMOVETRACK1,0
+    JZ EXITRIGHT1
+    CMP CANMOVEOBSTACLE1,1
+    JZ  LABELRIGHT1
+    CMP CANPASS_CAR1,1
+    JZ LABELRIGHT2
+    JMP EXITUP1
+LEFT1_1:JMP LEFT1
+    STARTRIGHT1: 
+    CALL FAR PTR RESETCAR1
+    MOV STATE1 ,1
+    MOV AX,SPEED1
+    ADD CENTER1,AX
+    CALL FAR PTR ORIG1
+    CMP ACTIVEUP_CAR1,1
+    JE CONT6       
+    CMP ACTIVEDOWN_CAR1,1
+    JE CONT6
+    CMP CANPASS_CAR1,1
+    JE CONT6        
+    CALL FAR PTR SPEEDUP1
+    CALL FAR PTR SPEEDDOWN1
+    CALL FAR PTR OBSTACLECAR1
+    CALL FAR PTR PASSOBSTACLE_CAR1
+CONT6:CALL FAR PTR CAR1
+    JMP EXITRIGHT1
+    LABELRIGHT1:
+        CMP CHECKPASSEDOBSTACLE1,0
+        JZ STARTRIGHT1
+        MOV CANPASS_CAR1,0
+        MOV CHECKPASSEDOBSTACLE1,0
+        JMP STARTRIGHT1
+    LABELRIGHT2:
+    MOV CHECKPASSEDOBSTACLE1,1
+    JMP STARTRIGHT1
+    EXITRIGHT1:
+    JMP LEFT1
+AA: JMP EXIT1
+    LEFT1: 
+    CMP moveDirectionLeftC1, 1
+    JNZ DOWN1_1
+
+    MOV AL,2
+    MOV EXPECTEDSTATE1,AL
+    CALL FAR PTR CheckColisionCar1 
+    CMP CANMOVETRACK1,0
+    JZ EXITLEFT1
+    CMP CANMOVEOBSTACLE1,1
+    JZ  LABELLEFT1
+    CMP CANPASS_CAR1,1
+    JZ LABELLEFT2
+    JMP EXITLEFT1
+    DOWN1_1:JMP DOWN1
+    STARTLEFT1:
+
+    CALL FAR PTR RESETCAR1
+    MOV STATE1,2
+    MOV AX,SPEED1
+    SUB CENTER1,AX
+    CALL FAR PTR ORIG1
+    CMP ACTIVEUP_CAR1,1
+    JE CONT7      
+    CMP ACTIVEDOWN_CAR1,1
+    JE CONT7
+    CMP CANPASS_CAR1,1
+    JE CONT7        
+    CALL FAR PTR SPEEDUP1
+    CALL FAR PTR SPEEDDOWN1
+    CALL FAR PTR OBSTACLECAR1
+    CALL FAR PTR PASSOBSTACLE_CAR1
+CONT7:CALL FAR PTR CAR1
+
+    JMP EXITLEFT1
+    LABELLEFT1:
+        CMP CHECKPASSEDOBSTACLE1,0
+        JZ STARTLEFT1
+        MOV CANPASS_CAR1,0
+        MOV CHECKPASSEDOBSTACLE1,0
+        JMP STARTLEFT1
+    LABELLEFT2:
+    MOV CHECKPASSEDOBSTACLE1,1
+    JMP STARTLEFT1
+    EXITLEFT1:
+    JMP DOWN1
+
+EXIT1:
+    JMP CAR_EXIT
+
+DOWN1:
+    CMP moveDirectionDownC1, 1
+    JNZ UP2_2
+
+    MOV AL,3
+    MOV EXPECTEDSTATE1,AL
+    CALL FAR PTR CheckColisionCar1 
+    CMP CANMOVETRACK1,0
+    JZ EXITDOWN1
+    CMP CANMOVEOBSTACLE1,1
+    JZ  LABELDOWN1
+    CMP CANPASS_CAR1,1
+    JZ LABELDOWN2
+    JMP EXITDOWN1
+    STARTDOWN1:
+
+    CALL FAR PTR RESETCAR1
+    MOV STATE1,3
+    JMP BRIDGE2
+    UP2_2:JMP UP2
+    BRIDGE2:
+    MOV AX,320
+    MOV DX,SPEED1
+    MUL DX
+    ADD CENTER1,AX
+    CALL FAR PTR ORIG1
+    CMP ACTIVEUP_CAR1,1
+    JE CONT8       
+    CMP ACTIVEDOWN_CAR1,1
+    JE CONT8
+    CMP CANPASS_CAR1,1
+    JE CONT8      
+    CALL FAR PTR SPEEDUP1
+    CALL FAR PTR SPEEDDOWN1
+    CALL FAR PTR OBSTACLECAR1
+    CALL FAR PTR PASSOBSTACLE_CAR1
+CONT8:CALL FAR PTR CAR1
+
+    JMP EXITDOWN1
+    LABELDOWN1:
+        CMP CHECKPASSEDOBSTACLE1,0
+        JZ STARTDOWN1
+        MOV CANPASS_CAR1,0
+        MOV CHECKPASSEDOBSTACLE1,0
+        JMP STARTDOWN1
+    LABELDOWN2:
+    MOV CHECKPASSEDOBSTACLE1,1
+    JMP STARTDOWN1
+    EXITDOWN1:
+    JMP UP2
 
 
 
-    RIGHT2:                     
-                                CMP           moveDirectionRightC2, 1
-                                JNZ           LEFT2
+UP2:
+    CMP moveDirectionUpC2, 1
+    JNZ RIGHT2_1
 
-                                MOV           AL,1
-                                MOV           EXPECTEDSTATE2,AL
-                                CALL          FAR PTR CheckColisionCar2
-                                CMP           CANMOVE2,0
-                                JZ            LEFT2
+    MOV AL,0
+    MOV EXPECTEDSTATE2,AL
+    CALL FAR PTR CheckColisionCar2
+    CMP CANMOVETRACK2,0
+    JZ EXITUP2
+    CMP CANMOVEOBSTACLE2,1
+    JZ  LABELUP21
+    CMP CANPASS_CAR2,1
+    JZ LABELUP22
+    JMP EXITUP2
+    RIGHT2_1:JMP RIGHT2
+    STARTUP2: 
 
-                                CALL          FAR PTR RESETCAR2
-                                MOV           STATE2 ,1
-                                MOV           AX,SPEED2
-                                ADD           CENTER2,AX
-                                CALL          FAR PTR ORIG2
-                                CALL          FAR PTR SPEEDUP2
-                                CALL          FAR PTR SPEEDDOWN2
-                                CALL          FAR PTR OBSTACLECAR2
-                                CALL          FAR PTR CAR2
-                                JMP           LEFT2
+    CALL FAR PTR RESETCAR2
+    MOV STATE2,0
+    MOV AX,320
+    MOV DX,SPEED2
+    MUL DX
+    SUB CENTER2,AX
+    CALL FAR PTR ORIG2
+    CMP ACTIVEUP_CAR2,1
+    JE CONT9      
+    CMP ACTIVEDOWN_CAR2,1
+    JE CONT9
+    CMP CANPASS_CAR2,1
+    JE CONT9   
+    CALL FAR PTR SPEEDUP2
+    CALL FAR PTR SPEEDDOWN2
+    CALL FAR PTR OBSTACLECAR2
+    CALL FAR PTR PASSOBSTACLE_CAR2
+CONT9:CALL FAR PTR CAR2
+    JMP EXITUP2
+    LABELUP21:
+        CMP CHECKPASSEDOBSTACLE2,0
+        JZ STARTUP2
+        MOV CANPASS_CAR2,0
+        MOV CHECKPASSEDOBSTACLE2,0
+        JMP STARTUP2
+    LABELUP22:
+    MOV CHECKPASSEDOBSTACLE2,1
+    JMP STARTUP2
+    EXITUP2:
+    JMP RIGHT2
 
-    AGAIN2:                     
-                                CMP           POWCAR1,1
-                                JNE           BBB
-                                CALL          FAR PTR ACTIVATE_POWER_UP_CAR1
-    BBB:                        CMP           POWCAR2,1
-                                JNE           ASD
-                                CALL          FAR PTR ACTIVATE_POWER_UP_CAR2
-    ASD:                        
-                                Delay
-                                JMP           AGAIN
 
-    LEFT2:                      
-                                CMP           moveDirectionLeftC2, 1
-                                JNZ           DOWN2
 
-                                MOV           AL,2
-                                MOV           EXPECTEDSTATE2,AL
-                                CALL          FAR PTR CheckColisionCar2
-                                CMP           CANMOVE2,0
-                                JZ            DOWN2
+RIGHT2:
+    CMP moveDirectionRightC2, 1
+    JNZ EXITRIGHT2_1
 
-                                CALL          FAR PTR RESETCAR2
-                                MOV           STATE2,2
-                                MOV           AX,SPEED2
-                                SUB           CENTER2,AX
-                                CALL          FAR PTR ORIG2
-                                CALL          FAR PTR SPEEDUP2
-                                CALL          FAR PTR SPEEDDOWN2
-                                CALL          FAR PTR OBSTACLECAR2
-                                CALL          FAR PTR CAR2
-                                JMP           DOWN2
+    MOV AL,1
+    MOV EXPECTEDSTATE2,AL
+    CALL FAR PTR CheckColisionCar2 
+    CMP CANMOVETRACK2,0
+    JZ EXITRIGHT2
+    CMP CANMOVEOBSTACLE2,1
+    JZ  LABELRIGHT21
+    CMP CANPASS_CAR2,1
+    JZ LABELRIGHT22
+    JMP EXITRIGHT2
+    EXITRIGHT2_1: JMP EXITRIGHT2
+    STARTRIGHT2: 
 
-    DOWN2:                      
-                                CMP           moveDirectionDownC2, 1
-                                JNZ           AGAIN2
+    CALL FAR PTR RESETCAR2
+    MOV STATE2 ,1
+    MOV AX,SPEED2
+    ADD CENTER2,AX
+    CALL FAR PTR ORIG2
+    CMP ACTIVEUP_CAR2,1
+    JE CONT10      
+    CMP ACTIVEDOWN_CAR2,1
+    JE CONT10
+    CMP CANPASS_CAR2,1
+    JE CONT10  
+    CALL FAR PTR SPEEDUP2
+    CALL FAR PTR SPEEDDOWN2
+    CALL FAR PTR OBSTACLECAR2
+    CALL FAR PTR PASSOBSTACLE_CAR2
+CONT10:CALL FAR PTR CAR2
+    JMP EXITRIGHT2
+    LABELRIGHT21:
+        CMP CHECKPASSEDOBSTACLE2,0
+        JZ STARTRIGHT2
+        MOV CANPASS_CAR2,0
+        MOV CHECKPASSEDOBSTACLE2,0
+        JMP STARTRIGHT2
+    LABELRIGHT22:
+    MOV CHECKPASSEDOBSTACLE2,1
+    JMP STARTRIGHT2
+    EXITRIGHT2:
+    JMP LEFT2
 
-                                MOV           AL,3
-                                MOV           EXPECTEDSTATE2,AL
-                                CALL          FAR PTR CheckColisionCar2
-                                CMP           CANMOVE2,0
-                                JZ            DOWN2_5312
+AGAIN2:
+    CMP POWCAR1,1
+    JNE BBB
+    CALL FAR PTR ACTIVATE_POWER_UP_CAR1
+BBB:CMP POWCAR2,1
+    JNE ASD
+    CALL FAR PTR ACTIVATE_POWER_UP_CAR2
+ASD:
+    Delay
+    JMP AGAIN
 
-                                CALL          FAR PTR RESETCAR2
-                                MOV           STATE2,3
-                                MOV           AX,320
-                                MOV           DX,SPEED2
-                                MUL           DX
-                                ADD           CENTER2,AX
-                                CALL          FAR PTR ORIG2
-                                CALL          FAR PTR SPEEDUP2
-                                CALL          FAR PTR SPEEDDOWN2
-                                CALL          FAR PTR OBSTACLECAR2
-                                CALL          FAR PTR CAR2
+LEFT2:
+    CMP moveDirectionLeftC2, 1
+    JNZ DOWN2_1
 
-    DOWN2_5312:                 
+    MOV AL,2
+    MOV EXPECTEDSTATE2,AL
+    CALL FAR PTR CheckColisionCar2 
+    CMP CANMOVETRACK2,0
+    JZ EXITLEFT2
+    CMP CANMOVEOBSTACLE2,1
+    JZ  LABELLEFT21
+    CMP CANPASS_CAR2,1
+    JZ LABELLEFT22
+    JMP EXITLEFT2
+    DOWN2_1:JMP DOWN2
+    STARTLEFT2:
 
-                                JMP           AGAIN2
+    CALL FAR PTR RESETCAR2
+    MOV STATE2,2
+    MOV AX,SPEED2
+    SUB CENTER2,AX
+    CALL FAR PTR ORIG2
+    CMP ACTIVEUP_CAR2,1
+    JE CONT11      
+    CMP ACTIVEDOWN_CAR2,1
+    JE CONT11
+    CMP CANPASS_CAR2,1
+    JE CONT11
+    CALL FAR PTR SPEEDUP2
+    CALL FAR PTR SPEEDDOWN2
+    CALL FAR PTR OBSTACLECAR2
+    CALL FAR PTR PASSOBSTACLE_CAR2
+CONT11:CALL FAR PTR CAR2
+     JMP EXITLEFT2
+    LABELLEFT21:
+        CMP CHECKPASSEDOBSTACLE2,0
+        JZ STARTLEFT2
+        MOV CANPASS_CAR2,0
+        MOV CHECKPASSEDOBSTACLE2,0
+        JMP STARTLEFT2
+    LABELLEFT22:
+    MOV CHECKPASSEDOBSTACLE2,1
+    JMP STARTLEFT2
+    EXITLEFT2:
+    JMP DOWN2
 
-    CAR_EXIT:                   
+BRIDGE1:JMP AGAIN2
+
+DOWN2:
+    CMP moveDirectionDownC2, 1
+    JNZ BRIDGE1
+
+    MOV AL,3
+    MOV EXPECTEDSTATE2,AL
+    CALL FAR PTR CheckColisionCar2 
+    CMP CANMOVETRACK2,0
+    JZ EXITDOWN2
+    CMP CANMOVEOBSTACLE2,1
+    JZ  LABELDOWN21
+    CMP CANPASS_CAR2,1
+    JZ LABELDOWN22
+    JMP EXITDOWN2
+    STARTDOWN2:
+
+    CALL FAR PTR RESETCAR2
+    MOV STATE2,3
+    MOV AX,320
+    MOV DX,SPEED2
+    MUL DX
+    ADD CENTER2,AX
+    CALL FAR PTR ORIG2
+    CMP ACTIVEUP_CAR2,1
+    JE CONT12     
+    CMP ACTIVEDOWN_CAR2,1
+    JE CONT12
+    CMP CANPASS_CAR2,1
+    JE CONT12
+    CALL FAR PTR SPEEDUP2
+    CALL FAR PTR SPEEDDOWN2
+    CALL FAR PTR OBSTACLECAR2
+    CALL FAR PTR PASSOBSTACLE_CAR2
+CONT12:CALL FAR PTR CAR2
+    JMP EXITDOWN2
+    LABELDOWN21:
+        CMP CHECKPASSEDOBSTACLE2,0
+        JZ STARTDOWN2
+        MOV CANPASS_CAR2,0
+        MOV CHECKPASSEDOBSTACLE2,0
+        JMP STARTDOWN2
+    LABELDOWN22:
+    MOV CHECKPASSEDOBSTACLE2,1
+    JMP STARTDOWN2
+    EXITDOWN2:
+DOWN2_5312:
+
+    JMP AGAIN2
+
+CAR_EXIT:
+
 
     ;Return Interrupt 9
                                 CLI
@@ -3106,6 +3427,8 @@ FillScreen PROC FAR
     PUSH DX
     PUSH BX
 
+
+
     MOV DI, 0
     MOV CX, widthToFill
     MOV DX, heightToFill
@@ -3133,7 +3456,9 @@ REPEAT_S:
 
 FillScreen ENDP
 
+
 DrawLogo PROC FAR
+
 
     PUSH AX
     PUSH ES
@@ -3173,6 +3498,7 @@ REPEAT_H:
     RET
 
 DrawLogo ENDP
+
 
 DrawCarImage PROC FAR
 
@@ -3227,6 +3553,8 @@ REPEAT_CAR_IMAGE:
     RET
 
 DrawCarImage ENDP
+
+
 
 ;description
 ValidateInput PROC FAR
@@ -3292,6 +3620,7 @@ RET
     
 ValidateInput ENDP 
 
+
 ;description
 DisplayFirstPage PROC FAR
 
@@ -3309,6 +3638,7 @@ DisplayFirstPage PROC FAR
     MOV AL, 13H
     INT 10H
 
+
     MOV AX, 0A000h      ;the start of the screen in memory
     MOV ES, AX          ;set the ES to point at the start of the screen
 
@@ -3316,13 +3646,16 @@ DisplayFirstPage PROC FAR
     MOV DI, 320 * 10 + 80
     CALL FAR PTR DrawLogo
 
+
 ;;Draw Car
     MOV DI, 320 * 140 + 120
     CALL FAR PTR DrawCarImage
 
+
 ;;Fill the background with a certain color
     MOV AL, BACKGROUND_COLOR
     CALL FAR PTR FillBackground
+
 
 GET_NEW_INPUT:
 ;Fill Screen with a certain color
@@ -3331,6 +3664,7 @@ GET_NEW_INPUT:
     MOV widthToFill, 320
     MOV heightToFill, 45
     CALL FAR PTR FillScreen
+
 
     DisplayPromptMessages
 
@@ -3341,6 +3675,7 @@ GET_NEW_INPUT:
 
     CALL FAR PTR ValidateInput
 
+
     CMP errorOccured, 0
     JE CONT_EXEC
     JMP GET_NEW_INPUT
@@ -3348,7 +3683,9 @@ GET_NEW_INPUT:
 CONT_EXEC:
 RET
 
+
 DisplayFirstPage ENDP 
+
 
 ;description
 DisplayMainPage PROC FAR
@@ -3368,6 +3705,208 @@ DisplayMainPage PROC FAR
 
 RET    
 DisplayMainPage ENDP 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                                                                              ;
+;                                  PASS OBSTACLE CAR1                                          ;
+;                                                                                              ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+PASSOBSTACLE_CAR1 PROC FAR
+CMP STATE1 , 0      
+    JNZ RIGHTPASSOBS
+
+    MOV SI,TOP1
+    MOV CX,WIDTH1
+LOOP33:
+    MOV AL,ES:[SI]
+    CMP AL,PASSOBSTACLECOLOR
+    JE PASSOBS11
+    INC SI
+    LOOP LOOP33
+
+    JMP EXIT8
+
+PASSOBS11:
+    MOV SPEEDUP_CAR1,0
+    MOV SPEEDDOWN_CAR1,0
+    MOV OBSTACLE_CAR1,0
+    MOV PASS_CAR1 , 1
+
+    JMP EXIT8
+
+RIGHTPASSOBS:
+    CMP STATE1 , 1
+    JNZ LEFTPASSOBS
+
+    MOV AX,TOP1
+    MOV SI,AX
+    MOV CX,WIDTH1
+
+LOOP34:
+    MOV AL,ES:[SI]
+    CMP AL,PASSOBSTACLECOLOR
+    JE PASSOBS12
+    ADD SI,320
+    LOOP LOOP34
+    JMP EXIT8
+PASSOBS12:
+
+    MOV SPEEDUP_CAR1,0
+    MOV SPEEDDOWN_CAR1,0
+    MOV OBSTACLE_CAR1,0
+    MOV PASS_CAR1 , 1
+
+    JMP EXIT8
+
+LEFTPASSOBS:
+    CMP STATE1,2
+    JNZ DOWNPASSOBS
+
+    MOV AX,TOP1
+    MOV SI,AX
+    MOV CX,WIDTH1
+
+LOOP36:
+    MOV AL,ES:[SI]
+    CMP AL,PASSOBSTACLECOLOR
+    JE PASSOBS13
+    SUB SI,320
+    LOOP LOOP36
+    JMP EXIT8
+
+PASSOBS13:
+
+    MOV SPEEDUP_CAR1,0
+    MOV SPEEDDOWN_CAR1,0
+    MOV OBSTACLE_CAR1,0
+    MOV PASS_CAR1 , 1
+
+    JMP EXIT8
+
+DOWNPASSOBS:
+    MOV SI,TOP1
+    MOV CX,WIDTH1
+LOOP37:
+    MOV AL,ES:[SI]
+    CMP AL,PASSOBSTACLECOLOR
+    JE PASSOBS14
+    DEC SI
+    LOOP LOOP37
+    JMP EXIT8
+
+PASSOBS14:
+    MOV SPEEDUP_CAR1,0
+    MOV SPEEDDOWN_CAR1,0
+    MOV OBSTACLE_CAR1,0
+    MOV PASS_CAR1 , 1
+
+EXIT8:
+    RET
+
+PASSOBSTACLE_CAR1 ENDP
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                                                                              ;
+;                                  PASS OBSTACLE CAR1                                          ;
+;                                                                                              ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+PASSOBSTACLE_CAR2 PROC FAR
+    CMP STATE2 , 0      
+    JNZ RIGHTPASSOBS2
+
+    MOV SI,TOP2
+    MOV CX,WIDTH2
+LOOP38:
+    MOV AL,ES:[SI]
+    CMP AL,PASSOBSTACLECOLOR
+    JE PASSOBS21
+    INC SI
+    LOOP LOOP38
+
+    JMP EXIT9
+
+PASSOBS21:
+    MOV SPEEDUP_CAR2,0
+    MOV SPEEDDOWN_CAR2,0
+    MOV OBSTACLE_CAR2,0
+    MOV PASS_CAR2 , 1
+
+    JMP EXIT9
+
+RIGHTPASSOBS2:
+    CMP STATE2 , 1
+    JNZ LEFTPASSOBS2
+
+    MOV AX,TOP2
+    MOV SI,AX
+    MOV CX,WIDTH2
+
+LOOP39:
+    MOV AL,ES:[SI]
+    CMP AL,PASSOBSTACLECOLOR
+    JE PASSOBS22
+    ADD SI,320
+    LOOP LOOP39
+    JMP EXIT9
+
+PASSOBS22:
+    MOV SPEEDUP_CAR2,0
+    MOV SPEEDDOWN_CAR2,0
+    MOV OBSTACLE_CAR2,0
+    MOV PASS_CAR2 , 1
+
+    JMP EXIT9
+
+LEFTPASSOBS2:
+    CMP STATE2,2
+    JNZ DOWNPASSOBS2
+
+    MOV AX,TOP2
+    MOV SI,AX
+    MOV CX,WIDTH2
+
+LOOP40:
+    MOV AL,ES:[SI]
+    CMP AL,PASSOBSTACLECOLOR
+    JE PASSOBS23
+    SUB SI,320
+    LOOP LOOP40
+    JMP EXIT9
+
+PASSOBS23:
+
+    MOV SPEEDUP_CAR2,0
+    MOV SPEEDDOWN_CAR2,0
+    MOV OBSTACLE_CAR2,0
+    MOV PASS_CAR2 , 1
+
+    JMP EXIT9
+
+DOWNPASSOBS2:
+    MOV SI,TOP2
+    MOV CX,WIDTH2
+LOOP41:
+    MOV AL,ES:[SI]
+    CMP AL,PASSOBSTACLECOLOR
+    JE PASSOBS24
+    DEC SI
+    LOOP LOOP41
+    JMP EXIT9
+
+PASSOBS24:
+
+    MOV SPEEDUP_CAR2,0
+    MOV SPEEDDOWN_CAR2,0
+    MOV OBSTACLE_CAR2,0
+    MOV PASS_CAR2 , 1
+
+EXIT9:
+    RET
+
+PASSOBSTACLE_CAR2 ENDP
 
 end main
 

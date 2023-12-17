@@ -1,3 +1,0 @@
-DEL *.OBJ
-DEL *.MAP
-DEL *.EXE
