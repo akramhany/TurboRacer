@@ -145,8 +145,8 @@ EXTRN CheckColisionCar2:FAR
     FLAGE                DB      0
     HalfStep             equ     8
     divider              equ     7
-    ArrX                 db      100 dup(?)
-    ArrY                 db      100 dup(?)
+    ArrX                 dw      100 dup(?)
+    ArrY                 dw      100 dup(?)
 
     ;;;Obstacles Varaibles
     GenerateObstaclesKey equ     32H               ;NUMBER 2 IN KEYBOARD
@@ -317,6 +317,8 @@ EXTRN CheckColisionCar2:FAR
     db ?
     db ?
 
+    org 900
+
 
 .CODE
 
@@ -465,10 +467,17 @@ MAIN PROC FAR
                                 MOV           DX ,@data
                                 MOV           DS ,DX
 
-                                CALL FAR PTR DisplayFirstPage
-                                CALL FAR PTR DisplayMainPage
-                                MOV AH, 0
-                                INT 16H
+;                                CALL FAR PTR DisplayFirstPage
+;
+;    CHECK_MODE:                 CALL FAR PTR DisplayMainPage
+;                                MOV AH, 0
+;                                INT 16H
+;                                CMP AH, 3DH                                          ;CHECK IF THE PLAYER WANT TO EXIT
+;                                JNE CHECK_FOR_PLAY
+;                                JMP CAR_EXIT
+;    CHECK_FOR_PLAY:             CMP AH, 3BH
+;                                JNE CHECK_MODE
+;                                JMP CheckKey
 
     CheckKey:                   
                                 mov           Status,0
@@ -499,7 +508,13 @@ MAIN PROC FAR
     EndProgram:                 
 
     GenerateOb:                 
-                                CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
+;                                CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
+                                MOV AH, 0CH 
+                                MOV AL, 05
+                                MOV BH, 0
+                                MOV CX, ArrX
+                                MOV DX, 0
+                                INT 10H
 
     ;;Handle interrupt 9 procedure
                                 CLI
@@ -809,8 +824,8 @@ GenerateTrack proc far
                                 mov           Intersect,0
                                 MOV           CurrentBlock,0
                                 mov           LastDirection,1
-                                CALL          FAR PTR ENDTRACK
                                 CALL          FAR PTR KeepTrackWithAxis
+                                CALL          FAR PTR ENDTRACK
                                 MOV           IsStarte,1
 
                                 mov           Status,0
@@ -3004,9 +3019,9 @@ KeepTrackWithAxis proc far
                                 CMP           AL ,0
                                 JNZ           push_back
                                 MOV           AX,XAxis
-                                MOV           [bx],AX
+                                MOV           word ptr [bx],AX
                                 MOV           AX,YAxis
-                                MOV           [DI],AX
+                                MOV           word ptr [DI],AX
                                 ret
 KeepTrackWithAxis endp
 
