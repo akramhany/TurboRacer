@@ -3253,7 +3253,7 @@ ValidateInput ENDP
 ;description
 DisplayFirstPage PROC FAR
 
-    OpenFile OPEN_ATTRIBUTE, logoFileNa`me       ;open the logo image file
+    OpenFile OPEN_ATTRIBUTE, logoFileName       ;open the logo image file
     ReadFile AX, BUFFER_SIZE_LOGO, logoBuffer   ;read all the bytes into the buffer
     CloseFile                                   ;close the file
 
