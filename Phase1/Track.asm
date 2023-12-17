@@ -56,12 +56,12 @@ EXTRN CheckColisionCar2:FAR
     GenTrack             db      31h               ;the key to generate another track
     EndKey               db      1bh               ;the key to end
     StatingPointX        dw      12                ;starting point in x-axis
-    StatingPointY        dw      170               ;starting point in y-axis
+    StatingPointY        dw      136               ;starting point in y-axis
     XAxis                dw      0                 ;x-axis for the middel of road
     YAxis                dw      0                 ;y-axis for the middel point of road
     RandomValue          db      0                 ;to generate the track -> if the number >=2 go right  number >=5 go left number >=8 go up else go down
     StepValue            dw      15                ;step value after getting the direction( how many steps will draw every loop)
-    WindowHight          dw      190               ;the max hight of window  ****-->>>>>>>>>>> NOTE THAT THERE IS A STAUTS BAR SHOULD BE SUBTRACTED FROM TEH MAXHIGHT!!
+    WindowHight          dw      150               ;the max hight of window  ****-->>>>>>>>>>> NOTE THAT THERE IS A STAUTS BAR SHOULD BE SUBTRACTED FROM TEH MAXHIGHT!!
     WindowWidth          dw      310               ;the max hight ofwindow
     LastDirection        db      1                 ;indicat the last direction if 0->up 1->right  2->left  3->down
     Status               db      0                 ; 0->inside window   1->out of the border of window
@@ -69,6 +69,7 @@ EXTRN CheckColisionCar2:FAR
     CurrentBlock         db      0                 ; the counter when it equel to RoadNum stop generat another number
     seed                 dw      12                ;used in generating random nubmer
     notvalid             DB      0                 ; flage to indicat if there is any intersection will happen before going to that dirction or will go out of window
+    IsStarte             db      0
 
     FUp                  db      0
     FLeft                db      0
@@ -94,6 +95,7 @@ EXTRN CheckColisionCar2:FAR
     OB_StartY            DW      0
     OB_EndX              DW      0
     OB_EndY              DW      0
+
 
     ;---------------------------------------CAR DATA---------------------------------------
                          dw      '0'
@@ -345,8 +347,6 @@ MAIN PROC FAR
 
     GenerateOb:                 
                                 CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
-
-
 
     ;;Handle interrupt 9 procedure
                                 CLI
@@ -648,6 +648,7 @@ GenerateTrack proc far
                                 MOV           AH ,08H                                ;write in page0
                                 MOV           BH ,00
                                 INT           10H
+                                MOV           IsStarte,0
                                 MOV           FUp,0
                                 MOV           FRgiht,0
                                 MOV           FLeft,0
@@ -655,7 +656,9 @@ GenerateTrack proc far
                                 mov           Intersect,0
                                 MOV           CurrentBlock,0
                                 mov           LastDirection,1
+                                CALL          FAR PTR ENDTRACK
                                 CALL          FAR PTR KeepTrackWithAxis
+                                MOV           IsStarte,1
 
                                 mov           Status,0
                                 call          far ptr RightDirection                 ;at the begain of the track mov up
@@ -974,6 +977,7 @@ RightDirection proc far
                                 jmp           GoRight                                ;go up some pixels
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     GoRight:                    
+                                CALL          FAR PTR KeepTrackWithAxis
                                 MOV           CX,XAxis                               ;start from the middle
                                 MOV           BX ,XAxis                              ;SAVE THE END POINT IN SI   X+STEPVALUE
                                 ADD           BX,StepValue
@@ -1048,6 +1052,7 @@ LeftDirection proc far
                                 jmp           GoLeft                                 ;go up some pixels
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     GoLeft:                     
+                                CALL          FAR PTR KeepTrackWithAxis
                                 MOV           CX,XAxis                               ;start from the middle
                                 MOV           BX ,XAxis                              ;SAVE THE END POINT IN BX   X+STEPVALUE
                                 SUB           BX,StepValue
@@ -1103,6 +1108,7 @@ UpDirection proc far
                                 jmp           far ptr GoLeftUp
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     GoUp:                       
+                                CALL          FAR PTR KeepTrackWithAxis
                                 MOV           BX,YAxis                               ;END point of row
                                 SUB           BX,StepValue
                                 MOV           DX,YAxis                               ;put the valus of y-axis ->row
@@ -1129,6 +1135,7 @@ UpDirection proc far
                                 CMP           DX,BX                                  ;see if the value movment in row equal to stepvlaue
                                 JNZ           FirstLoopUP
                                 MOV           YAxis,BX                               ;set y-axis with the new value
+                                CALL          FAR PTR KeepTrackWithAxis
                                 JMP           ExitUP                                 ;go to generte randam number agian
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     GoRightUp:                  
@@ -1169,6 +1176,7 @@ DownDirection proc far
                                 jmp           far ptr GoLeftDown
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     GoDown:                     
+                                CALL          FAR PTR KeepTrackWithAxis
                                 MOV           BX,YAxis                               ;END point of row
                                 add           BX,StepValue
                                 MOV           DX,YAxis                               ;put the valus of y-axis ->row
@@ -1197,6 +1205,7 @@ DownDirection proc far
                                 INC           DX                                     ;GO UP BY dec the value of row
                                 CMP           DX,BX                                  ;see if the value movment in row equal to stepvlaue
                                 JNZ           FirstLoopDown
+
                                 MOV           YAxis,BX                               ;set y-axis with the new value
                                 CALL          FAR PTR KeepTrackWithAxis
                                 JMP           ExiTDown                               ;go to generte randam number agian
@@ -1205,6 +1214,7 @@ DownDirection proc far
                                 CALL          FAR PTR RDAndUL
     FixGoRightDwon:             
                                 CALL          FAR PTR FixLDAndRD
+
                                 jmp           GoDown
     fExitDown:                  
                                 ret
@@ -1255,10 +1265,17 @@ ColorRoadLanes ENDP
     ;***********************************************************************
 ColorRoadEnd PROC FAR
                                 MOV           AH ,0CH
-                                MOV           AL ,4h                                 ;red
+                                CMP           IsStarte,0
+                                JNZ           End_track
+                                MOV           AL ,6h
+                                JMP           CON10
+    End_track:                  
+                                MOV           AL ,1h                                 ;blue
+    con10:                      
                                 INT           10H
                                 RET
 ColorRoadEnd ENDP
+
     ;****************************************************************************
     ;TO DRAW TURN IN BOTH OF (LEFT AFTER DOWN  ) OR(UP AFTER RIGHT )
     ;Regester:DX,CX,BX
