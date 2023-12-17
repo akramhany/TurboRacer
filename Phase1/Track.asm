@@ -145,9 +145,14 @@ EXTRN CheckColisionCar2:FAR
     FLAGE                DB      0
     HalfStep             equ     8
     divider              equ     7
-    ArrX                 dw      100 dup(?)
-    ArrY                 dw      100 dup(?)
+    db ?
+    db ?
+    db ?
+    ArrX                 dW      100 dup(0)
+    ArrY                 dW      100 dup(0)
 
+    db ? 
+    db ?
     ;;;Obstacles Varaibles
     GenerateObstaclesKey equ     32H               ;NUMBER 2 IN KEYBOARD
     ObstaclePosX         DW      0
@@ -467,17 +472,17 @@ MAIN PROC FAR
                                 MOV           DX ,@data
                                 MOV           DS ,DX
 
-;                                CALL FAR PTR DisplayFirstPage
-;
-;    CHECK_MODE:                 CALL FAR PTR DisplayMainPage
-;                                MOV AH, 0
-;                                INT 16H
-;                                CMP AH, 3DH                                          ;CHECK IF THE PLAYER WANT TO EXIT
-;                                JNE CHECK_FOR_PLAY
-;                                JMP CAR_EXIT
-;    CHECK_FOR_PLAY:             CMP AH, 3BH
-;                                JNE CHECK_MODE
-;                                JMP CheckKey
+                                CALL FAR PTR DisplayFirstPage
+
+    CHECK_MODE:                 CALL FAR PTR DisplayMainPage
+                                MOV AH, 0
+                                INT 16H
+                                CMP AH, 3DH                                          ;CHECK IF THE PLAYER WANT TO EXIT
+                                JNE CHECK_FOR_PLAY
+                                JMP EXIT_PROGRAM
+    CHECK_FOR_PLAY:             CMP AH, 3BH
+                                JNE CHECK_MODE
+                                JMP CheckKey
 
     CheckKey:                   
                                 mov           Status,0
@@ -508,13 +513,7 @@ MAIN PROC FAR
     EndProgram:                 
 
     GenerateOb:                 
-;                                CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
-                                MOV AH, 0CH 
-                                MOV AL, 05
-                                MOV BH, 0
-                                MOV CX, ArrX
-                                MOV DX, 0
-                                INT 10H
+                                CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
 
     ;;Handle interrupt 9 procedure
                                 CLI
@@ -768,16 +767,17 @@ MAIN PROC FAR
     ; Re-enable interrupts
                                 pop           ds
                                 STI
+    EXIT_PROGRAM:
 
-                                MOV           AH, 0
-                                INT           16H
-                                MOV           AH, 04CH
-                                INT           21H
-
+                               MOV           AH, 0
+                               INT           16H
+                               MOV           AH, 04CH
+                               INT           21H
 MAIN ENDP
-    ;***********************************************************************
-    ;generate random number
-    ;***********************************************************************
+
+   ;***********************************************************************
+   ;generate random number
+   ;***********************************************************************
 GeneratRandomNumber proc near
                                 MOV           AH, 2ch                                ;get sysytem time to get the dx mellisecond
                                 INT           21h
@@ -824,7 +824,7 @@ GenerateTrack proc far
                                 mov           Intersect,0
                                 MOV           CurrentBlock,0
                                 mov           LastDirection,1
-                                CALL          FAR PTR KeepTrackWithAxis
+;                                CALL          FAR PTR KeepTrackWithAxis
                                 CALL          FAR PTR ENDTRACK
                                 MOV           IsStarte,1
 
@@ -1145,7 +1145,7 @@ RightDirection proc far
                                 jmp           GoRight                                ;go up some pixels
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     GoRight:                    
-                                CALL          FAR PTR KeepTrackWithAxis
+;                                CALL          FAR PTR KeepTrackWithAxis
                                 MOV           CX,XAxis                               ;start from the middle
                                 MOV           BX ,XAxis                              ;SAVE THE END POINT IN SI   X+STEPVALUE
                                 ADD           BX,StepValue
@@ -1176,7 +1176,7 @@ RightDirection proc far
                                 CMP           CX,BX                                  ;see if the value movment in row equal to stepvlaue
                                 JNZ           FirstLoopRight
                                 MOV           XAxis,BX                               ;set y-axis with the new value
-                                CALL          FAR PTR KeepTrackWithAxis
+;                                CALL          FAR PTR KeepTrackWithAxis
                                 JMP           ExitRight                              ;go to generte randam number agian
     ExitRight:                  
                                 MOV           LastDirection ,1
@@ -1220,7 +1220,7 @@ LeftDirection proc far
                                 jmp           GoLeft                                 ;go up some pixels
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     GoLeft:                     
-                                CALL          FAR PTR KeepTrackWithAxis
+;                                CALL          FAR PTR KeepTrackWithAxis
                                 MOV           CX,XAxis                               ;start from the middle
                                 MOV           BX ,XAxis                              ;SAVE THE END POINT IN BX   X+STEPVALUE
                                 SUB           BX,StepValue
@@ -1249,7 +1249,7 @@ LeftDirection proc far
                                 CMP           CX,BX                                  ;see if the value movment in row equal to stepvlaue
                                 JNZ           FirstLoopLeft
                                 MOV           XAxis,BX                               ;set y-axis with the new value
-                                CALL          FAR PTR KeepTrackWithAxis
+;                                CALL          FAR PTR KeepTrackWithAxis
                                 JMP           ExitLeft                               ;go to generte randam number agian
     ExitLeft:                   
                                 MOV           LastDirection ,2
@@ -1276,7 +1276,7 @@ UpDirection proc far
                                 jmp           far ptr GoLeftUp
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     GoUp:                       
-                                CALL          FAR PTR KeepTrackWithAxis
+;                                CALL          FAR PTR KeepTrackWithAxis
                                 MOV           BX,YAxis                               ;END point of row
                                 SUB           BX,StepValue
                                 MOV           DX,YAxis                               ;put the valus of y-axis ->row
@@ -1303,7 +1303,7 @@ UpDirection proc far
                                 CMP           DX,BX                                  ;see if the value movment in row equal to stepvlaue
                                 JNZ           FirstLoopUP
                                 MOV           YAxis,BX                               ;set y-axis with the new value
-                                CALL          FAR PTR KeepTrackWithAxis
+;                                CALL          FAR PTR KeepTrackWithAxis
                                 JMP           ExitUP                                 ;go to generte randam number agian
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     GoRightUp:                  
@@ -1344,7 +1344,7 @@ DownDirection proc far
                                 jmp           far ptr GoLeftDown
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     GoDown:                     
-                                CALL          FAR PTR KeepTrackWithAxis
+;                                CALL          FAR PTR KeepTrackWithAxis
                                 MOV           BX,YAxis                               ;END point of row
                                 add           BX,StepValue
                                 MOV           DX,YAxis                               ;put the valus of y-axis ->row
@@ -1375,7 +1375,7 @@ DownDirection proc far
                                 JNZ           FirstLoopDown
 
                                 MOV           YAxis,BX                               ;set y-axis with the new value
-                                CALL          FAR PTR KeepTrackWithAxis
+;                                CALL          FAR PTR KeepTrackWithAxis
                                 JMP           ExiTDown                               ;go to generte randam number agian
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     GoRightDown:                
@@ -1858,23 +1858,34 @@ GenerateObstacles PROC FAR
                                 PUSH          BX
                                 PUSH          DX
                                 PUSH          CX
+                                PUSH          BP
 
                                 MOV           OB_Direction, OB_RIGHT                 ;INITIAL DIRECTION IS RIGHT
 
                                 MOV           AX, StatingPointX                      ;Set the OB_StartX with the starting pointX
+                                ADD           AX, 12                                 ;TO GIVE A SPACE FOR THE CARS TO RESPAWN
                                 MOV           OB_StartX, AX
 
                                 MOV           AX, StatingPointY                      ;Set the OB_StartY with the starting pointY
                                 MOV           OB_StartY, AX
 
+                                LEA           BX, ArrX
+                                LEA           BP, ArrY
+
 
     ;;loop to get a component in the track then draw obstacles in it then get then next component and so on, until the end
     GENERATE_NEW_RANDOM_OB:     
+                                MOV           AX, OB_StartX
+                                MOV           DS:[BX], AX
+                                MOV           AX, OB_StartY
+                                MOV           DS:[BP], AX
+                                ADD           BX, 2
+                                ADD           BP, 2
                                 CALL          FAR PTR GetEndOfCurrentTrackComp       ;GET END OF CURRENT TRACK COMP AND STORE IN OB_EndX, OB_EndY
 
                                 CALL          GeneratRandomNumber                    ;generates a random variable between 0 - 9
 
-                                CMP           RandomValue, 7                         ;CHECK IF THE RANDOM VALUE IS GREATER THAN 6 THEN DON'T DRAW AN OBSTACLE
+                                CMP           RandomValue, 6                         ;CHECK IF THE RANDOM VALUE IS GREATER THAN 6 THEN DON'T DRAW AN OBSTACLE
                                 JG            OB_CONT
 
                                 CALL          FAR PTR DrawRandomObstacle             ;Draw A random obstacle in this segment of the track
@@ -1891,6 +1902,7 @@ GenerateObstacles PROC FAR
                                 CMP           OB_Direction, OB_NO_DIRECTION          ;Check if there are no available directions (except the last direction I came from)
                                 JNE           GENERATE_NEW_RANDOM_OB
 
+                                POP           BP
                                 POP           CX
                                 POP           DX
                                 POP           BX
@@ -1930,9 +1942,9 @@ DrawRandomObstacle PROC FAR
                                 MOV           BL, RandomValue                        ;store the random variable
                                 MOV           BH, 0
                                 MOV           CX, OB_StartY
-                                SUB           CX, 9                                  ;Store the starting Y coordinates in CX
+                                SUB           CX, 8                                  ;Store the starting Y coordinates in CX
                                 MOV           DX, OB_StartY
-                                ADD           DX, 9                                  ;Store the ending Y coordinates in DX
+                                ADD           DX, 8                                  ;Store the ending Y coordinates in DX
                                 CALL          FAR PTR GenerateRandomNumBetTwoNums    ;generates a random number between the starting and the ending Y coordinates
 
                                 MOV           ObstaclePosY, AX                       ;Store the generated Y coordinates into the obstacle pos Y
@@ -2168,8 +2180,8 @@ DrawObstacle PROC FAR
 
                                 MOV           BL, 5
                                 MOV           DI, 5
-                                Sub           ObstaclePosX, 1
-                                Sub           ObstaclePosY, 1
+                                Sub           ObstaclePosX, 2
+                                Sub           ObstaclePosY, 2
 
     OB_OUTER_LOOP:              
                                 MOV           BL, 5
@@ -3008,22 +3020,37 @@ OBSTACLECAR2 ENDP
     ;***********************************************************************************************
     ;KEEP POINT OF EACH BLOK IN ARRAY X  AND ARRAY Y
     ;***********************************************************************************************
-KeepTrackWithAxis proc far
-                                MOV           AL ,CurrentBlock
-                                MOV           BX,OFFSET ArrX
-                                MOV           di,OFFSET ArrY
-    push_back:                  
-                                inc           bx
-                                inc           di
-                                DEC           AL
-                                CMP           AL ,0
-                                JNZ           push_back
-                                MOV           AX,XAxis
-                                MOV           word ptr [bx],AX
-                                MOV           AX,YAxis
-                                MOV           word ptr [DI],AX
-                                ret
-KeepTrackWithAxis endp
+;KeepTrackWithAxis proc far
+;                            PUSH BX
+;                            PUSH DI
+;                                MOV           AL ,CurrentBlock
+;                                MOV             AH, 0
+;                                MOV           BX,OFFSET ArrX
+;                                MOV           di,OFFSET ArrY
+;                                ADD BX, AX
+;                                ADD BX, AX
+;                                ADD DI, AX
+;                                ADD DI, AX
+;    ;push_back:                  
+;    ;                            inc           bx
+;    ;                            inc           di
+;    ;                            DEC           AL
+;    ;                            CMP           AL ,0
+;    ;                            JNZ           push_back
+;                                MOV           AX,XAxis
+;                                MOV           WORD PTR [bx],AX
+;                                MOV           AX,YAxis
+;                                MOV           WORD PTR [DI],AX
+;;                                MOV AH, 0CH 
+;;                                MOV AL, 05
+;;                                MOV BH, 0
+;;                                MOV CX, XAxis
+;;                                MOV DX, YAxis
+;;                                INT 10H
+;                                POP DI
+;                                POP BX
+;                                ret
+;KeepTrackWithAxis endp
 
 
 
