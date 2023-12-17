@@ -136,6 +136,8 @@ user1ActualLen DB ?
 user1Data DB 200 DUP('$')
 
 db ?
+db ?
+db ?
 
 ;;The actual string is stored at user2Data or at userName2 + 2
 userName2 LABEL BYTE
@@ -143,6 +145,8 @@ user2MaxLen DB 200
 user2ActualLen DB ?
 user2Data DB 200 DUP('$')
 
+db ?
+db ?
 db ?
 
 .CODE
@@ -360,13 +364,15 @@ CONT_VALD:
     JL FIRST_CHAR_ERR
     CMP user1Data, 'Z'
     JG CHECK_LOWER_U1
-    JMP EXIT_V_I
+    JMP CHECK_U2
 
 CHECK_LOWER_U1:
     CMP user1Data, 'a'
     JL FIRST_CHAR_ERR
     CMP user1Data, 'z'
     JG FIRST_CHAR_ERR
+
+CHECK_U2:
 
     CMP user2Data, 'A'
     JL FIRST_CHAR_ERR
@@ -379,6 +385,7 @@ CHECK_LOWER_U2:
     JL FIRST_CHAR_ERR
     CMP user2Data, 'z'
     JG FIRST_CHAR_ERR
+    JMP EXIT_V_I
 
 
 EXCEED_15:
@@ -453,9 +460,8 @@ GET_NEW_INPUT:
     JMP GET_NEW_INPUT
 
 CONT_EXEC:
-
-
 RET
+
 DisplayFirstPage ENDP 
 
 ;description
