@@ -10,7 +10,7 @@ ENDM
 Delay MACRO
 
           MOV CX, 00H
-          MOV DX, 02240H
+          MOV DX, 04240H
           MOV AH, 86H
           INT 15H
 
@@ -167,7 +167,6 @@ EXTRN CheckColisionCar2:FAR
     db ?
     ArrX                 dW      100 dup(0ffh)
     ArrY                 dW      100 dup(0ffh)
-
     db ? 
     db ?
     ;;;Obstacles Varaibles
@@ -263,6 +262,8 @@ EXTRN CheckColisionCar2:FAR
     powerUpColor        DB 0
     playerOneWin        DB 0
     playerTwoWin        DB 0
+    counterForPU        DB 0
+    currentSecond       DB 0
 
     ;-------------------HANDELING TAKING MORE THAN ONE KEY INPUT AT THE SAME TIME---------------------------
     DB ?
@@ -566,6 +567,7 @@ MAIN PROC FAR
 
     GenerateOb:                 
                                 CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
+                                CALL FAR PTR GeneratePowerUps
 
     ;;Handle interrupt 9 procedure
                                 CLI
@@ -615,6 +617,19 @@ MAIN PROC FAR
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 AGAIN:
 ;CAR_CHECK: 
+
+    mov ah, 2ch
+    int 21h
+    CMP DH, currentSecond
+    JE KOBRY4
+    MOV currentSecond, DH
+    INC counterForPU
+    CMP counterForPU, 15
+    JL KOBRY4
+    MOV counterForPU, 0
+    CALL FAR PTR GeneratePowerUps
+
+KOBRY4:
     CMP playerOneWin, 1
     JE KOBRY1
     CMP playerTwoWin, 1
@@ -3977,7 +3992,7 @@ GeneratePowerUps PROC FAR
     LEA BP, ArrY
 
 LOOP_OVER_POWERUPS:    
-    CALL FAR PTR GeneratRandomNumber
+    CALL  GeneratRandomNumber
 
     MOV AL, RandomValue
     CMP AL, 3
@@ -4047,13 +4062,13 @@ HORIZONTAL_COMP_GPU:
 
 
 CHECK_TYPE_POWERUP:
-    CMP AH, 0
+    CMP RandomValue, 0
     JE SPEED_UP_POWERUP
-    CMP AH, 1
+    CMP RandomValue, 1
     JE SPEED_DOWN_POWERUP
-    CMP AH, 2
+    CMP RandomValue, 2
     JE PASS_OBSTACLE_POWERUP
-    CMP AH, 3
+    CMP RandomValue, 3
     JE GENERATE_OBSTACLE_POWERUP
 
 SPEED_UP_POWERUP:
