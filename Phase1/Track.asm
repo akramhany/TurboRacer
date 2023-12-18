@@ -353,6 +353,14 @@ EXTRN CheckColisionCar2:FAR
     db ?
     msg4 db ' Won!$'
     db ?
+    powerups1 DB 'PowerUps1:','$'
+    powerups2 DB 'PowerUps2:','$'
+    db ?
+    msgUP db 'SPEEDUP$'
+    msgDown db 'SPEEDDOWN$'
+    msgOB db 'PASS OB$'
+    msgGOB db 'GEN OB$'
+    spaceMsg db '           $'
 
     ;The actual string is stored at user1Data or at userName1 + 2
     userName1 LABEL BYTE
@@ -596,6 +604,14 @@ MAIN PROC FAR
                                 CALL          FAR PTR CAR2
                                 CALL          FAR PTR ORIG1
                                 CALL          FAR PTR CAR1
+    SetCursor 21,0
+    DisplayString user1Data
+    SetCursor 22,0
+    DisplayString powerups1
+    SetCursor 21,21
+    DisplayString user2Data
+    SetCursor 22,21
+    DisplayString powerups2
 
     MOV CX,10
     MOV DI,2000
@@ -617,6 +633,86 @@ MAIN PROC FAR
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 AGAIN:
 ;CAR_CHECK: 
+    CMP SPEEDUP_CAR1, 1
+    JNE KOBRY120
+    SetCursor 22, 10
+    DisplayString spaceMsg
+    SetCursor 22, 10
+    DisplayString msgUP
+
+    JMP KOBRY124
+KOBRY120:
+    CMP SPEEDDOWN_CAR1, 1
+    JNE KOBRY121
+    SetCursor 22, 10
+    DisplayString spaceMsg
+    SetCursor 22, 10
+    DisplayString msgDown
+
+    JMP KOBRY124
+KOBRY121:
+    CMP OBSTACLE_CAR1, 1
+    JNE KOBRY122
+    SetCursor 22, 10
+    DisplayString spaceMsg
+    SetCursor 22, 10
+    DisplayString msgGOB
+
+    JMP KOBRY124
+KOBRY122:
+    CMP PASS_CAR1, 1
+    JNE KOBRY123
+    SetCursor 22, 10
+    DisplayString spaceMsg
+    SetCursor 22, 10
+    DisplayString msgOB
+    JMP KOBRY124
+KOBRY123:
+    SetCursor 22, 10
+    DisplayString spaceMsg
+
+KOBRY124:
+
+    CMP SPEEDUP_CAR2, 1
+    JNE KOBRY220
+    SetCursor 22, 31
+    DisplayString spaceMsg
+    SetCursor 22, 31
+    DisplayString msgUP
+
+    JMP KOBRY224
+KOBRY220:
+    CMP SPEEDDOWN_CAR2, 1
+    JNE KOBRY221
+    SetCursor 22, 31
+    DisplayString spaceMsg
+    SetCursor 22, 31
+    DisplayString msgDown
+
+    JMP KOBRY224
+KOBRY221:
+    CMP OBSTACLE_CAR2, 1
+    JNE KOBRY222
+    SetCursor 22, 31
+    DisplayString spaceMsg
+    SetCursor 22, 31
+    DisplayString msgGOB
+
+    JMP KOBRY224
+KOBRY222:
+    CMP PASS_CAR2, 1
+    JNE KOBRY223
+    SetCursor 22, 31
+    DisplayString spaceMsg
+    SetCursor 22, 31
+    DisplayString msgOB
+    JMP KOBRY224
+KOBRY223:
+    SetCursor 22, 31
+    DisplayString spaceMsg
+
+KOBRY224:
+
 
     mov ah, 2ch
     int 21h
@@ -3923,6 +4019,21 @@ DisplayFirstPage PROC FAR
 
 
 GET_NEW_INPUT:
+
+    MOV CX, 200
+    LEA BX, user1Data
+ LOOP_U1:   
+    MOV [BX], '$'
+    INC BX
+    LOOP LOOP_U1
+
+    MOV CX, 200
+    LEA BX, user2Data
+ LOOP_U2:
+    MOV [BX], '$'
+    INC BX
+    LOOP LOOP_U2
+
 ;Fill Screen with a certain color
     MOV AL, BACKGROUND_COLOR
     MOV BP, 80 * 320
