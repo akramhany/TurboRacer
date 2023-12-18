@@ -10,7 +10,16 @@ ENDM
 Delay MACRO
 
           MOV CX, 00H
-          MOV DX, 05240H
+          MOV DX, 02240H
+          MOV AH, 86H
+          INT 15H
+
+ENDM
+
+BigDelay MACRO
+
+          MOV CX, 05AH
+          MOV DX, 02240H
           MOV AH, 86H
           INT 15H
 
@@ -101,6 +110,8 @@ PUBLIC PIXELS1
 PUBLIC PIXELS2
 PUBLIC SPEED1
 PUBLIC SPEED2
+PUBLIC playerOneWin
+PUBLIC playerTwoWin
 
 PUBLIC CANMOVEOBSTACLE1
 PUBLIC CANMOVEOBSTACLE2
@@ -154,8 +165,8 @@ EXTRN CheckColisionCar2:FAR
     db ?
     db ?
     db ?
-    ArrX                 dW      100 dup(0)
-    ArrY                 dW      100 dup(0)
+    ArrX                 dW      100 dup(0ffh)
+    ArrY                 dW      100 dup(0ffh)
 
     db ? 
     db ?
@@ -206,8 +217,8 @@ EXTRN CheckColisionCar2:FAR
     HEIGHT1             DW 9                       ;HEIGHT OF CAR1   
     WIDTH2              DW 5                        ;WIDTH OF CAR2
     HEIGHT2             DW 9                       ;HEIGHT OF CAR2
-    CENTER1             DW 175 * 320 + 20           ;CENTER  OF CAR1
-    CENTER2             DW 165 * 320 + 20           ;CENTER OF CAR2
+    CENTER1             DW 130 * 320 + 21           ;CENTER  OF CAR1
+    CENTER2             DW 140 * 320 + 21           ;CENTER OF CAR2
     TOP1                DW ?                        ;INITIALIZED IN ORIGINAL PROCEDURE IN THE BEFINNING
     TOP2                DW ?                        ;INITIALIZED IN ORIGINAL PROCEDURE IN THE BEGINNING
     STATE1              DB 1                        ; 0 => UP    1 => RIGHT  2=> LEFT  3=>DOWN
@@ -243,19 +254,22 @@ EXTRN CheckColisionCar2:FAR
     CANMOVETRACK2       DB ?
     CHECKPASSEDOBSTACLE1 DB ?
     CHECKPASSEDOBSTACLE2 DB ?  
-    SPEEDUPCOLOR        DB 5
-    SPEEDDOWNCOLOR      DB 9
-    GENERATEOBSTACLECOLOR    DB 3
-    PASSOBSTACLECOLOR   DB 13
     ACTIVEUP_CAR1       DB 0
     ACTIVEUP_CAR2       DB 0
     ACTIVEDOWN_CAR1     DB 0
     ACTIVEDOWN_CAR2     DB 0
-
+    powerUpPosX         DW 0
+    powerUpPosY         DW 0
+    powerUpColor        DB 0
+    playerOneWin        DB 0
+    playerTwoWin        DB 0
 
     ;-------------------HANDELING TAKING MORE THAN ONE KEY INPUT AT THE SAME TIME---------------------------
+    DB ?
     origIntOffset        dw      0
+    DB ?
     origIntSegment       dw      0
+    DB ?
     shouldExit           db      0
 
     moveDirectionRightC1 db      0                 ;1 up, 2 right, 3 left, 4 down
@@ -292,7 +306,13 @@ EXTRN CheckColisionCar2:FAR
     INPUT_POS_ROW_2 equ 12
     INPUT_POS_COL_1 equ 18
     INPUT_POS_COL_2 equ 18
-
+    OBSTACLE_COLOR  equ 10              ;light Green
+    SPEED_UP_COLOR  equ 5               ;purple
+    SPEED_DOWN_COLOR equ 9              ;blue
+    GENERATE_OBSTACLE_COLOR equ 3       ;cyan
+    PASS_OBSTACLE_COLOR equ 13          ;pink 
+    ROAD_COLOR_BEGIN equ 6              ;brown
+    ROAD_COLOR_END  equ 1               ;blue
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IMAGES BUFFERS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -329,6 +349,8 @@ EXTRN CheckColisionCar2:FAR
     msg2 db 'To start chatting press F2$'
     db ?
     msg3 db 'To exit press F3$'
+    db ?
+    msg4 db ' Won!$'
     db ?
 
     ;The actual string is stored at user1Data or at userName1 + 2
@@ -503,7 +525,8 @@ MAIN PROC FAR
 
                                 CALL FAR PTR DisplayFirstPage
 
-    CHECK_MODE:                 CALL FAR PTR DisplayMainPage
+    CHECK_MODE:                 
+                                CALL FAR PTR DisplayMainPage
                                 MOV AH, 0
                                 INT 16H
                                 CMP AH, 3DH                                          ;CHECK IF THE PLAYER WANT TO EXIT
@@ -574,39 +597,38 @@ MAIN PROC FAR
 
     MOV CX,10
     MOV DI,2000
-    MOV AL,SPEEDUPCOLOR
+    MOV AL,SPEED_UP_COLOR
     REP STOSB
 
     MOV CX,10
     MOV DI,2150
-    MOV AL,SPEEDDOWNCOLOR
+    MOV AL,SPEED_DOWN_COLOR
     REP STOSB
     MOV CX,10
     MOV DI,2100
-    MOV AL,GENERATEOBSTACLECOLOR
+    MOV AL,GENERATE_OBSTACLE_COLOR
     REP STOSB
     MOV CX,10
     MOV DI,2200
-    MOV AL,PASSOBSTACLECOLOR
+    MOV AL,PASS_OBSTACLE_COLOR
     REP STOSB
-
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
+   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 AGAIN:
 ;CAR_CHECK: 
-
-   
+    CMP playerOneWin, 1
+    JE KOBRY1
+    CMP playerTwoWin, 1
+    JE KOBRY2
     CMP COUNT1,0
-    JE CONT1
+    JE KOBRY0
     MOV  AH, 2ch                   ;get sysytem time to get the dx mellisecond
     INT  21h
     CMP DH,STARTTIME1
-    JE CONT1
+    JE KOBRY0
     MOV STARTTIME1,DH
     DEC COUNT1
     CMP COUNT1,0 
-    JNE CONT1
+    JNE KOBRY0
     CMP ACTIVEUP_CAR1 , 1
     JNE CONT2
     DEC SPEED1
@@ -615,7 +637,28 @@ AGAIN:
 CONT2:
     INC SPEED2
     MOV ACTIVEDOWN_CAR1 , 0
+    JMP KOBRY22
 
+KOBRY0:
+    JMP CONT1
+
+KOBRY1:
+    SetCursor 16, 12
+    DisplayString user1Data
+    SetCursor 17, 12 
+    DisplayString msg4
+    BigDelay
+    JMP AA2_1
+
+KOBRY2:
+    SetCursor 16, 12
+    DisplayString user2Data
+    SetCursor 17, 12
+    DisplayString msg4
+    BigDelay
+    JMP AA2_1
+
+KOBRY22:
 
 CONT1:
     CMP COUNT2,0
@@ -639,7 +682,6 @@ CONT4:
 
 CONT3:
     CMP shouldExit, 01H             ;;CHECK IF THE EXIT KEY IS PRESSED
-
     JE AA2_1
     
      CMP moveDirectionUpC1, 1          ;;CHECK IF THE UP ARROW KEY IS PRESSED
@@ -783,6 +825,9 @@ CONT7:CALL FAR PTR CAR1
 
 EXIT1:
     JMP CAR_EXIT
+
+KOBRY3:
+    JMP CHECK_MODE
 
 DOWN1:
     CMP moveDirectionDownC1, 1
@@ -1042,9 +1087,8 @@ DOWN2_5312:
     JMP AGAIN2
 
 CAR_EXIT:
-
-
-    ;Return Interrupt 9
+    
+   ;Return Interrupt 9
                                 CLI
                                 mov           ax, origIntOffset
                                 mov           dx, origIntSegment
@@ -1058,8 +1102,9 @@ CAR_EXIT:
     ; Re-enable interrupts
                                 pop           ds
                                 STI
+                                
     EXIT_PROGRAM:
-
+                               JMP KOBRY3
                                MOV           AH, 0
                                INT           16H
                                MOV           AH, 04CH
@@ -1726,10 +1771,10 @@ ColorRoadEnd PROC FAR
                                 MOV           AH ,0CH
                                 CMP           IsStarte,0
                                 JNZ           End_track
-                                MOV           AL ,6h
+                                MOV           AL , ROAD_COLOR_BEGIN
                                 JMP           CON10
     End_track:                  
-                                MOV           AL ,1h                                 ;blue
+                                MOV           AL ,ROAD_COLOR_END                                 ;blue
     con10:                      
                                 INT           10H
                                 RET
@@ -2479,7 +2524,7 @@ DrawObstacle PROC FAR
 
     OB_INNER_LOOP:              
                                 MOV           AH, 0CH
-                                MOV           AL, 0aH
+                                MOV           AL, OBSTACLE_COLOR
                                 MOV           BH, 0
                                 MOV           CX, ObstaclePosX
                                 MOV           DX, ObstaclePosY
@@ -2553,7 +2598,7 @@ ROWOBSUP:
     MOV DI,AX
     MOV CX,OBSWIDTH
 LOOP18:
-    MOV AL,2
+    MOV AL, OBSTACLE_COLOR
     STOSB
     LOOP LOOP18
     POP AX
@@ -2582,7 +2627,7 @@ COLOBSRIGHT:
     MOV DI,AX
     MOV CX,OBSHEIGHT
 LOOP20:
-    MOV AL,2
+    MOV AL, OBSTACLE_COLOR
     PUSH DI
     STOSB
     POP DI
@@ -2612,7 +2657,7 @@ COLOBSLEFT:
     MOV DI,AX
     MOV CX,OBSHEIGHT
 LOOP22:
-    MOV AL,2
+    MOV AL, OBSTACLE_COLOR
     PUSH DI
     STOSB
     POP DI
@@ -2645,7 +2690,7 @@ ROWOBSDOWN2:
     MOV DI,AX
     MOV CX,OBSWIDTH
 LOOP32:
-    MOV AL,2
+    MOV AL, OBSTACLE_COLOR
     STOSB
     SUB DI,2
     LOOP LOOP32
@@ -2716,7 +2761,7 @@ ROWOBSUP2:
     MOV DI,AX
     MOV CX,OBSWIDTH
 LOOP26:
-    MOV AL,2
+    MOV AL, OBSTACLE_COLOR
     STOSB
     LOOP LOOP26
     POP AX
@@ -2745,7 +2790,7 @@ COLOBSRIGHT2:
     MOV DI,AX
     MOV CX,OBSHEIGHT
 LOOP28:
-    MOV AL,2
+    MOV AL, OBSTACLE_COLOR
     PUSH DI
     STOSB
     POP DI
@@ -2775,7 +2820,7 @@ COLOBSLEFT2:
     MOV DI,AX
     MOV CX,OBSHEIGHT
 LOOP30:
-    MOV AL,2
+    MOV AL, OBSTACLE_COLOR
     PUSH DI
     STOSB
     POP DI
@@ -2808,7 +2853,7 @@ ROWOBSDOWN:
     MOV DI,AX
     MOV CX,OBSWIDTH
 LOOP24:
-    MOV AL,2
+    MOV AL, OBSTACLE_COLOR
     STOSB
     SUB DI,2
     LOOP LOOP24
@@ -2851,7 +2896,7 @@ SPEEDUP1 PROC FAR
     MOV CX,WIDTH1
 LOOP1:
     MOV AL,ES:[SI]
-    CMP AL,SPEEDUPCOLOR
+    CMP AL,SPEED_UP_COLOR
     JE SPEED
     INC SI
     LOOP LOOP1
@@ -2867,7 +2912,7 @@ RIGHT5:
 
 LOOP2:
     MOV AL,ES:[SI]
-    CMP AL,SPEEDUPCOLOR
+    CMP AL,SPEED_UP_COLOR
     JE SPEED
     ADD SI,320
     LOOP LOOP2
@@ -2884,7 +2929,7 @@ LEFT5:
 
 LOOP3: 
     MOV AL,ES:[SI]
-    CMP AL,SPEEDUPCOLOR
+    CMP AL,SPEED_UP_COLOR
     JE SPEED
     SUB SI,320
     LOOP LOOP3
@@ -2899,7 +2944,7 @@ DOWN5:
 
 LOOP4:
     MOV AL,ES:[SI]
-    CMP AL,SPEEDUPCOLOR
+    CMP AL,SPEED_UP_COLOR
     JE SPEED
     DEC SI
     LOOP LOOP4
@@ -2928,7 +2973,7 @@ SPEEDUP2 PROC FAR
     MOV CX,WIDTH2
 LOOP5:
     MOV AL,ES:[SI]
-    CMP AL,SPEEDUPCOLOR
+    CMP AL,SPEED_UP_COLOR
     JE SPEED5
     INC SI
     LOOP LOOP5
@@ -2944,7 +2989,7 @@ RIGHT51:
 
 LOOP6:
     MOV AL,ES:[SI]
-    CMP AL,SPEEDUPCOLOR
+    CMP AL,SPEED_UP_COLOR
     JE SPEED5
     ADD SI,320
     LOOP LOOP6
@@ -2961,7 +3006,7 @@ LEFT51:
 
 LOOP7: 
     MOV AL,ES:[SI]
-    CMP AL,SPEEDUPCOLOR
+    CMP AL,SPEED_UP_COLOR
     JE SPEED5
     SUB SI,320
     LOOP LOOP7
@@ -2976,7 +3021,7 @@ DOWN51:
 
 LOOP8:
     MOV AL,ES:[SI]
-    CMP AL,SPEEDUPCOLOR
+    CMP AL,SPEED_UP_COLOR
     JE SPEED5
     DEC SI
     LOOP LOOP8
@@ -3005,7 +3050,7 @@ SPEEDDOWN1 PROC FAR
     MOV CX,WIDTH1
 LOOP9:
     MOV AL,ES:[SI]
-    CMP AL,SPEEDDOWNCOLOR
+    CMP AL,SPEED_DOWN_COLOR
     JE SPEED3
     INC SI
     LOOP LOOP9
@@ -3021,7 +3066,7 @@ RIGHTDOWN1:
 
 LOOP10:
     MOV AL,ES:[SI]
-    CMP AL,SPEEDDOWNCOLOR
+    CMP AL,SPEED_DOWN_COLOR
     JE SPEED3
     ADD SI,320
     LOOP LOOP10
@@ -3038,7 +3083,7 @@ LEFTDOWN1:
 
 LOOP11: 
     MOV AL,ES:[SI]
-    CMP AL,SPEEDDOWNCOLOR
+    CMP AL,SPEED_DOWN_COLOR
     JE SPEED3
     SUB SI,320
     LOOP LOOP11
@@ -3053,7 +3098,7 @@ DOWNDOWN1:
 
 LOOP12:
     MOV AL,ES:[SI]
-    CMP AL,SPEEDDOWNCOLOR
+    CMP AL,SPEED_DOWN_COLOR
     JE SPEED3
     DEC SI
     LOOP LOOP12
@@ -3084,7 +3129,7 @@ SPEEDDOWN2 PROC FAR
     MOV CX,WIDTH2
 LOOP13:
     MOV AL,ES:[SI]
-    CMP AL,SPEEDDOWNCOLOR
+    CMP AL,SPEED_DOWN_COLOR
     JE SPEED6
     INC SI
     LOOP LOOP13
@@ -3100,7 +3145,7 @@ RIGHT55:
 
 LOOP14:
     MOV AL,ES:[SI]
-    CMP AL,SPEEDDOWNCOLOR
+    CMP AL,SPEED_DOWN_COLOR
     JE SPEED6
     ADD SI,320
     LOOP LOOP14
@@ -3117,7 +3162,7 @@ LEFT55:
 
 LOOP15: 
     MOV AL,ES:[SI]
-    CMP AL,SPEEDDOWNCOLOR
+    CMP AL,SPEED_DOWN_COLOR
     JE SPEED6
     SUB SI,320
     LOOP LOOP15
@@ -3132,7 +3177,7 @@ DOWN55:
 
 LOOP16:
     MOV AL,ES:[SI]
-    CMP AL,SPEEDDOWNCOLOR
+    CMP AL,SPEED_DOWN_COLOR
     JE SPEED6
     DEC SI
     LOOP LOOP16
@@ -3164,7 +3209,7 @@ OBSTACLECAR1 PROC FAR
     MOV CX,WIDTH1
 LOOP17:
     MOV AL,ES:[SI]
-    CMP AL,GENERATEOBSTACLECOLOR
+    CMP AL,GENERATE_OBSTACLE_COLOR
     JE OBS11
     INC SI
     LOOP LOOP17
@@ -3188,7 +3233,7 @@ RIGHTOBS:
 
 LOOP19:
     MOV AL,ES:[SI]
-    CMP AL,GENERATEOBSTACLECOLOR
+    CMP AL,GENERATE_OBSTACLE_COLOR
     JE OBS12
     ADD SI,320
     LOOP LOOP19
@@ -3211,7 +3256,7 @@ LEFTOBS:
 
 LOOP21:
     MOV AL,ES:[SI]
-    CMP AL,GENERATEOBSTACLECOLOR
+    CMP AL,GENERATE_OBSTACLE_COLOR
     JE OBS13
     SUB SI,320
     LOOP LOOP21
@@ -3230,7 +3275,7 @@ DOWNOBS:
     MOV CX,WIDTH1
 LOOP23:
     MOV AL,ES:[SI]
-    CMP AL,GENERATEOBSTACLECOLOR
+    CMP AL,GENERATE_OBSTACLE_COLOR
     JE OBS14
     DEC SI
     LOOP LOOP23
@@ -3259,7 +3304,7 @@ OBSTACLECAR2 PROC FAR
     MOV CX,WIDTH2
 LOOP25:
     MOV AL,ES:[SI]
-    CMP AL,GENERATEOBSTACLECOLOR
+    CMP AL,GENERATE_OBSTACLE_COLOR
     JE OBS21
     INC SI
     LOOP LOOP25
@@ -3283,7 +3328,7 @@ RIGHTOBS2:
 
 LOOP27:
     MOV AL,ES:[SI]
-    CMP AL,GENERATEOBSTACLECOLOR
+    CMP AL,GENERATE_OBSTACLE_COLOR
     JE OBS22
     ADD SI,320
     LOOP LOOP27
@@ -3306,7 +3351,7 @@ LEFTOBS2:
 
 LOOP29:
     MOV AL,ES:[SI]
-    CMP AL,GENERATEOBSTACLECOLOR
+    CMP AL,GENERATE_OBSTACLE_COLOR
     JE OBS23
     SUB SI,320
     LOOP LOOP29
@@ -3325,7 +3370,7 @@ DOWNOBS2:
     MOV CX,WIDTH2
 LOOP31:
     MOV AL,ES:[SI]
-    CMP AL,GENERATEOBSTACLECOLOR
+    CMP AL,GENERATE_OBSTACLE_COLOR
     JE OBS24
     DEC SI
     LOOP LOOP31
@@ -3356,7 +3401,7 @@ CMP STATE1 , 0
     MOV CX,WIDTH1
 LOOP33:
     MOV AL,ES:[SI]
-    CMP AL,PASSOBSTACLECOLOR
+    CMP AL,PASS_OBSTACLE_COLOR
     JE PASSOBS11
     INC SI
     LOOP LOOP33
@@ -3381,7 +3426,7 @@ RIGHTPASSOBS:
 
 LOOP34:
     MOV AL,ES:[SI]
-    CMP AL,PASSOBSTACLECOLOR
+    CMP AL,PASS_OBSTACLE_COLOR
     JE PASSOBS12
     ADD SI,320
     LOOP LOOP34
@@ -3405,7 +3450,7 @@ LEFTPASSOBS:
 
 LOOP36:
     MOV AL,ES:[SI]
-    CMP AL,PASSOBSTACLECOLOR
+    CMP AL,PASS_OBSTACLE_COLOR
     JE PASSOBS13
     SUB SI,320
     LOOP LOOP36
@@ -3425,7 +3470,7 @@ DOWNPASSOBS:
     MOV CX,WIDTH1
 LOOP37:
     MOV AL,ES:[SI]
-    CMP AL,PASSOBSTACLECOLOR
+    CMP AL,PASS_OBSTACLE_COLOR
     JE PASSOBS14
     DEC SI
     LOOP LOOP37
@@ -3457,7 +3502,7 @@ PASSOBSTACLE_CAR2 PROC FAR
     MOV CX,WIDTH2
 LOOP38:
     MOV AL,ES:[SI]
-    CMP AL,PASSOBSTACLECOLOR
+    CMP AL,PASS_OBSTACLE_COLOR
     JE PASSOBS21
     INC SI
     LOOP LOOP38
@@ -3482,7 +3527,7 @@ RIGHTPASSOBS2:
 
 LOOP39:
     MOV AL,ES:[SI]
-    CMP AL,PASSOBSTACLECOLOR
+    CMP AL,PASS_OBSTACLE_COLOR
     JE PASSOBS22
     ADD SI,320
     LOOP LOOP39
@@ -3506,7 +3551,7 @@ LEFTPASSOBS2:
 
 LOOP40:
     MOV AL,ES:[SI]
-    CMP AL,PASSOBSTACLECOLOR
+    CMP AL,PASS_OBSTACLE_COLOR
     JE PASSOBS23
     SUB SI,320
     LOOP LOOP40
@@ -3526,7 +3571,7 @@ DOWNPASSOBS2:
     MOV CX,WIDTH2
 LOOP41:
     MOV AL,ES:[SI]
-    CMP AL,PASSOBSTACLECOLOR
+    CMP AL,PASS_OBSTACLE_COLOR
     JE PASSOBS24
     DEC SI
     LOOP LOOP41
@@ -3896,10 +3941,18 @@ DisplayFirstPage ENDP
 DisplayMainPage PROC FAR
 
     MOV AL, BACKGROUND_COLOR
-    MOV BP, 60 * 320
+    MOV BP, 0
     MOV widthToFill, 320
-    MOV heightToFill, 140
+    MOV heightToFill, 200
     CALL FAR PTR FillScreen
+
+    MOV DI, 320 * 10 + 80
+    CALL FAR PTR DrawLogo
+
+    ;;Fill the background with a certain color
+    MOV AL, BACKGROUND_COLOR
+    CALL FAR PTR FillBackground
+
 
     SetCursor 12, 7
     DisplayString msg1
@@ -3910,6 +3963,191 @@ DisplayMainPage PROC FAR
 
 RET    
 DisplayMainPage ENDP 
+
+;description
+GeneratePowerUps PROC FAR
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    PUSH BP
+    PUSH SI
+
+    LEA BX, ArrX
+    LEA BP, ArrY
+
+LOOP_OVER_POWERUPS:    
+    CALL FAR PTR GeneratRandomNumber
+
+    MOV AL, RandomValue
+    CMP AL, 3
+    JLE CONT_GPU
+
+    JMP END_OF_POWERUPS_LOOP
+
+CONT_GPU:
+    MOV SI, DS:[BX]
+    ADD BX, 2
+    CMP SI, DS:[BX]
+    SUB BX, 2
+    JNE HORIZONTAL_COMP_GPU
+
+VERTICAL_COMP_GPU:
+    MOV CX, DS:[BP]
+    ADD BP, 2
+    MOV DX, DS:[BP]
+    SUB BP, 2
+    PUSH BX
+    MOV BL, RandomValue
+    MOV BH, 0
+    CALL FAR PTR GenerateRandomNumBetTwoNums
+    POP BX
+    MOV powerUpPosX, AX
+
+    MOV CX, DS:[BX]
+    SUB CX, 8
+    ADD BX, 2
+    MOV DX, DS:[BX]
+    SUB BX, 2
+    ADD DX, 8
+    PUSH BX
+    MOV BL, RandomValue
+    MOV BH, 0
+    CALL FAR PTR GenerateRandomNumBetTwoNums
+    POP BX
+    MOV powerUpPosY, AX
+
+    JMP CHECK_TYPE_POWERUP
+
+HORIZONTAL_COMP_GPU:
+
+    MOV CX, DS:[BX]
+    ADD BX, 2
+    MOV DX, DS:[BX]
+    SUB BX, 2
+    PUSH BX
+    MOV BL, RandomValue
+    MOV BH, 0
+    CALL FAR PTR GenerateRandomNumBetTwoNums
+    POP BX
+    MOV powerUpPosX, AX
+
+    MOV CX, DS:[BP]
+    ADD BP, 2
+    MOV DX, DS:[BP]
+    SUB BP, 2
+    SUB CX, 8
+    ADD DX, 8
+    PUSH BX
+    MOV BL, RandomValue
+    MOV BH, 0
+    CALL FAR PTR GenerateRandomNumBetTwoNums
+    POP BX
+    MOV powerUpPosY, AX
+
+
+CHECK_TYPE_POWERUP:
+    CMP AH, 0
+    JE SPEED_UP_POWERUP
+    CMP AH, 1
+    JE SPEED_DOWN_POWERUP
+    CMP AH, 2
+    JE PASS_OBSTACLE_POWERUP
+    CMP AH, 3
+    JE GENERATE_OBSTACLE_POWERUP
+
+SPEED_UP_POWERUP:
+    MOV powerUpColor, SPEED_UP_COLOR
+    CALL FAR PTR DrawPowerUP
+    JMP END_OF_POWERUPS_LOOP
+
+SPEED_DOWN_POWERUP:
+    MOV powerUpColor, SPEED_DOWN_COLOR
+    CALL FAR PTR DrawPowerUP
+    JMP END_OF_POWERUPS_LOOP
+
+PASS_OBSTACLE_POWERUP:
+    MOV powerUpColor, PASS_OBSTACLE_COLOR
+    CALL FAR PTR DrawPowerUP
+    JMP END_OF_POWERUPS_LOOP
+
+GENERATE_OBSTACLE_POWERUP:
+    MOV powerUpColor, GENERATE_OBSTACLE_COLOR
+    CALL FAR PTR DrawPowerUP
+    JMP END_OF_POWERUPS_LOOP
+
+END_OF_POWERUPS_LOOP:
+    ADD BX, 2
+    ADD BP, 2
+    CMP DS:[BX + 2], WORD PTR 0ffh
+    JE EXIT_GPU
+    CMP DS:[BP + 2], WORD PTR 0ffh
+    JE EXIT_GPU
+    JMP LOOP_OVER_POWERUPS
+
+
+EXIT_GPU:
+
+    POP SI
+    POP BP
+    POP DX
+    POP CX
+    POP BX
+    POP AX
+
+RET
+GeneratePowerUps ENDP
+
+;description
+DrawPowerUP PROC  FAR
+
+    PUSH AX
+    PUSH ES
+    PUSH CX
+    PUSH DX
+    PUSH BX
+    PUSH BP
+
+    MOV AX, 0A000H
+    MOV ES, AX
+
+    MOV CX, 4
+    MOV BP, 4
+    MOV DX, 0
+    MOV BX, powerUpPosY
+    MOV AX, 320
+    MUL BX
+    MOV BX, AX
+    ADD BX, powerUpPosX
+
+OUTER_LOOP_DPU:
+    MOV CX, 4
+    INNER_LOOP_DPU:
+        MOV AL, powerUpColor
+        MOV ES:[BX], AL
+        INC BX
+        DEC CX
+        CMP CX, 0
+        JNE INNER_LOOP_DPU
+
+    ADD BX, 320
+    SUB BX, 4
+    DEC BP
+    CMP BP, 0
+    JNE OUTER_LOOP_DPU
+
+
+
+    POP BP
+    POP BX
+    POP DX
+    POP CX
+    POP ES
+    POP AX
+
+RET
+
+DrawPowerUP ENDP
 
 end main
 
