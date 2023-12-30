@@ -36,8 +36,27 @@ Play PROC FAR
     MOV AL,PASS_OBSTACLE_COLOR
     REP STOSB
 
+    MOV AH,2CH
+    INT 21H
+    MOV STARTINGTIME,DH
+    MOV TIMER,RACETIME
+
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 AGAIN:
+    MOV AH,2CH
+    INT 21H
+    CMP DH,STARTINGTIME
+    JE CONTINUERACE
+    DEC TIMER
+    MOV STARTINGTIME,DH
+    DISPLAYTIMER 20,18,TIMER
+    CMP TIMER,0
+    JNE CONTINUERACE
+    JMP CAR_EXIT
+    SetCursor 15,15
+;    DisplayString TIMEOUTMSG
+CONTINUERACE:
+
     CMP SPEEDUP_CAR1, 1
     JNE KOBRY120
     SetCursor 22, 10
@@ -125,7 +144,7 @@ KOBRY224:
     JE KOBRY4
     MOV currentSecond, DH
     INC counterForPU
-    CMP counterForPU, 5
+    CMP counterForPU, 2
     JL KOBRY4
     MOV counterForPU, 0
     CALL FAR PTR GeneratePowerUps

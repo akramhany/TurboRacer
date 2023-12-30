@@ -1047,8 +1047,8 @@ PASSOBSTACLE_CAR2 ENDP
 ;                                MOV             AH, 0
 ;                                MOV           BX,OFFSET ArrX
 ;                                MOV           di,OFFSET ArrY
-;                                ADD BX, AX
-;                                ADD BX, AX
+;;                                ADD BX, AX
+;;                                ADD BX, AX
 ;                                ADD DI, AX
 ;                                ADD DI, AX
 ;    ;push_back:                  
@@ -1066,186 +1066,323 @@ PASSOBSTACLE_CAR2 ENDP
 ;;                                MOV BH, 0
 ;;                                MOV CX, XAxis
 ;;                                MOV DX, YAxis
-;;                                INT 10H
-;                                POP DI
-;                                POP BX
-;                                ret
-;KeepTrackWithAxis endp
-
-
-
-
+;;;                                INT 10H
+;;                                POP DI
+;;                                POP BX
+;;                                ret
+;;KeepTrackWithAxis endp
+;
+;;description
+;GeneratePowerUps PROC FAR
+;    PUSH AX
+;    PUSH BX
+;    PUSH CX
+;    PUSH DX
+;    PUSH DI
+;    PUSH SI
+;
+;    LEA BX, ArrX2
+;    LEA DI, ArrY2
+;
+;LOOP_OVER_POWERUPS:    
+;    CALL GeneratRandomNumber
+;
+;    MOV AL, RandomValue
+;    CMP AL, 3
+;    JLE CONT_GPU
+;
+;    JMP END_OF_POWERUPS_LOOP
+;
+;CONT_GPU:
+;    MOV SI, DS:[BX]
+;    CMP SI, DS:[BX + 2]
+;    JNE HORIZONTAL_COMP_GPU
+;
+;VERTICAL_COMP_GPU:
+;    MOV CX, DS:[DI]
+;    MOV DX, DS:[DI + 2]
+;    PUSH BX
+;    MOV BL, RandomValue
+;    MOV BH, 0
+;    CALL FAR PTR GenerateRandomNumBetTwoNums
+;    POP BX
+;    MOV powerUpPosX, AX
+;
+;    MOV CX, DS:[BX]
+;    SUB CX, 7
+;    MOV DX, DS:[BX + 2]
+;    ADD DX, 7
+;    PUSH BX
+;    MOV BL, RandomValue
+;    MOV BH, 0
+;    CALL FAR PTR GenerateRandomNumBetTwoNums
+;    POP BX
+;    MOV powerUpPosY, AX
+;
+;    JMP CHECK_TYPE_POWERUP
+;
+;HORIZONTAL_COMP_GPU:
+;
+;    MOV CX, DS:[BX]
+;    MOV DX, DS:[BX + 2]
+;    PUSH BX
+;    MOV BL, RandomValue
+;    MOV BH, 0
+;    CALL FAR PTR GenerateRandomNumBetTwoNums
+;    POP BX
+;    MOV powerUpPosX, AX
+;
+;    MOV CX, DS:[DI]
+;    MOV DX, DS:[DI + 2]
+;    SUB CX, 7
+;    ADD DX, 7
+;    PUSH BX
+;    MOV BL, RandomValue
+;    MOV BH, 0
+;    CALL FAR PTR GenerateRandomNumBetTwoNums
+;    POP BX
+;    MOV powerUpPosY, AX
+;
+;
+;CHECK_TYPE_POWERUP:
+;    CMP RandomValue, 0
+;    JE SPEED_UP_POWERUP
+;    CMP RandomValue, 1
+;    JE SPEED_DOWN_POWERUP
+;    CMP RandomValue, 2
+;    JE PASS_OBSTACLE_POWERUP
+;    CMP RandomValue, 3
+;    JE GENERATE_OBSTACLE_POWERUP
+;
+;SPEED_UP_POWERUP:
+;    MOV powerUpColor, SPEED_UP_COLOR
+;    CALL FAR PTR DrawPowerUP
+;    JMP END_OF_POWERUPS_LOOP
+;
+;SPEED_DOWN_POWERUP:
+;    MOV powerUpColor, SPEED_DOWN_COLOR
+;    CALL FAR PTR DrawPowerUP
+;    JMP END_OF_POWERUPS_LOOP
+;
+;PASS_OBSTACLE_POWERUP:
+;    MOV powerUpColor, PASS_OBSTACLE_COLOR
+;    CALL FAR PTR DrawPowerUP
+;    JMP END_OF_POWERUPS_LOOP
+;
+;GENERATE_OBSTACLE_POWERUP:
+;    MOV powerUpColor, GENERATE_OBSTACLE_COLOR
+;    CALL FAR PTR DrawPowerUP
+;    JMP END_OF_POWERUPS_LOOP
+;
+;END_OF_POWERUPS_LOOP:
+;    ADD BX, 2
+;    ADD DI, 2
+;    CMP word ptr DS:[BX + 2], 0ffffh
+;    JE EXIT_GPU
+;    CMP word ptr DS:[DI + 2], 0ffffh
+;    JE EXIT_GPU
+;    JMP LOOP_OVER_POWERUPS
+;
+;
+;EXIT_GPU:
+;
+;    POP SI
+;    POP DI
+;    POP DX
+;    POP CX
+;    POP BX
+;    POP AX
+;
+;RET
+;GeneratePowerUps ENDP
 
 ;description
 GeneratePowerUps PROC FAR
+
     PUSH AX
     PUSH BX
     PUSH CX
     PUSH DX
-    PUSH BP
+    PUSH DI
     PUSH SI
-
-    LEA BX, ArrX2
-    LEA BP, ArrY2
-
-LOOP_OVER_POWERUPS:    
+    
     CALL GeneratRandomNumber
 
+;;GENERATE A RANDOM NUMBER AND USE IT TO GET A BIG NUMBER IN AX
     MOV AL, RandomValue
-    CMP AL, 3
-    JLE CONT_GPU
+    ADD AL, 1
+    MOV AH, 0
+    MOV DX, 0
+    MOV BX, 777
+    MUL BX
+    ADD AX, COUNTER_CHECK3
+    ADD COUNTER_CHECK3, 7
 
-    JMP END_OF_POWERUPS_LOOP
+;;MOD BY THE COUNTERARR TO GET A NUMBER IN ITS RANGE (IN DX)
+    MOV BX, COUNTERARR
+    MOV DX, 0
+    DIV BX
 
-CONT_GPU:
-    MOV SI, DS:[BX]
-    CMP SI, DS:[BX + 2]
-    JNE HORIZONTAL_COMP_GPU
+    CMP DX, 10
+    JG CONT_GPU_CODE
 
-VERTICAL_COMP_GPU:
-    MOV CX, DS:[BP]
-    MOV DX, DS:[BP + 2]
-    PUSH BX
-    MOV BL, RandomValue
-    MOV BH, 0
-    CALL FAR PTR GenerateRandomNumBetTwoNums
-    POP BX
-    MOV powerUpPosX, AX
+    JMP EXIT_GPU
 
-    MOV CX, DS:[BX]
-    SUB CX, 7
-    MOV DX, DS:[BX + 2]
-    ADD DX, 7
-    PUSH BX
-    MOV BL, RandomValue
-    MOV BH, 0
-    CALL FAR PTR GenerateRandomNumBetTwoNums
-    POP BX
-    MOV powerUpPosY, AX
+CONT_GPU_CODE:
 
-    JMP CHECK_TYPE_POWERUP
-
-HORIZONTAL_COMP_GPU:
-
-    MOV CX, DS:[BX]
-    MOV DX, DS:[BX + 2]
-    PUSH BX
-    MOV BL, RandomValue
-    MOV BH, 0
-    CALL FAR PTR GenerateRandomNumBetTwoNums
-    POP BX
-    MOV powerUpPosX, AX
-
-    MOV CX, DS:[BP]
-    MOV DX, DS:[BP + 2]
-    SUB CX, 7
-    ADD DX, 7
-    PUSH BX
-    MOV BL, RandomValue
-    MOV BH, 0
-    CALL FAR PTR GenerateRandomNumBetTwoNums
-    POP BX
-    MOV powerUpPosY, AX
+;;REACH THE REQUIRED POINT INTO THE POSITION ARRAYS
+    LEA BX, ArrX
+    LEA SI, ArrY
+    ADD BX, DX
+    ADD BX, DX
+    ADD SI, DX
+    ADD SI, DX
+    LEA DI, ArrDirection
+    ADD DI, DX
 
 
-CHECK_TYPE_POWERUP:
-    CMP RandomValue, 0
-    JE SPEED_UP_POWERUP
-    CMP RandomValue, 1
-    JE SPEED_DOWN_POWERUP
-    CMP RandomValue, 2
+    MOV DX, WORD PTR DS:[BX]
+    MOV powerUpPosX, DX
+    MOV DX, WORD PTR DS:[SI]
+    MOV powerUpPosY, DX
+
+
+    CMP DS:[DI], 0      ;UP
+    JE VERTICAL_GPU
+    CMP DS:[DI], 3
+    JE VERTICAL_GPU
+
+HORIZONTAL_GPU:
+    CMP COUNTER_CHECK2, 0
+    JNE SUB_OFFSET_H
+
+ADD_OFFSET_H:
+    MOV AL, RandomValue
+    MOV AH, 0
+    ADD powerUpPosY, AX
+    SUB powerUpPosY, 3
+    MOV COUNTER_CHECK2, 1
+
+    JMP CONT_OFFSET_H
+SUB_OFFSET_H:
+    MOV AL, RandomValue
+    MOV AH, 0
+    SUB powerUpPosY, AX
+    ADD powerUpPosY, 3
+    MOV COUNTER_CHECK2, 0
+
+CONT_OFFSET_H:
+
+
+
+VERTICAL_GPU:
+    CMP COUNTER_CHECK2, 0
+    JNE SUB_OFFSET_V
+
+ADD_OFFSET_V:
+    MOV AL, RandomValue
+    MOV AH, 0
+    ADD powerUpPosX, AX
+    SUB powerUpPosX, 3
+    MOV COUNTER_CHECK2, 1
+
+    JMP CONT_OFFSET_V
+SUB_OFFSET_V:
+    MOV AL, RandomValue
+    MOV AH, 0
+    SUB powerUpPosX, AX
+    ADD powerUpPosX, 3
+    MOV COUNTER_CHECK2, 0
+
+CONT_OFFSET_V:
+
+
+;;HANDLE COLORS
+    CMP COUNTER_CHECK, 0
+    JE DRAW_SLOW_DOWN
+
+    CMP COUNTER_CHECK, 1
     JE PASS_OBSTACLE_POWERUP
-    CMP RandomValue, 3
+
+    CMP COUNTER_CHECK, 2
     JE GENERATE_OBSTACLE_POWERUP
 
-SPEED_UP_POWERUP:
     MOV powerUpColor, SPEED_UP_COLOR
-    CALL FAR PTR DrawPowerUP
-    JMP END_OF_POWERUPS_LOOP
+    MOV COUNTER_CHECK, 0
+    JMP CONT_CHECKER_POWERUP
 
-SPEED_DOWN_POWERUP:
+DRAW_SLOW_DOWN:
     MOV powerUpColor, SPEED_DOWN_COLOR
-    CALL FAR PTR DrawPowerUP
-    JMP END_OF_POWERUPS_LOOP
-
+    ADD COUNTER_CHECK, 1
+    JMP CONT_CHECKER_POWERUP
 PASS_OBSTACLE_POWERUP:
     MOV powerUpColor, PASS_OBSTACLE_COLOR
-    CALL FAR PTR DrawPowerUP
-    JMP END_OF_POWERUPS_LOOP
+    ADD COUNTER_CHECK, 1
+    JMP CONT_CHECKER_POWERUP
 
 GENERATE_OBSTACLE_POWERUP:
     MOV powerUpColor, GENERATE_OBSTACLE_COLOR
+    ADD COUNTER_CHECK, 1
+    JMP CONT_CHECKER_POWERUP
+
+CONT_CHECKER_POWERUP:
+    
     CALL FAR PTR DrawPowerUP
-    JMP END_OF_POWERUPS_LOOP
-
-END_OF_POWERUPS_LOOP:
-    ADD BX, 2
-    ADD BP, 2
-    CMP word ptr DS:[BX + 2], 0ffffh
-    JE EXIT_GPU
-    CMP word ptr DS:[BP + 2], 0ffffh
-    JE EXIT_GPU
-    JMP LOOP_OVER_POWERUPS
-
 
 EXIT_GPU:
 
     POP SI
-    POP BP
+    POP DI
     POP DX
     POP CX
     POP BX
     POP AX
 
-RET
-GeneratePowerUps ENDP
+    RET
+
+GeneratePowerUps ENDP 
 
 ;description
-DrawPowerUP PROC  FAR
+DrawPowerUP PROC  FAR    
+                                PUSH          AX
+                                PUSH          BX
+                                PUSH          CX
+                                PUSH          DX
+                                PUSH          powerUpPosX
+                                PUSH          powerUpPosY
+                                PUSH          DI
 
-    PUSH AX
-    PUSH ES
-    PUSH CX
-    PUSH DX
-    PUSH BX
-    PUSH BP
+                                MOV           BL, 4
+                                MOV           DI, 4
+                                Sub           powerUpPosX, 2
+                                Sub           powerUpPosY, 2
 
-    MOV AX, 0A000H
-    MOV ES, AX
+    POWERUP_OUTER_LOOP:              
+                                MOV           BL, 4
 
-    MOV CX, 4
-    MOV BP, 4
-    MOV DX, 0
-    MOV BX, powerUpPosY
-    MOV AX, 320
-    MUL BX
-    MOV BX, AX
-    ADD BX, powerUpPosX
+    POWERUP_INNER_LOOP:              
+                                MOV           AH, 0CH
+                                MOV           AL, powerUpColor
+                                MOV           BH, 0
+                                MOV           CX, powerUpPosX
+                                MOV           DX, powerUpPosY
+                                INT           10H
 
-OUTER_LOOP_DPU:
-    MOV CX, 4
-    INNER_LOOP_DPU:
-        MOV AL, powerUpColor
-        MOV ES:[BX], AL
-        INC BX
-        DEC CX
-        CMP CX, 0
-        JNE INNER_LOOP_DPU
+                                INC           powerUpPosX
+                                DEC           BL
+                                JNZ           POWERUP_INNER_LOOP
+                                INC           powerUpPosY
+                                SUB           powerUpPosX, 4
+                                DEC           DI
+                                JNZ           POWERUP_OUTER_LOOP
 
-    ADD BX, 320
-    SUB BX, 4
-    DEC BP
-    CMP BP, 0
-    JNE OUTER_LOOP_DPU
-
-
-
-    POP BP
-    POP BX
-    POP DX
-    POP CX
-    POP ES
-    POP AX
+                                POP           DI
+                                POP           powerUpPosY
+                                POP           powerUpPosX
+                                POP           DX
+                                POP           CX
+                                POP           BX
+                                POP           AX
 
 RET
 

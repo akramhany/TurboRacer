@@ -94,6 +94,38 @@ DisplayPromptMessages MACRO
 
 ENDM
 
+DISPLAYCHAR MACRO CHARACTER
+mov ah,2
+MOV DL,CHARACTER
+int 21h
+ENDM  
+
+DISPLAYTIMER MACRO ROW,COL,TIMER 
+
+SetCursor ROW,COL
+    MOV AX,TIMER
+    MOV DL,100
+    DIV DL
+    PUSH AX
+    ADD AL,30H
+    MOV DL,AL
+    DISPLAYCHAR DL
+    MOV DL,10
+    POP AX
+    MOV AL,AH
+    MOV AH,0
+    DIV DL
+    PUSH AX
+    ADD AL,30H
+    MOV DL,AL
+    DISPLAYCHAR DL
+    POP AX
+    MOV DL,AH
+    ADD DL,30H
+    DISPLAYCHAR DL
+
+ENDM
+
 ResetVariables MACRO
 
     MOV playerOneWin, 0
