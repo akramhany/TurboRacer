@@ -1085,11 +1085,11 @@ GeneratePowerUps PROC FAR
     PUSH BP
     PUSH SI
 
-    LEA BX, ArrX
-    LEA BP, ArrY
+    LEA BX, ArrX2
+    LEA BP, ArrY2
 
 LOOP_OVER_POWERUPS:    
-    CALL  GeneratRandomNumber
+    CALL GeneratRandomNumber
 
     MOV AL, RandomValue
     CMP AL, 3
@@ -1099,16 +1099,12 @@ LOOP_OVER_POWERUPS:
 
 CONT_GPU:
     MOV SI, DS:[BX]
-    ADD BX, 2
-    CMP SI, DS:[BX]
-    SUB BX, 2
+    CMP SI, DS:[BX + 2]
     JNE HORIZONTAL_COMP_GPU
 
 VERTICAL_COMP_GPU:
     MOV CX, DS:[BP]
-    ADD BP, 2
-    MOV DX, DS:[BP]
-    SUB BP, 2
+    MOV DX, DS:[BP + 2]
     PUSH BX
     MOV BL, RandomValue
     MOV BH, 0
@@ -1117,11 +1113,9 @@ VERTICAL_COMP_GPU:
     MOV powerUpPosX, AX
 
     MOV CX, DS:[BX]
-    SUB CX, 8
-    ADD BX, 2
-    MOV DX, DS:[BX]
-    SUB BX, 2
-    ADD DX, 8
+    SUB CX, 7
+    MOV DX, DS:[BX + 2]
+    ADD DX, 7
     PUSH BX
     MOV BL, RandomValue
     MOV BH, 0
@@ -1134,9 +1128,7 @@ VERTICAL_COMP_GPU:
 HORIZONTAL_COMP_GPU:
 
     MOV CX, DS:[BX]
-    ADD BX, 2
-    MOV DX, DS:[BX]
-    SUB BX, 2
+    MOV DX, DS:[BX + 2]
     PUSH BX
     MOV BL, RandomValue
     MOV BH, 0
@@ -1145,11 +1137,9 @@ HORIZONTAL_COMP_GPU:
     MOV powerUpPosX, AX
 
     MOV CX, DS:[BP]
-    ADD BP, 2
-    MOV DX, DS:[BP]
-    SUB BP, 2
-    SUB CX, 8
-    ADD DX, 8
+    MOV DX, DS:[BP + 2]
+    SUB CX, 7
+    ADD DX, 7
     PUSH BX
     MOV BL, RandomValue
     MOV BH, 0
@@ -1191,9 +1181,9 @@ GENERATE_OBSTACLE_POWERUP:
 END_OF_POWERUPS_LOOP:
     ADD BX, 2
     ADD BP, 2
-    CMP DS:[BX + 2], WORD PTR 0ffh
+    CMP word ptr DS:[BX + 2], 0ffffh
     JE EXIT_GPU
-    CMP DS:[BP + 2], WORD PTR 0ffh
+    CMP word ptr DS:[BP + 2], 0ffffh
     JE EXIT_GPU
     JMP LOOP_OVER_POWERUPS
 

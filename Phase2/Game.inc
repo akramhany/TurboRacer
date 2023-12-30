@@ -125,7 +125,7 @@ KOBRY224:
     JE KOBRY4
     MOV currentSecond, DH
     INC counterForPU
-    CMP counterForPU, 15
+    CMP counterForPU, 5
     JL KOBRY4
     MOV counterForPU, 0
     CALL FAR PTR GeneratePowerUps

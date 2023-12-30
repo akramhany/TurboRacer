@@ -35,10 +35,12 @@ include Macros.inc
     HalfStep             equ     8
     divider              equ     7
     db ?
+    db ?                                         ;store direction for every point
     db ?
     db ?
-    ArrX                 dW      100 dup(0ffh)
-    ArrY                 dW      100 dup(0ffh)
+    db ?
+    ArrX2                 dW      100 dup(0ffffh)
+    ArrY2                 dW      100 dup(0ffffh)
     db ? 
     db ?
     ;;;Obstacles Varaibles
@@ -370,7 +372,7 @@ MAIN ENDP
    ;***********************************************************************
    ;generate random number
    ;***********************************************************************
-GeneratRandomNumber proc near
+GeneratRandomNumber proc NEAR
                                 MOV           AH, 2ch                                ;get sysytem time to get the dx mellisecond
                                 INT           21h
                                 MOV           AX, DX
