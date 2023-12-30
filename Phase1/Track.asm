@@ -166,7 +166,9 @@ EXTRN CheckColisionCar2:FAR
                             db        ?
                             db        ?
     ArrX                    dW        2000 dup('#')                                 ;store x direction of track
+     DW 2000 DUP('?')
     ArrY                    dW        2000 dup('#')                                 ;strore y axis of track
+    DW 2000 DUP('?')
     ArrDirection            dB        1000 dup('#')
     COUNTERARR              DW        0                                             ;store direction for every point
                             db        ?
@@ -398,133 +400,133 @@ OverRideInt9 PROC FAR
                                 MOV                   moveDirectionUpC1, 1
                                 JMP                   CONT
 
-    UP_NOT_PRESSED:             
+    UP_NOT_PRESSED:
                                 CMP                   AL, 48H + 80H
                                 JNE                   UP_NOT_RELEASED
                                 MOV                   moveDirectionUpC1, 0
                                 JMP                   CONT
 
-    UP_NOT_RELEASED:            
+    UP_NOT_RELEASED:
                                 CMP                   AL, 4DH                                  ;Check for right pressed
                                 JNE                   RIGHT_NOT_PRESSED
                                 MOV                   moveDirectionRightC1, 1
                                 JMP                   CONT
 
 
-    RIGHT_NOT_PRESSED:          
+    RIGHT_NOT_PRESSED:
                                 CMP                   AL, 4DH + 80H                            ;Check for right released
                                 JNE                   RIGHT_NOT_RELEASED
                                 MOV                   moveDirectionRightC1, 0
                                 JMP                   CONT
 
-    CONT_HELP:                  
+    CONT_HELP:
                                 JMP                   CONT
 
-    HELPER_JUMP:                
+    HELPER_JUMP:
                                 JMP                   DOWN_NOT_RELEASED
 
-    RIGHT_NOT_RELEASED:         
+    RIGHT_NOT_RELEASED:
                                 CMP                   AL, 4BH                                  ;Check for left pressed
                                 JNE                   LEFT_NOT_PRESSED
                                 MOV                   moveDirectionLeftC1, 1
                                 JMP                   CONT
 
-    LEFT_NOT_PRESSED:           
+    LEFT_NOT_PRESSED:
                                 CMP                   AL, 4BH + 80H                            ;Check for left released
                                 JNE                   LEFT_NOT_RELEASED
                                 MOV                   moveDirectionLeftC1, 0
                                 JMP                   CONT
 
-    LEFT_NOT_RELEASED:          
+    LEFT_NOT_RELEASED:
                                 CMP                   AL, 50H                                  ;Check for down pressed
                                 JNE                   DOWN_NOT_PRESSED
                                 MOV                   moveDirectionDownC1, 1
                                 JMP                   CONT
 
-    DOWN_NOT_PRESSED:           
+    DOWN_NOT_PRESSED:
                                 CMP                   AL, 50H + 80H                            ;Check for down released
                                 JNE                   DOWN_NOT_RELEASED
                                 MOV                   moveDirectionDownC1, 0
                                 JMP                   CONT
 
-    DOWN_NOT_RELEASED:          
+    DOWN_NOT_RELEASED:
                                 CMP                   AL, 11H                                  ;CHECK UP PRESSED FOR CAR 2
                                 JNE                   W_NOT_PRESSED
                                 MOV                   moveDirectionUpC2, 1
                                 JMP                   CONT
 
-    W_NOT_PRESSED:              
+    W_NOT_PRESSED:
                                 CMP                   AL, 11H + 80H                            ;CHECK UP RELEASED FOR CAR 2
                                 JNE                   W_NOT_RELEASED
                                 MOV                   moveDirectionUpC2, 0
                                 JMP                   CONT
 
-    W_NOT_RELEASED:             
+    W_NOT_RELEASED:
                                 CMP                   AL, 20H                                  ;CHECK RIGHT PRESSED FOR CAR 2
                                 JNE                   D_NOT_PRESSED
                                 MOV                   moveDirectionRightC2, 1
                                 JMP                   CONT
 
-    D_NOT_PRESSED:              
+    D_NOT_PRESSED:
                                 CMP                   AL, 20H + 80H                            ;CHECK RIGHT RELEASED FOR CAR 2
                                 JNE                   D_NOT_RELEASED
                                 MOV                   moveDirectionRightC2, 0
                                 JMP                   CONT
 
-    D_NOT_RELEASED:             
+    D_NOT_RELEASED:
                                 CMP                   AL, 1EH                                  ;CHECK LEFT PRESSED FOR CAR 2
                                 JNE                   A_NOT_PRESSED
                                 MOV                   moveDirectionLeftC2, 1
                                 JMP                   CONT
 
-    A_NOT_PRESSED:              
+    A_NOT_PRESSED:
                                 CMP                   AL, 1EH + 80H                            ;CHECK LEFT RELEASED FOR CAR 2
                                 JNE                   A_NOT_RELEASED
                                 MOV                   moveDirectionLeftC2, 0
                                 JMP                   CONT
 
-    A_NOT_RELEASED:             
+    A_NOT_RELEASED:
                                 CMP                   AL, 1FH                                  ;CHECK DOWN PRESSED FOR CAR 2
                                 JNE                   S_NOT_PRESSED
                                 MOV                   moveDirectionDownC2, 1
                                 JMP                   CONT
 
-    S_NOT_PRESSED:              
+    S_NOT_PRESSED:
                                 CMP                   AL, 1FH + 80H                            ;CHECK DOWN RELEASED FOR CAR 2
                                 JNE                   S_NOT_RELEASED
                                 MOV                   moveDirectionDownC2, 0
                                 JMP                   CONT
 
-    S_NOT_RELEASED:             
+    S_NOT_RELEASED:
                                 CMP                   AL,32H
                                 JNE                   M_NOT_PRESSED
                                 MOV                   POWCAR1,1
                                 JMP                   CONT
 
-    M_NOT_PRESSED:              
+    M_NOT_PRESSED:
                                 CMP                   AL,32H+80H
                                 JNE                   M_NOT_RELEASED
                                 MOV                   POWCAR1,0
                                 JMP                   CONT
 
-    M_NOT_RELEASED:             
+    M_NOT_RELEASED:
                                 CMP                   AL,10H
                                 JNE                   Q_NOT_PRESSED
                                 MOV                   POWCAR2,1
                                 JMP                   CONT
 
-    Q_NOT_PRESSED:              
+    Q_NOT_PRESSED:
                                 CMP                   AL,10H+80H
                                 JNE                   Q_NOT_RELEASED
                                 MOV                   POWCAR2,0
                                 JMP                   CONT
 
-    Q_NOT_RELEASED:             
+    Q_NOT_RELEASED:
                                 CMP                   AL, 1H                                   ;Check for escape pressed
                                 JNE                   CONT
                                 MOV                   shouldExit, 1
 
-    CONT:                       
+    CONT:
                                 MOV                   AL, 20H
                                 OUT                   20H, AL
                                 IRET
@@ -534,10 +536,10 @@ MAIN PROC FAR
                                 MOV                   DX ,@data
                                 MOV                   DS ,DX
 
-                                CALL                  FAR PTR DisplayFirstPage
+                               ; CALL                  FAR PTR DisplayFirstPage
 
-    CHECK_MODE:                 
-                                CALL                  FAR PTR DisplayMainPage
+    CHECK_MODE:
+                                ;CALL                  FAR PTR DisplayMainPage
                                 MOV                   AH, 0
                                 INT                   16H
                                 CMP                   AH, 3DH                                  ;CHECK IF THE PLAYER WANT TO EXIT
@@ -547,7 +549,7 @@ MAIN PROC FAR
                                 JNE                   CHECK_MODE
                                 JMP                   CheckKey
 
-    CheckKey:                   
+    CheckKey:
                                 mov                   Status,0
                                 mov                   Intersect,0
 
@@ -560,7 +562,7 @@ MAIN PROC FAR
                                 CMP                   AL, GenerateObstaclesKey                 ;check if the track is finished and we want to generate obstacles
                                 JZ                    GenerateOb
                                 JMP                   CheckKey
-    TrackRandom:                
+    TrackRandom:
                                 MOV                   COUNTERARR,0
                                 CALL                  far ptr GenerateTrack                    ;call to generate porcedure
                                 CMP                   CurrentBlock,25
@@ -569,15 +571,15 @@ MAIN PROC FAR
                                 JZ                    TrackRandom
                                 CMP                   Status ,1                                ;if if intersected go and generate another one
                                 JZ                    TrackRandom
-    ;CALL                  FAR PTR CHECKARR
+    ;CALL                  FAR PTR CHECKDIRECTION
     ;MOV  CL, RoadNum
     ;CMP  CurrentBlock,CL
                                 CALL                  FAR PTR ENDTRACK
                                 JZ                    CheckKey
                                 JMP                   CheckKey                                 ;return to check key pressed
-    EndProgram:                 
+    EndProgram:
 
-    GenerateOb:                 
+    GenerateOb:
                                 CALL                  FAR PTR GenerateObstacles                ;Generate Random Obstacles
                                 CALL                  FAR PTR GeneratePowerUps
 
@@ -635,7 +637,7 @@ MAIN PROC FAR
                                 MOV                   AL,PASS_OBSTACLE_COLOR
                                 REP                   STOSB
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    AGAIN:                      
+    AGAIN:
     ;CAR_CHECK:
                                 CMP                   SPEEDUP_CAR1, 1
                                 JNE                   KOBRY120
@@ -645,7 +647,7 @@ MAIN PROC FAR
                                 DisplayString         msgUP
 
                                 JMP                   KOBRY124
-    KOBRY120:                   
+    KOBRY120:
                                 CMP                   SPEEDDOWN_CAR1, 1
                                 JNE                   KOBRY121
                                 SetCursor             22, 10
@@ -654,7 +656,7 @@ MAIN PROC FAR
                                 DisplayString         msgDown
 
                                 JMP                   KOBRY124
-    KOBRY121:                   
+    KOBRY121:
                                 CMP                   OBSTACLE_CAR1, 1
                                 JNE                   KOBRY122
                                 SetCursor             22, 10
@@ -663,7 +665,7 @@ MAIN PROC FAR
                                 DisplayString         msgGOB
 
                                 JMP                   KOBRY124
-    KOBRY122:                   
+    KOBRY122:
                                 CMP                   PASS_CAR1, 1
                                 JNE                   KOBRY123
                                 SetCursor             22, 10
@@ -671,11 +673,11 @@ MAIN PROC FAR
                                 SetCursor             22, 10
                                 DisplayString         msgOB
                                 JMP                   KOBRY124
-    KOBRY123:                   
+    KOBRY123:
                                 SetCursor             22, 10
                                 DisplayString         spaceMsg
 
-    KOBRY124:                   
+    KOBRY124:
 
                                 CMP                   SPEEDUP_CAR2, 1
                                 JNE                   KOBRY220
@@ -685,7 +687,7 @@ MAIN PROC FAR
                                 DisplayString         msgUP
 
                                 JMP                   KOBRY224
-    KOBRY220:                   
+    KOBRY220:
                                 CMP                   SPEEDDOWN_CAR2, 1
                                 JNE                   KOBRY221
                                 SetCursor             22, 31
@@ -694,7 +696,7 @@ MAIN PROC FAR
                                 DisplayString         msgDown
 
                                 JMP                   KOBRY224
-    KOBRY221:                   
+    KOBRY221:
                                 CMP                   OBSTACLE_CAR2, 1
                                 JNE                   KOBRY222
                                 SetCursor             22, 31
@@ -703,7 +705,7 @@ MAIN PROC FAR
                                 DisplayString         msgGOB
 
                                 JMP                   KOBRY224
-    KOBRY222:                   
+    KOBRY222:
                                 CMP                   PASS_CAR2, 1
                                 JNE                   KOBRY223
                                 SetCursor             22, 31
@@ -711,11 +713,11 @@ MAIN PROC FAR
                                 SetCursor             22, 31
                                 DisplayString         msgOB
                                 JMP                   KOBRY224
-    KOBRY223:                   
+    KOBRY223:
                                 SetCursor             22, 31
                                 DisplayString         spaceMsg
 
-    KOBRY224:                   
+    KOBRY224:
 
 
                                 mov                   ah, 2ch
@@ -729,7 +731,7 @@ MAIN PROC FAR
                                 MOV                   counterForPU, 0
                                 CALL                  FAR PTR GeneratePowerUps
 
-    KOBRY4:                     
+    KOBRY4:
                                 CMP                   playerOneWin, 1
                                 JE                    KOBRY1
                                 CMP                   playerTwoWin, 1
@@ -749,15 +751,15 @@ MAIN PROC FAR
                                 DEC                   SPEED1
                                 MOV                   ACTIVEUP_CAR1 , 0
                                 JMP                   CONT1
-    CONT2:                      
+    CONT2:
                                 INC                   SPEED2
                                 MOV                   ACTIVEDOWN_CAR1 , 0
                                 JMP                   KOBRY22
 
-    KOBRY0:                     
+    KOBRY0:
                                 JMP                   CONT1
 
-    KOBRY1:                     
+    KOBRY1:
                                 SetCursor             16, 12
                                 DisplayString         user1Data
                                 SetCursor             17, 12
@@ -765,7 +767,7 @@ MAIN PROC FAR
                                 BigDelay
                                 JMP                   AA2_1
 
-    KOBRY2:                     
+    KOBRY2:
                                 SetCursor             16, 12
                                 DisplayString         user2Data
                                 SetCursor             17, 12
@@ -773,9 +775,9 @@ MAIN PROC FAR
                                 BigDelay
                                 JMP                   AA2_1
 
-    KOBRY22:                    
+    KOBRY22:
 
-    CONT1:                      
+    CONT1:
                                 CMP                   COUNT2,0
                                 JE                    CONT3
                                 MOV                   AH, 2ch                                  ;get sysytem time to get the dx mellisecond
@@ -791,11 +793,11 @@ MAIN PROC FAR
                                 DEC                   SPEED2
                                 MOV                   ACTIVEUP_CAR2 , 0
                                 JMP                   CONT3
-    CONT4:                      
+    CONT4:
                                 MOV                   ACTIVEDOWN_CAR2 , 0
                                 INC                   SPEED1
 
-    CONT3:                      
+    CONT3:
                                 CMP                   shouldExit, 01H                          ;;CHECK IF THE EXIT KEY IS PRESSED
                                 JE                    AA2_1
 
@@ -813,7 +815,7 @@ MAIN PROC FAR
                                 JMP                   EXITUP1
     AA2_1:                      JMP                   AA2
     RIGHT1_1:                   JMP                   RIGHT1
-    STARTUP1:                   
+    STARTUP1:
                                 CALL                  FAR PTR RESETCAR1
                                 MOV                   STATE1,0
                                 MOV                   AX,320
@@ -833,21 +835,21 @@ MAIN PROC FAR
                                 CALL                  FAR PTR PASSOBSTACLE_CAR1
     CONT5:                      CALL                  FAR PTR CAR1
                                 JMP                   EXITUP1
-    LABELUP1:                   
+    LABELUP1:
                                 CMP                   CHECKPASSEDOBSTACLE1,0
                                 JZ                    STARTUP1
                                 MOV                   CANPASS_CAR1,0
                                 MOV                   CHECKPASSEDOBSTACLE1,0
                                 JMP                   STARTUP1
-    LABELUP2:                   
+    LABELUP2:
                                 MOV                   CHECKPASSEDOBSTACLE1,1
                                 JMP                   STARTUP1
-    EXITUP1:                    
+    EXITUP1:
                                 JMP                   RIGHT1
 
     AA2:                        JMP                   AA
 
-    RIGHT1:                     
+    RIGHT1:
                                 CMP                   moveDirectionRightC1, 1                  ;;CHECK IF THE RIGHT ARROW KEY IS PRESSED
                                 JNZ                   LEFT1_1
                                 MOV                   AL,1
@@ -861,7 +863,7 @@ MAIN PROC FAR
                                 JZ                    LABELRIGHT2
                                 JMP                   EXITRIGHT1
     LEFT1_1:                    JMP                   LEFT1
-    STARTRIGHT1:                
+    STARTRIGHT1:
                                 CALL                  FAR PTR RESETCAR1
                                 MOV                   STATE1 ,1
                                 MOV                   AX,SPEED1
@@ -879,19 +881,19 @@ MAIN PROC FAR
                                 CALL                  FAR PTR PASSOBSTACLE_CAR1
     CONT6:                      CALL                  FAR PTR CAR1
                                 JMP                   EXITRIGHT1
-    LABELRIGHT1:                
+    LABELRIGHT1:
                                 CMP                   CHECKPASSEDOBSTACLE1,0
                                 JZ                    STARTRIGHT1
                                 MOV                   CANPASS_CAR1,0
                                 MOV                   CHECKPASSEDOBSTACLE1,0
                                 JMP                   STARTRIGHT1
-    LABELRIGHT2:                
+    LABELRIGHT2:
                                 MOV                   CHECKPASSEDOBSTACLE1,1
                                 JMP                   STARTRIGHT1
-    EXITRIGHT1:                 
+    EXITRIGHT1:
                                 JMP                   LEFT1
     AA:                         JMP                   EXIT1
-    LEFT1:                      
+    LEFT1:
                                 CMP                   moveDirectionLeftC1, 1
                                 JNZ                   DOWN1_1
 
@@ -906,7 +908,7 @@ MAIN PROC FAR
                                 JZ                    LABELLEFT2
                                 JMP                   EXITLEFT1
     DOWN1_1:                    JMP                   DOWN1
-    STARTLEFT1:                 
+    STARTLEFT1:
 
                                 CALL                  FAR PTR RESETCAR1
                                 MOV                   STATE1,2
@@ -926,25 +928,25 @@ MAIN PROC FAR
     CONT7:                      CALL                  FAR PTR CAR1
 
                                 JMP                   EXITLEFT1
-    LABELLEFT1:                 
+    LABELLEFT1:
                                 CMP                   CHECKPASSEDOBSTACLE1,0
                                 JZ                    STARTLEFT1
                                 MOV                   CANPASS_CAR1,0
                                 MOV                   CHECKPASSEDOBSTACLE1,0
                                 JMP                   STARTLEFT1
-    LABELLEFT2:                 
+    LABELLEFT2:
                                 MOV                   CHECKPASSEDOBSTACLE1,1
                                 JMP                   STARTLEFT1
-    EXITLEFT1:                  
+    EXITLEFT1:
                                 JMP                   DOWN1
 
-    EXIT1:                      
+    EXIT1:
                                 JMP                   CAR_EXIT
 
-    KOBRY3:                     
+    KOBRY3:
                                 JMP                   CHECK_MODE
 
-    DOWN1:                      
+    DOWN1:
                                 CMP                   moveDirectionDownC1, 1
                                 JNZ                   UP2_2
 
@@ -958,13 +960,13 @@ MAIN PROC FAR
                                 CMP                   CANPASS_CAR1,1
                                 JZ                    LABELDOWN2
                                 JMP                   EXITDOWN1
-    STARTDOWN1:                 
+    STARTDOWN1:
 
                                 CALL                  FAR PTR RESETCAR1
                                 MOV                   STATE1,3
                                 JMP                   BRIDGE2
     UP2_2:                      JMP                   UP2
-    BRIDGE2:                    
+    BRIDGE2:
                                 MOV                   AX,320
                                 MOV                   DX,SPEED1
                                 MUL                   DX
@@ -983,21 +985,21 @@ MAIN PROC FAR
     CONT8:                      CALL                  FAR PTR CAR1
 
                                 JMP                   EXITDOWN1
-    LABELDOWN1:                 
+    LABELDOWN1:
                                 CMP                   CHECKPASSEDOBSTACLE1,0
                                 JZ                    STARTDOWN1
                                 MOV                   CANPASS_CAR1,0
                                 MOV                   CHECKPASSEDOBSTACLE1,0
                                 JMP                   STARTDOWN1
-    LABELDOWN2:                 
+    LABELDOWN2:
                                 MOV                   CHECKPASSEDOBSTACLE1,1
                                 JMP                   STARTDOWN1
-    EXITDOWN1:                  
+    EXITDOWN1:
                                 JMP                   UP2
 
 
 
-    UP2:                        
+    UP2:
                                 CMP                   moveDirectionUpC2, 1
                                 JNZ                   RIGHT2_1
 
@@ -1012,7 +1014,7 @@ MAIN PROC FAR
                                 JZ                    LABELUP22
                                 JMP                   EXITUP2
     RIGHT2_1:                   JMP                   RIGHT2
-    STARTUP2:                   
+    STARTUP2:
 
                                 CALL                  FAR PTR RESETCAR2
                                 MOV                   STATE2,0
@@ -1033,21 +1035,21 @@ MAIN PROC FAR
                                 CALL                  FAR PTR PASSOBSTACLE_CAR2
     CONT9:                      CALL                  FAR PTR CAR2
                                 JMP                   EXITUP2
-    LABELUP21:                  
+    LABELUP21:
                                 CMP                   CHECKPASSEDOBSTACLE2,0
                                 JZ                    STARTUP2
                                 MOV                   CANPASS_CAR2,0
                                 MOV                   CHECKPASSEDOBSTACLE2,0
                                 JMP                   STARTUP2
-    LABELUP22:                  
+    LABELUP22:
                                 MOV                   CHECKPASSEDOBSTACLE2,1
                                 JMP                   STARTUP2
-    EXITUP2:                    
+    EXITUP2:
                                 JMP                   RIGHT2
 
 
 
-    RIGHT2:                     
+    RIGHT2:
                                 CMP                   moveDirectionRightC2, 1
                                 JNZ                   EXITRIGHT2_1
 
@@ -1062,7 +1064,7 @@ MAIN PROC FAR
                                 JZ                    LABELRIGHT22
                                 JMP                   EXITRIGHT2
     EXITRIGHT2_1:               JMP                   EXITRIGHT2
-    STARTRIGHT2:                
+    STARTRIGHT2:
 
                                 CALL                  FAR PTR RESETCAR2
                                 MOV                   STATE2 ,1
@@ -1081,30 +1083,30 @@ MAIN PROC FAR
                                 CALL                  FAR PTR PASSOBSTACLE_CAR2
     CONT10:                     CALL                  FAR PTR CAR2
                                 JMP                   EXITRIGHT2
-    LABELRIGHT21:               
+    LABELRIGHT21:
                                 CMP                   CHECKPASSEDOBSTACLE2,0
                                 JZ                    STARTRIGHT2
                                 MOV                   CANPASS_CAR2,0
                                 MOV                   CHECKPASSEDOBSTACLE2,0
                                 JMP                   STARTRIGHT2
-    LABELRIGHT22:               
+    LABELRIGHT22:
                                 MOV                   CHECKPASSEDOBSTACLE2,1
                                 JMP                   STARTRIGHT2
-    EXITRIGHT2:                 
+    EXITRIGHT2:
                                 JMP                   LEFT2
 
-    AGAIN2:                     
+    AGAIN2:
                                 CMP                   POWCAR1,1
                                 JNE                   BBB
                                 CALL                  FAR PTR ACTIVATE_POWER_UP_CAR1
     BBB:                        CMP                   POWCAR2,1
                                 JNE                   ASD
                                 CALL                  FAR PTR ACTIVATE_POWER_UP_CAR2
-    ASD:                        
+    ASD:
                                 Delay
                                 JMP                   AGAIN
 
-    LEFT2:                      
+    LEFT2:
                                 CMP                   moveDirectionLeftC2, 1
                                 JNZ                   DOWN2_1
 
@@ -1119,7 +1121,7 @@ MAIN PROC FAR
                                 JZ                    LABELLEFT22
                                 JMP                   EXITLEFT2
     DOWN2_1:                    JMP                   DOWN2
-    STARTLEFT2:                 
+    STARTLEFT2:
 
                                 CALL                  FAR PTR RESETCAR2
                                 MOV                   STATE2,2
@@ -1138,21 +1140,21 @@ MAIN PROC FAR
                                 CALL                  FAR PTR PASSOBSTACLE_CAR2
     CONT11:                     CALL                  FAR PTR CAR2
                                 JMP                   EXITLEFT2
-    LABELLEFT21:                
+    LABELLEFT21:
                                 CMP                   CHECKPASSEDOBSTACLE2,0
                                 JZ                    STARTLEFT2
                                 MOV                   CANPASS_CAR2,0
                                 MOV                   CHECKPASSEDOBSTACLE2,0
                                 JMP                   STARTLEFT2
-    LABELLEFT22:                
+    LABELLEFT22:
                                 MOV                   CHECKPASSEDOBSTACLE2,1
                                 JMP                   STARTLEFT2
-    EXITLEFT2:                  
+    EXITLEFT2:
                                 JMP                   DOWN2
 
     BRIDGE1:                    JMP                   AGAIN2
 
-    DOWN2:                      
+    DOWN2:
                                 CMP                   moveDirectionDownC2, 1
                                 JNZ                   BRIDGE1
 
@@ -1166,7 +1168,7 @@ MAIN PROC FAR
                                 CMP                   CANPASS_CAR2,1
                                 JZ                    LABELDOWN22
                                 JMP                   EXITDOWN2
-    STARTDOWN2:                 
+    STARTDOWN2:
 
                                 CALL                  FAR PTR RESETCAR2
                                 MOV                   STATE2,3
@@ -1187,21 +1189,21 @@ MAIN PROC FAR
                                 CALL                  FAR PTR PASSOBSTACLE_CAR2
     CONT12:                     CALL                  FAR PTR CAR2
                                 JMP                   EXITDOWN2
-    LABELDOWN21:                
+    LABELDOWN21:
                                 CMP                   CHECKPASSEDOBSTACLE2,0
                                 JZ                    STARTDOWN2
                                 MOV                   CANPASS_CAR2,0
                                 MOV                   CHECKPASSEDOBSTACLE2,0
                                 JMP                   STARTDOWN2
-    LABELDOWN22:                
+    LABELDOWN22:
                                 MOV                   CHECKPASSEDOBSTACLE2,1
                                 JMP                   STARTDOWN2
-    EXITDOWN2:                  
-    DOWN2_5312:                 
+    EXITDOWN2:
+    DOWN2_5312:
 
                                 JMP                   AGAIN2
 
-    CAR_EXIT:                   
+    CAR_EXIT:
 
     ;Return Interrupt 9
                                 CLI
@@ -1218,7 +1220,7 @@ MAIN PROC FAR
                                 pop                   ds
                                 STI
 
-    EXIT_PROGRAM:               
+    EXIT_PROGRAM:
                                 JMP                   KOBRY3
                                 MOV                   AH, 0
                                 INT                   16H
@@ -1319,7 +1321,7 @@ GenerateTrack proc far
                                 call                  far ptr RightDirection                   ;at the begain of the track mov up
 
 
-    Road:                       
+    Road:
                                 MOV                   AX,0
                                 ADD                   AL, FUp
                                 ADD                   AL, FLeft
@@ -1352,11 +1354,11 @@ GenerateTrack proc far
                                 CMP                   RandomValue,9
                                 JlE                   Down
                                 jmp                   Road
-    RRight:                     
+    RRight:
                                 jmp                   Right
-    EEXIT:                      
+    EEXIT:
                                 ret                                                            ; if(num==9) move to Right
-    UP:                         
+    UP:
                                 MOV                   CX,XAxis
                                 MOV                   DX,YAxis
                                 SUB                   DX,StepValue
@@ -1372,7 +1374,7 @@ GenerateTrack proc far
                                 call                  far ptr UpDirection                      ; calling move up
                                 POP                   BX
                                 jmp                   Road                                     ;return to creat randam number again
-    Down:                       
+    Down:
                                 MOV                   CX,XAxis
                                 MOV                   DX, YAxis
                                 ADD                   DX,StepValue
@@ -1388,7 +1390,7 @@ GenerateTrack proc far
                                 call                  far ptr DownDirection                    ; calling move down
                                 POP                   BX
                                 jmp                   Road                                     ;return to creat randam number again
-    Left:                       
+    Left:
                                 MOV                   CX,XAxis
                                 SUB                   CX,StepValue
                                 SUB                   CX,2*TrackWidth+3
@@ -1404,9 +1406,9 @@ GenerateTrack proc far
                                 call                  far ptr LeftDirection
                                 POP                   BX
                                 jmp                   Road                                     ;return to creat randam number again
-    FROAD:                      
+    FROAD:
                                 JMP                   FAR PTR Road
-    Right:                      
+    Right:
                                 MOV                   CX,XAxis
                                 ADD                   CX,StepValue
                                 ADD                   CX ,2*TrackWidth+3
@@ -1422,7 +1424,7 @@ GenerateTrack proc far
                                 call                  far ptr RightDirection                   ; calling move up
                                 POP                   BX
                                 jmp                   Road                                     ;return to creat randam number again
-    EXIT:                       
+    EXIT:
                                 ret
 GenerateTrack endp
     ;*************************************************************************
@@ -1446,7 +1448,7 @@ Check proc far
                                 CMP                   CX,10
                                 JlE                   NO1
                                 ret
-    NO1:                        
+    NO1:
                                 MOV                   FLAGE,1
                                 RET
 Check endp
@@ -1459,11 +1461,11 @@ CheckBefore proc far
                                 PUSH                  CX
                                 PUSH                  DX
                                 JMP                   CON5
-    LEFTFLAG3:                  
+    LEFTFLAG3:
                                 JMP                   FAR PTR LEFTFLAG2
-    RIGHTFLAGE3:                
+    RIGHTFLAGE3:
                                 JMP                   FAR PTR RIGHTFLAGE2
-    CON5:                       
+    CON5:
                                 CMP                   AX,0
                                 JZ                    UPFLAG2
                                 CMP                   AX,1
@@ -1495,9 +1497,9 @@ CheckBefore proc far
                                 POP                   DX
                                 POP                   CX
                                 RET
-    UPFLAG3:                    
+    UPFLAG3:
                                 JMP                   FAR PTR UPFLAG
-    DOWNFLAGE2:                 
+    DOWNFLAGE2:
                                 POP                   DX
                                 POP                   CX
                                 PUSH                  CX
@@ -1521,11 +1523,11 @@ CheckBefore proc far
                                 POP                   DX
                                 POP                   CX
                                 RET
-    DOWNFLAGE3:                 
+    DOWNFLAGE3:
                                 JMP                   FAR PTR DOWNFLAGE
-    RIGHTFLAGE4:                
+    RIGHTFLAGE4:
                                 JMP                   FAR PTR RIGHTFLAGE
-    RIGHTFLAGE2:                
+    RIGHTFLAGE2:
                                 POP                   DX
                                 POP                   CX
                                 PUSH                  CX
@@ -1549,7 +1551,7 @@ CheckBefore proc far
                                 POP                   DX
                                 POP                   CX
                                 RET
-    LEFTFLAG2:                  
+    LEFTFLAG2:
                                 POP                   DX
                                 POP                   CX
                                 PUSH                  CX
@@ -1573,22 +1575,22 @@ CheckBefore proc far
                                 POP                   DX
                                 POP                   CX
                                 RET
-    UPFLAG:                     
+    UPFLAG:
                                 POP                   DX
                                 POP                   CX
                                 MOV                   FUp,1                                    ;move intersect to be 1 indicate thet there is intersection
                                 ret
-    RIGHTFLAGE:                 
+    RIGHTFLAGE:
                                 POP                   DX
                                 POP                   CX
                                 MOV                   FRgiht,1
                                 ret
-    LEFTFLAG:                   
+    LEFTFLAG:
                                 POP                   DX
                                 POP                   CX
                                 MOV                   FLeft,1
                                 ret
-    DOWNFLAGE:                  
+    DOWNFLAGE:
                                 POP                   DX
                                 POP                   CX
                                 MOV                   FDown,1
@@ -1611,28 +1613,28 @@ CheckBefore endp
     ;                                 MOV                   BH ,00
     ;                                 INT                   10H
 
-    ;                                 MOV                   CX,20
-    ;                                 MOV                   DX , 150
+    ;                                 MOV                   CX,StatingPointX
+    ;                                 MOV                   DX , StatingPointY
     ;                                 MOV                   SI ,0
-    ;                                 MOV                   BX, OFFSET ArrDirection
+    ;                                 MOV                   DI, OFFSET ArrDirection
 
     ;     LOOP111:
     ;                                 mov                   al, 0
-    ;                                 CMP                   [BX],al
+    ;                                 CMP                   AL,[DI]
     ;                                 JNZ                   CHECK1
     ;                                 DEC                   DX
     ;                                 call                  far ptr ColorRoadLanes
     ;                                 jmp                   e
     ;     Check1:
     ;                                 mov                   al ,1
-    ;                                 cmp                   [BX],ax
+    ;                                 cmp                   AL,[DI]
     ;                                 JNZ                   CHECK2
     ;                                 INC                   CX
     ;                                 call                  far ptr ColorRoadLanes
     ;                                 JMP                   e
     ;     Check2:
     ;                                 mov                   al ,2
-    ;                                 cmp                   [bx],al
+    ;                                 cmp                   AL,[DI]
     ;                                 jnz                   Check3
     ;                                 dec                   cx
     ;                                 call                  far ptr ColorRoadLanes
@@ -1644,7 +1646,7 @@ CheckBefore endp
     ;                                 call                  far ptr ColorRoadLanes
     ;     e:
     ;                                 inc                   si
-    ;                                 inc                   bx
+    ;                                 inc                   DI
     ;                                 cmp                   si ,COUNTERARR
     ;                                 jnz                   loop111                                  ;
     ;                                 ret
@@ -1675,34 +1677,34 @@ RightDirection proc far
 
                                 cmp                   LastDirection,2                          ; if the last direction is left we will make Uturn
                                 jz                    FarExitRight
-    FarExitRight:               
+    FarExitRight:
                                 ret
-    farGoRight:                 
+    farGoRight:
                                 JMP                   FAR PTR GoRight
-    farGoDownRight:             
+    farGoDownRight:
                                 jmp                   far ptr GoDownRight
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    GoUPRight:                  
+    GoUPRight:
                                 CALL                  FAR PTR LDAndUR
-    FixGoUPRight:               
+    FixGoUPRight:
                                 CALL                  FAR PTR FixURAndDR
                                 jmp                   GoRight                                  ;go up some pixels
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    GoDownRight:                
+    GoDownRight:
                                 CALL                  FAR PTR DRAndLU
                                 JMP                   FixGoDownRight
-    fExitRight:                 
+    fExitRight:
                                 ret
-    FixGoDownRight:             
+    FixGoDownRight:
                                 CALL                  FAR PTR FixURAndDR
                                 jmp                   GoRight                                  ;go up some pixels
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    GoRight:                    
+    GoRight:
     ;                                CALL          FAR PTR KeepTrackWithAxis
                                 MOV                   CX,XAxis                                 ;start from the middle
                                 MOV                   BX ,XAxis                                ;SAVE THE END POINT IN SI   X+STEPVALUE
                                 ADD                   BX,StepValue
-    FirstLoopRight:             
+    FirstLoopRight:
                                 MOV                   DX,YAxis                                 ;start from the middle -width  going to ->middle +width
                                 SUB                   DX,TrackWidth
                                 MOV                   SI,0                                     ;indicat how many pixel i draw right now to make red walls
@@ -1710,7 +1712,7 @@ RightDirection proc far
 
                                 CALL                  FAR PTR ColorWall                        ; COLOR OF WALL IS RED
                                 INC                   DX
-    SecondLoopRight:            
+    SecondLoopRight:
                                 JZ                    fExitRight
                                 CMP                   SI ,TrackWidth-1
                                 JNZ                   M
@@ -1723,9 +1725,9 @@ RightDirection proc far
                                 POP                   DI
                                 CALL                  FAR PTR KeepTrackWithAxis
                                 JMP                   CONTINUE
-    M:                          
+    M:
                                 CALL                  FAR PTR ColorRoad
-    CONTINUE:                   
+    CONTINUE:
                                 INC                   DX                                       ;inc column by one to draw horizontal line the width is 2*trackwidth without wall
                                 INC                   SI                                       ;INC counter
                                 CMP                   SI,2*TrackWidth-1                        ;compare the to current width with 2*TrackWidth
@@ -1738,7 +1740,7 @@ RightDirection proc far
                                 MOV                   XAxis,BX                                 ;set y-axis with the new value
 
                                 JMP                   ExitRight                                ;go to generte randam number agian
-    ExitRight:                  
+    ExitRight:
                                 MOV                   LastDirection ,1
                                 INC                   CurrentBlock                             ;inc the counter of road blocks
                                 ret
@@ -1757,41 +1759,41 @@ LeftDirection proc far
                                 jz                    farExitLeft
                                 cmp                   LastDirection,2                          ; if the last direction is left we will make Uturn
                                 jz                    farGoLeft
-    farExitLeft:                
+    farExitLeft:
                                 ret
-    farGoLeft:                  
+    farGoLeft:
                                 JMP                   FAR PTR GoLeft
-    farGoDownLeft:              
+    farGoDownLeft:
                                 jmp                   FAR PTR GoDownLeft
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    GoUPLeft:                   
+    GoUPLeft:
                                 CALL                  FAR PTR RDAndUL
-    FixGoUPLeft:                
+    FixGoUPLeft:
                                 CALL                  FAR PTR FixULAndDL
                                 jmp                   GoLeft                                   ;go up some pixels
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    GoDownLeft:                 
+    GoDownLeft:
                                 CALL                  FAR PTR DLAndRU
                                 JMP                   FixGoDownLeft
-    FExitLeft:                  
+    FExitLeft:
                                 ret
-    FixGoDownLeft:              
+    FixGoDownLeft:
                                 CALL                  FAR PTR FixULAndDL
                                 jmp                   GoLeft                                   ;go up some pixels
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    GoLeft:                     
+    GoLeft:
     ;                                CALL          FAR PTR KeepTrackWithAxis
                                 MOV                   CX,XAxis                                 ;start from the middle
                                 MOV                   BX ,XAxis                                ;SAVE THE END POINT IN BX   X+STEPVALUE
                                 SUB                   BX,StepValue
-    FirstLoopLeft:              
+    FirstLoopLeft:
                                 MOV                   DX,YAxis                                 ;start from the middle -width  going to ->middle +width
                                 SUB                   DX,TrackWidth
                                 MOV                   SI,0                                     ;start a counter
     ;draw the wall left
                                 CALL                  FAR PTR ColorWall
                                 INC                   DX
-    SecondLoopLeft:             
+    SecondLoopLeft:
                                 CMP                   SI ,TrackWidth-1
                                 JNZ                   LEF
 
@@ -1804,9 +1806,9 @@ LeftDirection proc far
                                 POP                   DI
                                 CALL                  FAR PTR KeepTrackWithAxis
                                 JMP                   CONTINUELEFT
-    LEF:                        
+    LEF:
                                 CALL                  FAR PTR ColorRoad
-    CONTINUELEFT:               
+    CONTINUELEFT:
                                 INC                   DX                                       ;inc column by one to draw horizontal line the width is 2*trackwidth without wall
                                 INC                   SI                                       ;INC counter
                                 CMP                   SI,2*TrackWidth-1                        ;compare the to current width with 2*TrackWidth
@@ -1819,7 +1821,7 @@ LeftDirection proc far
                                 MOV                   XAxis,BX                                 ;set y-axis with the new value
 
                                 JMP                   ExitLeft                                 ;go to generte randam number agian
-    ExitLeft:                   
+    ExitLeft:
                                 MOV                   LastDirection ,2
                                 INC                   CurrentBlock                             ;inc the counter of road blocks
                                 ret
@@ -1838,23 +1840,23 @@ UpDirection proc far
                                 jz                    GoRightUp
                                 cmp                   LastDirection,2                          ; if the last direction is left we will make Uturn
                                 jz                    farGoLeftUp
-    farExitUP:                  
+    farExitUP:
                                 ret
-    farGoLeftUp:                
+    farGoLeftUp:
                                 jmp                   far ptr GoLeftUp
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    GoUp:                       
+    GoUp:
     ;                                CALL          FAR PTR KeepTrackWithAxis
                                 MOV                   BX,YAxis                                 ;END point of row
                                 SUB                   BX,StepValue
                                 MOV                   DX,YAxis                                 ;put the valus of y-axis ->row
-    FirstLoopUP:                
+    FirstLoopUP:
                                 MOV                   CX,XAxis                                 ;start from the middle -width  to ->middle +width
                                 SUB                   CX,TrackWidth
                                 MOV                   SI,0                                     ;restart counter
                                 CALL                  FAR PTR ColorWall
                                 INC                   CX                                       ;move to the next right pixel
-    SecondLoopUP:               
+    SecondLoopUP:
                                 CMP                   SI ,TrackWidth-1
                                 JNZ                   U
                                 CALL                  FAR PTR ColorRoadLanes
@@ -1867,9 +1869,9 @@ UpDirection proc far
 
                                 CALL                  FAR PTR KeepTrackWithAxis
                                 JMP                   CONTINUEUP
-    U:                          
+    U:
                                 CALL                  FAR PTR ColorRoad
-    CONTINUEUP:                 
+    CONTINUEUP:
                                 INC                   CX
                                 INC                   SI                                       ;INC counter
                                 CMP                   SI,2*TrackWidth-1                        ;compare the to current width with 2*TrackWidth
@@ -1882,20 +1884,20 @@ UpDirection proc far
     ;                                CALL          FAR PTR KeepTrackWithAxis
                                 JMP                   ExitUP                                   ;go to generte randam number agian
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    GoRightUp:                  
+    GoRightUp:
                                 CALL                  FAR PTR DLAndRU
-    FixGoRightUp:               
+    FixGoRightUp:
                                 CALL                  FAR PTR FixLUAndRU
                                 jmp                   GoUp                                     ;go up some pixels
-    FExitup:                    
+    FExitup:
                                 ret
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    GoLeftUp:                   
+    GoLeftUp:
                                 CALL                  FAR PTR DRAndLU                          ;if the end point =0 exit loop
-    FixGoLeftUp:                
+    FixGoLeftUp:
                                 cALL                  FAR PTR FixLUAndRU
                                 jmp                   GoUp                                     ;go up some pixels
-    ExitUP:                     
+    ExitUP:
                                 MOV                   LastDirection ,0
                                 INC                   CurrentBlock                             ;inc the counter of road blocks
                                 ret
@@ -1914,17 +1916,17 @@ DownDirection proc far
                                 jz                    GoRightDown
                                 cmp                   LastDirection,2                          ; if the last direction is left we will make Uturn
                                 jz                    farGoLeftDown
-    farExitDown:                
+    farExitDown:
                                 RET
-    farGoLeftDown:              
+    farGoLeftDown:
                                 jmp                   far ptr GoLeftDown
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    GoDown:                     
+    GoDown:
     ;                                CALL          FAR PTR KeepTrackWithAxis
                                 MOV                   BX,YAxis                                 ;END point of row
                                 add                   BX,StepValue
                                 MOV                   DX,YAxis                                 ;put the valus of y-axis ->row
-    FirstLoopDown:              
+    FirstLoopDown:
                                 MOV                   CX,XAxis                                 ;start from the middle -width  to ->middle +width
                                 SUB                   CX,TrackWidth
                                 MOV                   SI,0                                     ;restart counter
@@ -1932,7 +1934,7 @@ DownDirection proc far
                                 JZ                    farExitDown
                                 CALL                  FAR PTR ColorWall
                                 INC                   CX                                       ;move to the next right pixel
-    SecondLoopDown:             
+    SecondLoopDown:
                                 CMP                   SI ,TrackWidth-1
                                 JNZ                   DO
                                 CALL                  FAR PTR ColorRoadLanes
@@ -1944,9 +1946,9 @@ DownDirection proc far
                                 POP                   DI
                                 CALL                  FAR PTR KeepTrackWithAxis
                                 JMP                   CONTINUEDOWN
-    DO:                         
+    DO:
                                 CALL                  FAR PTR ColorRoad
-    CONTINUEDOWN:               
+    CONTINUEDOWN:
                                 INC                   CX                                       ;inc column by one to draw horizontal line the width is 2*trackwidth without wall
                                 INC                   SI                                       ;INC counter
                                 CMP                   SI,2*TrackWidth-1                        ;compare the to current width with 2*TrackWidth
@@ -1961,21 +1963,21 @@ DownDirection proc far
     ;                                CALL          FAR PTR KeepTrackWithAxis
                                 JMP                   ExiTDown                                 ;go to generte randam number agian
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    GoRightDown:                
+    GoRightDown:
                                 CALL                  FAR PTR RDAndUL
-    FixGoRightDwon:             
+    FixGoRightDwon:
                                 CALL                  FAR PTR FixLDAndRD
 
                                 jmp                   GoDown
-    fExitDown:                  
+    fExitDown:
                                 ret
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    GoLeftdown:                 
+    GoLeftdown:
                                 cALL                  FAR PTR LDAndUR
-    FixGoLeftdown:              
+    FixGoLeftdown:
                                 CALL                  FAR PTR FixLDAndRD
                                 jmp                   GoDown
-    EXITDown:                   
+    EXITDown:
                                 MOV                   LastDirection ,3
                                 INC                   CurrentBlock
                                 ret
@@ -2020,9 +2022,9 @@ ColorRoadEnd PROC FAR
                                 JNZ                   End_track
                                 MOV                   AL , ROAD_COLOR_BEGIN
                                 JMP                   CON10
-    End_track:                  
+    End_track:
                                 MOV                   AL ,ROAD_COLOR_END                       ;blue
-    con10:                      
+    con10:
                                 INT                   10H
                                 RET
 ColorRoadEnd ENDP
@@ -2035,7 +2037,7 @@ DLAndRU PROC FAR
                                 MOV                   DX ,YAxis
                                 MOV                   BL,TrackWidth+1
                                 MOV                   BH ,0
-    DLRU1:                      
+    DLRU1:
                                 MOV                   CX,XAxis                                 ;     **********
                                 MOV                   BH ,0                                    ;     **********
     DLRU2:                                                                                     ;     **********
@@ -2045,9 +2047,9 @@ DLAndRU PROC FAR
                                 CALL                  FAR PTR ColorWall
                                 JMP                   con6
 
-    NOTWALL:                    
+    NOTWALL:
                                 CALL                  FAR PTR ColorRoad                        ;***************    THIS LINE  MADE BY FIXDLAndRU
-    con6:                       
+    con6:
                                 INC                   CX                                       ;***************    THIS LINE  MADE BY FIXDLAndRU
                                 INC                   BH                                       ;*************   ---
                                 CMP                   BH, TrackWidth                           ;***********        | --> DLAndRU
@@ -2068,10 +2070,10 @@ RDAndUL PROC FAR
                                 MOV                   DX ,YAxis
                                 MOV                   BL,TrackWidth+1
                                 MOV                   BH ,0
-    RDUL1:                      
+    RDUL1:
                                 MOV                   CX,XAxis
                                 MOV                   BH ,0
-    RDUL2:                      
+    RDUL2:
 
 
                                 CMP                   BL, 1
@@ -2079,9 +2081,9 @@ RDAndUL PROC FAR
                                 CALL                  FAR PTR ColorWall
                                 JMP                   con7
 
-    NOTWALL2:                   
+    NOTWALL2:
                                 CALL                  FAR PTR ColorRoad
-    con7:                       
+    con7:
                                 INC                   CX
                                 INC                   BH
                                 CMP                   BH, TrackWidth
@@ -2101,18 +2103,18 @@ DRAndLU PROC FAR
                                 MOV                   CX ,XAxis
                                 MOV                   BL,TrackWidth+1
                                 MOV                   BH ,0
-    DRLU1:                      
+    DRLU1:
                                 MOV                   DX,YAxis
                                 MOV                   BH ,0
-    DRLU2:                      
+    DRLU2:
                                 CMP                   BL, 1
                                 JNZ                   NOTWALL3
                                 CALL                  FAR PTR ColorWall
                                 JMP                   con8
 
-    NOTWALL3:                   
+    NOTWALL3:
                                 CALL                  FAR PTR ColorRoad                        ;***************    THIS LINE  MADE BY FIXDLAndRU
-    con8:                       
+    con8:
                                 INC                   DX
                                 INC                   BH
                                 CMP                   BH, TrackWidth
@@ -2132,18 +2134,18 @@ LDAndUR PROC FAR
                                 MOV                   CX,XAxis
                                 MOV                   BL,TrackWidth+1
                                 MOV                   BH ,0
-    LDRU1:                      
+    LDRU1:
                                 MOV                   DX , YAxis
                                 MOV                   BH ,0
-    LDRU2:                      
+    LDRU2:
                                 CMP                   BL, 1
                                 JNZ                   NOTWALL4
                                 CALL                  FAR PTR ColorWall
                                 JMP                   con9
 
-    NOTWALL4:                   
+    NOTWALL4:
                                 CALL                  FAR PTR ColorRoad                        ;***************    THIS LINE  MADE BY FIXDLAndRU
-    con9:                       
+    con9:
                                 DEC                   DX
                                 INC                   BH
                                 CMP                   BH, TrackWidth
@@ -2164,21 +2166,21 @@ FixLUAndRU PROC FAR
                                 MOV                   DX,YAxis
                                 MOV                   BX,YAxis
                                 SUB                   BX,TrackWidth
-    LURU1:                      
+    LURU1:
                                 MOV                   CX,XAxis
                                 CMP                   LastDirection,1
                                 JNZ                   RU
                                 ADD                   CX,TrackWidth
-    RU:                         
+    RU:
                                 MOV                   SI,0
-    LURU2:                      
+    LURU2:
                                 CMP                   SI ,1
                                 JGE                   FLU
                                 CMP                   LastDirection,2
                                 JZ                    WALL
                                 CALL                  FAR PTR ColorWall
                                 JMP                   ConLU
-    WALL:                       
+    WALL:
                                 PUSH                  DI
                                 MOV                   DI , OFFSET ArrDirection
                                 ADD                   DI,COUNTERARR
@@ -2189,9 +2191,9 @@ FixLUAndRU PROC FAR
 
                                 CALL                  FAR PTR ColorRoadLanes
                                 JMP                   ConLU
-    FLU:                        
+    FLU:
                                 CALL                  FAR PTR ColorRoad
-    ConLU:                      
+    ConLU:
                                 DEC                   CX
                                 INC                   SI
                                 CMP                   SI,TrackWidth
@@ -2207,9 +2209,9 @@ FixLUAndRU PROC FAR
                                 CALL                  FAR PTR KeepTrackWithAxis
                                 CALL                  FAR PTR ColorRoadLanes
                                 JMP                   CON
-    LINES:                      
+    LINES:
                                 CALL                  FAR PTR ColorWall
-    CON:                        
+    CON:
                                 DEC                   DX
                                 CMP                   DX,BX
                                 JNZ                   LURU1
@@ -2225,14 +2227,14 @@ FixLDAndRD PROC FAR
                                 MOV                   DX,YAxis
                                 MOV                   BX,YAxis
                                 ADD                   BX,TrackWidth
-    LDRD1:                      
+    LDRD1:
                                 MOV                   CX,XAxis
                                 CMP                   LastDirection,2
                                 JNZ                   FixLD
                                 SUB                   CX,TrackWidth
-    FixLD:                      
+    FixLD:
                                 MOV                   SI,0
-    LDRD2:                      
+    LDRD2:
                                 CMP                   SI ,1
                                 JGE                   FRD
                                 CMP                   LastDirection,1
@@ -2240,7 +2242,7 @@ FixLDAndRD PROC FAR
                                 CALL                  FAR PTR ColorWall
                                 JMP                   ConLD
 
-    WALL2:                      
+    WALL2:
                                 PUSH                  DI
                                 MOV                   DI , OFFSET ArrDirection
                                 ADD                   DI,COUNTERARR
@@ -2250,9 +2252,9 @@ FixLDAndRD PROC FAR
                                 CALL                  FAR PTR KeepTrackWithAxis
                                 CALL                  FAR PTR ColorRoadLanes
                                 JMP                   ConLD
-    FRD:                        
+    FRD:
                                 CALL                  FAR PTR ColorRoad
-    ConLD:                      
+    ConLD:
                                 INC                   CX
                                 INC                   SI
                                 CMP                   SI,TrackWidth
@@ -2268,9 +2270,9 @@ FixLDAndRD PROC FAR
                                 CALL                  FAR PTR KeepTrackWithAxis
                                 CALL                  FAR PTR ColorRoadLanes
                                 JMP                   CON2
-    LINES2:                     
+    LINES2:
                                 CALL                  FAR PTR ColorWall
-    CON2:                       
+    CON2:
                                 INC                   DX
                                 CMP                   DX,BX
                                 JNZ                   LDRD1
@@ -2286,21 +2288,21 @@ FixURAndDR PROC FAR
                                 MOV                   CX,XAxis
                                 MOV                   BX,XAxis
                                 ADD                   BX,TrackWidth
-    URDR1:                      
+    URDR1:
                                 MOV                   DX,YAxis
                                 CMP                   LastDirection,0
                                 JNZ                   FixUR
                                 SUB                   DX,TrackWidth
-    FixUR:                      
+    FixUR:
                                 MOV                   SI,0
-    URDR2:                      
+    URDR2:
                                 CMP                   SI ,1
                                 JGE                   FUR
                                 CMP                   LastDirection,3
                                 JZ                    WALL3
                                 CALL                  FAR PTR ColorWall
                                 JMP                   ConUR
-    WALL3:                      
+    WALL3:
                                 PUSH                  DI
                                 MOV                   DI , OFFSET ArrDirection
                                 ADD                   DI,COUNTERARR
@@ -2310,9 +2312,9 @@ FixURAndDR PROC FAR
                                 CALL                  FAR PTR KeepTrackWithAxis
                                 CALL                  FAR PTR ColorRoadLanes
                                 JMP                   ConUR
-    FUR:                        
+    FUR:
                                 CALL                  FAR PTR ColorRoad
-    ConUR:                      
+    ConUR:
                                 INC                   DX
                                 INC                   SI
                                 CMP                   SI,TrackWidth
@@ -2328,9 +2330,9 @@ FixURAndDR PROC FAR
                                 CALL                  FAR PTR KeepTrackWithAxis
                                 CALL                  FAR PTR ColorRoadLanes
                                 JMP                   CON3
-    LINES3:                     
+    LINES3:
                                 CALL                  FAR PTR ColorWall
-    CON3:                       
+    CON3:
                                 INC                   CX
                                 CMP                   CX,BX
                                 JNZ                   URDR1
@@ -2346,14 +2348,14 @@ FixULAndDL PROC FAR
                                 MOV                   CX,XAxis
                                 MOV                   BX,XAxis
                                 SUB                   BX,TrackWidth
-    ULDL1:                      
+    ULDL1:
                                 MOV                   DX,YAxis
                                 CMP                   LastDirection,0
                                 JNZ                   FixUL
                                 SUB                   DX,TrackWidth
-    FixUL:                      
+    FixUL:
                                 MOV                   SI,0
-    ULDL2:                      
+    ULDL2:
                                 CMP                   SI ,1
                                 JGE                   FUL
                                 CMP                   LastDirection,3
@@ -2361,7 +2363,7 @@ FixULAndDL PROC FAR
                                 CALL                  FAR PTR ColorWall
                                 JMP                   ConUL
 
-    WALL4:                      
+    WALL4:
                                 PUSH                  DI
                                 MOV                   DI , OFFSET ArrDirection
                                 ADD                   DI,COUNTERARR
@@ -2371,27 +2373,27 @@ FixULAndDL PROC FAR
                                 CALL                  FAR PTR KeepTrackWithAxis
                                 CALL                  FAR PTR ColorRoadLanes
                                 JMP                   ConUL
-    FUL:                        
+    FUL:
                                 CALL                  FAR PTR ColorRoad
-    ConUL:                      
+    ConUL:
                                 INC                   DX
                                 INC                   SI
                                 CMP                   SI,TrackWidth
                                 JNZ                   ULDL2
                                 CMP                   LastDirection,3
                                 JZ                    LINES4
-    ; PUSH                  DI
-    ; MOV                   DI , OFFSET ArrDirection
-    ; ADD                   DI,COUNTERARR
-    ; MOV                   AL ,2
-    ; MOV                   [DI],AL
-    ; POP                   DI
+    PUSH                  DI
+    MOV                   DI , OFFSET ArrDirection
+    ADD                   DI,COUNTERARR
+    MOV                   AL ,2
+    MOV                   [DI],AL
+    POP                   DI
                                 CALL                  FAR PTR KeepTrackWithAxis
                                 CALL                  FAR PTR ColorRoadLanes
                                 JMP                   CON4
-    LINES4:                     
+    LINES4:
                                 CALL                  FAR PTR ColorWall
-    CON4:                       
+    CON4:
                                 DEC                   CX
                                 CMP                   CX,BX
                                 JNZ                   ULDL1
@@ -2410,15 +2412,15 @@ ENDTRACK PROC FAR
                                 CMP                   LastDirection,2
                                 JZ                    LLEFT
                                 JMP                   LDOWN
-    LUP:                        
+    LUP:
                                 MOV                   BX,YAxis
                                 SUB                   BX,1
                                 MOV                   DX,YAxis
-    LastLoopUP:                 
+    LastLoopUP:
                                 MOV                   CX,XAxis
                                 SUB                   CX,TrackWidth
                                 MOV                   SI,0
-    LastSecondLoopUP:           
+    LastSecondLoopUP:
                                 CALL                  FAR PTR ColorRoadEnd
                                 INC                   CX
                                 INC                   SI
@@ -2429,15 +2431,15 @@ ENDTRACK PROC FAR
                                 JNZ                   LastLoopUP
                                 MOV                   YAxis,BX
                                 JMP                   LastExit
-    LRIGH:                      
+    LRIGH:
                                 MOV                   CX,XAxis
                                 MOV                   BX ,XAxis
                                 ADD                   BX,1
-    LastFirstLoopRight:         
+    LastFirstLoopRight:
                                 MOV                   DX,YAxis
                                 SUB                   DX,TrackWidth
                                 MOV                   SI,0
-    LastSecondLoopRight:        
+    LastSecondLoopRight:
                                 CALL                  FAR PTR ColorRoadEnd
                                 INC                   DX
                                 INC                   SI
@@ -2448,15 +2450,15 @@ ENDTRACK PROC FAR
                                 JNZ                   LastFirstLoopRight
                                 MOV                   XAxis,BX
                                 JMP                   LastExit
-    LLEFT:                      
+    LLEFT:
                                 MOV                   CX,XAxis
                                 MOV                   BX ,XAxis
                                 SUB                   BX,1
-    LastFirstLoopLeft:          
+    LastFirstLoopLeft:
                                 MOV                   DX,YAxis
                                 SUB                   DX,TrackWidth
                                 MOV                   SI,0
-    LastSecondLoopLeft:         
+    LastSecondLoopLeft:
                                 CALL                  FAR PTR ColorRoadEnd
                                 INC                   DX
                                 INC                   SI
@@ -2467,16 +2469,16 @@ ENDTRACK PROC FAR
                                 JNZ                   LastFirstLoopLeft
                                 MOV                   XAxis,BX
                                 JMP                   ExitLeft
-    LDOWN:                      
+    LDOWN:
                                 MOV                   BX,YAxis
                                 add                   BX,1
                                 MOV                   DX,YAxis
-    LastFirstLoopDown:          
+    LastFirstLoopDown:
                                 MOV                   CX,XAxis
                                 SUB                   CX,TrackWidth
                                 MOV                   SI,0
     ;move to the next right pixel
-    LastSecondLoopDown:         
+    LastSecondLoopDown:
                                 CALL                  FAR PTR ColorRoadEnd
                                 INC                   CX
                                 INC                   SI
@@ -2487,7 +2489,7 @@ ENDTRACK PROC FAR
                                 JNZ                   LastFirstLoopDown
                                 MOV                   YAxis,BX
                                 JMP                   ExiTDown
-    LastExit:                   
+    LastExit:
                                 RET
 ENDTRACK ENDP
 
@@ -2516,7 +2518,7 @@ GenerateObstacles PROC FAR
 
 
     ;;loop to get a component in the track then draw obstacles in it then get then next component and so on, until the end
-    GENERATE_NEW_RANDOM_OB:     
+    GENERATE_NEW_RANDOM_OB:
                                 MOV                   AX, OB_StartX
                                 MOV                   DS:[BX], AX
                                 MOV                   AX, OB_StartY
@@ -2532,7 +2534,7 @@ GenerateObstacles PROC FAR
 
                                 CALL                  FAR PTR DrawRandomObstacle               ;Draw A random obstacle in this segment of the track
 
-    OB_CONT:                    
+    OB_CONT:
                                 CALL                  FAR PTR GetNextDirection                 ;Get the next direction on the track
 
                                 MOV                   AX, OB_EndX
@@ -2571,7 +2573,7 @@ DrawRandomObstacle PROC FAR
                                 JE                    VERTICAL_DIR
 
 
-    HORIZONTAL_DIR:             
+    HORIZONTAL_DIR:
 
                                 MOV                   BL, RandomValue                          ;store the random variable
                                 MOV                   BH, 0
@@ -2592,7 +2594,7 @@ DrawRandomObstacle PROC FAR
                                 MOV                   ObstaclePosY, AX                         ;Store the generated Y coordinates into the obstacle pos Y
                                 JMP                   DRAW_OBSTACLE                            ;Jmp to draw the obstacle
 
-    VERTICAL_DIR:               
+    VERTICAL_DIR:
 
                                 MOV                   BL, RandomValue                          ;store the random variable
                                 MOV                   BH, 0
@@ -2613,7 +2615,7 @@ DrawRandomObstacle PROC FAR
                                 MOV                   ObstaclePosX, AX                         ;Store the generated X coordinates into the obstacle pos X
                                 JMP                   DRAW_OBSTACLE
 
-    DRAW_OBSTACLE:              
+    DRAW_OBSTACLE:
 
                                 CALL                  FAR PTR DrawObstacle                     ;Draw the obstacle using the generated random values in ObstaclePosX, and ObstaclePosY
 
@@ -2639,10 +2641,10 @@ GenerateRandomNumBetTwoNums PROC FAR
                                 JL                    DX_BIGGER                                ;if DX is bigger then go and swap them
                                 JMP                   CONT_GRNBTN                              ;if CX is bigger then its okay
 
-    DX_BIGGER:                  
+    DX_BIGGER:
                                 XCHG                  DX, CX                                   ;Swap DX, CX
 
-    CONT_GRNBTN:                
+    CONT_GRNBTN:
                                 ADD                   DX, 3
                                 SUB                   CX, 3
 
@@ -2676,7 +2678,7 @@ GetNextDirection PROC FAR
                                 PUSH                  DX
                                 PUSH                  AX
 
-    OB_CHECK_UP:                
+    OB_CHECK_UP:
                                 CMP                   OB_Direction, OB_DOWN                    ;CHECK TO AVOID THE DIRECTION WE CAME FROM
                                 JE                    OB_CHECK_RIGHT                           ;JMP TO THE NEXT CHECK IF THIS IS THE DIRECTION WE CAME FROM
                                 MOV                   CX, OB_EndX                              ;MOVE TO CX THE X VALUE OF THE END PIXEL
@@ -2689,7 +2691,7 @@ GetNextDirection PROC FAR
                                 JMP                   OB_EXIT                                  ;EXIT BEC WE FOUND THE DIRECTION
 
 
-    OB_CHECK_RIGHT:             
+    OB_CHECK_RIGHT:
                                 CMP                   OB_Direction, OB_LEFT                    ;CHECK TO AVOID THE DIRECTION WE CAME FROM
                                 JE                    OB_CHECK_LEFT                            ;JMP TO THE NEXT CHECK IF THIS IS THE DIRECTION WE CAME FROM
                                 MOV                   CX, OB_EndX                              ;MOVE TO CX THE X VALUE OF THE END PIXEL
@@ -2701,7 +2703,7 @@ GetNextDirection PROC FAR
                                 MOV                   OB_Direction, OB_RIGHT
                                 JMP                   OB_EXIT                                  ;EXIT BEC WE FOUND THE DIRECTION
 
-    OB_CHECK_LEFT:              
+    OB_CHECK_LEFT:
                                 CMP                   OB_Direction, OB_RIGHT                   ;CHECK TO AVOID THE DIRECTION WE CAME FROM
                                 JE                    OB_CHECK_DOWN                            ;JMP TO THE NEXT CHECK IF THIS IS THE DIRECTION WE CAME FROM
                                 MOV                   CX, OB_EndX                              ;MOVE TO CX THE X VALUE OF THE END PIXEL
@@ -2713,7 +2715,7 @@ GetNextDirection PROC FAR
                                 MOV                   OB_Direction, OB_LEFT
                                 JMP                   OB_EXIT                                  ;EXIT BEC WE FOUND THE DIRECTION
 
-    OB_CHECK_DOWN:              
+    OB_CHECK_DOWN:
                                 CMP                   OB_Direction, OB_UP                      ;CHECK TO AVOID THE DIRECTION WE CAME FROM
                                 JE                    OB_CHECK_END                             ;JMP TO THE NEXT CHECK IF THIS IS THE DIRECTION WE CAME FROM
                                 MOV                   CX, OB_EndX                              ;MOVE TO CX THE X VALUE OF THE END PIXEL
@@ -2725,11 +2727,11 @@ GetNextDirection PROC FAR
                                 MOV                   OB_Direction, OB_DOWN
                                 JMP                   OB_EXIT                                  ;EXIT BEC WE FOUND THE DIRECTION
 
-    OB_CHECK_END:               
+    OB_CHECK_END:
                                 MOV                   OB_Direction, OB_NO_DIRECTION
                                 JMP                   OB_EXIT
 
-    OB_EXIT:                    
+    OB_EXIT:
 
                                 POP                   AX
                                 POP                   DX
@@ -2763,7 +2765,7 @@ GetEndOfCurrentTrackComp PROC FAR
 
     ;Go along the Up direction and loop over the white line until
     ;there are no more white pixels so we know we reached the end of this component
-    GET_END_UP:                 
+    GET_END_UP:
                                 DEC                   DX                                       ;go up one pixel
                                 GetPixelColor                                                  ;get the pixel color
                                 CMP                   AL, 0FH                                  ;check if it is white
@@ -2771,7 +2773,7 @@ GetEndOfCurrentTrackComp PROC FAR
                                 INC                   DX                                       ;if it is not white then return to the last white pixel and exit
                                 JMP                   T_CONT
 
-    GET_END_RIGHT:              
+    GET_END_RIGHT:
                                 INC                   CX                                       ;go right one pixel
                                 GetPixelColor                                                  ;get the pixel color
                                 CMP                   AL, 0FH                                  ;check if it is white
@@ -2779,7 +2781,7 @@ GetEndOfCurrentTrackComp PROC FAR
                                 DEC                   CX                                       ;if it is not white then return to the last white pixel and exit
                                 JMP                   T_CONT
 
-    GET_END_LEFT:               
+    GET_END_LEFT:
                                 DEC                   CX                                       ;go left one pixel
                                 GetPixelColor                                                  ;get the pixel color
                                 CMP                   AL, 0FH                                  ;check if it is white
@@ -2787,7 +2789,7 @@ GetEndOfCurrentTrackComp PROC FAR
                                 INC                   CX                                       ;if it is not white then return to the last white pixel and exit
                                 JMP                   T_CONT
 
-    GET_END_DOWN:               
+    GET_END_DOWN:
                                 INC                   DX                                       ;go down one pixel
                                 GetPixelColor                                                  ;get the pixel color
                                 CMP                   AL, 0FH                                  ;check if it is white
@@ -2795,7 +2797,7 @@ GetEndOfCurrentTrackComp PROC FAR
                                 DEC                   DX                                       ;if it is not white then return to the last white pixel and exit
                                 JMP                   T_CONT
 
-    T_CONT:                     
+    T_CONT:
                                 MOV                   OB_EndX, CX                              ;Move the last pixel we are at to the OB_End
                                 MOV                   OB_EndY, DX                              ;Move the last pixel we are at to the OB_End
 
@@ -2825,10 +2827,10 @@ DrawObstacle PROC FAR
                                 Sub                   ObstaclePosX, 2
                                 Sub                   ObstaclePosY, 2
 
-    OB_OUTER_LOOP:              
+    OB_OUTER_LOOP:
                                 MOV                   BL, 5
 
-    OB_INNER_LOOP:              
+    OB_INNER_LOOP:
                                 MOV                   AH, 0CH
                                 MOV                   AL, OBSTACLE_COLOR
                                 MOV                   BH, 0
@@ -2900,10 +2902,10 @@ ACTIVATE_POWER_UP_CAR1 PROC FAR
                                 PUSH                  AX
 
                                 MOV                   DX,OBSHEIGHT
-    ROWOBSUP:                   
+    ROWOBSUP:
                                 MOV                   DI,AX
                                 MOV                   CX,OBSWIDTH
-    LOOP18:                     
+    LOOP18:
                                 MOV                   AL, OBSTACLE_COLOR
                                 STOSB
                                 LOOP                  LOOP18
@@ -2918,7 +2920,7 @@ ACTIVATE_POWER_UP_CAR1 PROC FAR
 
 CANCEL:PASS1_1:JMP PASS1_2
 
-    RIGHTOBS3:                  
+    RIGHTOBS3:
                                 CMP                   STATE1,1
                                 JNZ                   LEFTOBS3
 
@@ -2929,10 +2931,10 @@ CANCEL:PASS1_1:JMP PASS1_2
 
                                 MOV                   DX,OBSWIDTH
                                 MOV                   BX,320
-    COLOBSRIGHT:                
+    COLOBSRIGHT:
                                 MOV                   DI,AX
                                 MOV                   CX,OBSHEIGHT
-    LOOP20:                     
+    LOOP20:
                                 MOV                   AL, OBSTACLE_COLOR
                                 PUSH                  DI
                                 STOSB
@@ -2949,7 +2951,7 @@ CANCEL:PASS1_1:JMP PASS1_2
 
     PASS1_2:                    JMP                   PASS1_3
 
-    LEFTOBS3:                   
+    LEFTOBS3:
                                 CMP                   STATE1,2
                                 JNZ                   DOWNOBS3
                                 MOV                   CX,HEIGHT1
@@ -2959,10 +2961,10 @@ CANCEL:PASS1_1:JMP PASS1_2
 
                                 MOV                   DX,OBSWIDTH
                                 MOV                   BX,320
-    COLOBSLEFT:                 
+    COLOBSLEFT:
                                 MOV                   DI,AX
                                 MOV                   CX,OBSHEIGHT
-    LOOP22:                     
+    LOOP22:
                                 MOV                   AL, OBSTACLE_COLOR
                                 PUSH                  DI
                                 STOSB
@@ -2979,7 +2981,7 @@ CANCEL:PASS1_1:JMP PASS1_2
 
     PASS1_3:                    JMP                   PASS1
 
-    DOWNOBS3:                   
+    DOWNOBS3:
                                 CMP                   STATE1,3
                                 JNZ                   PASS1
                                 MOV                   AX,320
@@ -2992,10 +2994,10 @@ CANCEL:PASS1_1:JMP PASS1_2
 
                                 MOV                   DX,OBSHEIGHT
                                 MOV                   BX,320
-    ROWOBSDOWN2:                
+    ROWOBSDOWN2:
                                 MOV                   DI,AX
                                 MOV                   CX,OBSWIDTH
-    LOOP32:                     
+    LOOP32:
                                 MOV                   AL, OBSTACLE_COLOR
                                 STOSB
                                 SUB                   DI,2
@@ -3014,7 +3016,7 @@ CANCEL:PASS1_1:JMP PASS1_2
                                 MOV                   CANPASS_CAR1,1
 
 
-    EXIT10:                     
+    EXIT10:
                                 RET
 ACTIVATE_POWER_UP_CAR1 ENDP
 
@@ -3063,10 +3065,10 @@ ACTIVATE_POWER_UP_CAR2 PROC FAR
                                 PUSH                  AX
 
                                 MOV                   DX,OBSHEIGHT
-    ROWOBSUP2:                  
+    ROWOBSUP2:
                                 MOV                   DI,AX
                                 MOV                   CX,OBSWIDTH
-    LOOP26:                     
+    LOOP26:
                                 MOV                   AL, OBSTACLE_COLOR
                                 STOSB
                                 LOOP                  LOOP26
@@ -3081,7 +3083,7 @@ ACTIVATE_POWER_UP_CAR2 PROC FAR
 
 CANCEL2:PASS2_1:JMP PASS2_2
 
-    RIGHTOBS4:                  
+    RIGHTOBS4:
                                 CMP                   STATE2,1
                                 JNZ                   LEFTOBS4
 
@@ -3092,10 +3094,10 @@ CANCEL2:PASS2_1:JMP PASS2_2
 
                                 MOV                   DX,OBSWIDTH
                                 MOV                   BX,320
-    COLOBSRIGHT2:               
+    COLOBSRIGHT2:
                                 MOV                   DI,AX
                                 MOV                   CX,OBSHEIGHT
-    LOOP28:                     
+    LOOP28:
                                 MOV                   AL, OBSTACLE_COLOR
                                 PUSH                  DI
                                 STOSB
@@ -3112,7 +3114,7 @@ CANCEL2:PASS2_1:JMP PASS2_2
 
     PASS2_2:                    JMP                   PASS2_3
 
-    LEFTOBS4:                   
+    LEFTOBS4:
                                 CMP                   STATE2,2
                                 JNZ                   DOWNOBS4
                                 MOV                   CX,HEIGHT2
@@ -3122,10 +3124,10 @@ CANCEL2:PASS2_1:JMP PASS2_2
 
                                 MOV                   DX,OBSWIDTH
                                 MOV                   BX,320
-    COLOBSLEFT2:                
+    COLOBSLEFT2:
                                 MOV                   DI,AX
                                 MOV                   CX,OBSHEIGHT
-    LOOP30:                     
+    LOOP30:
                                 MOV                   AL, OBSTACLE_COLOR
                                 PUSH                  DI
                                 STOSB
@@ -3142,7 +3144,7 @@ CANCEL2:PASS2_1:JMP PASS2_2
 
     PASS2_3:                    JMP                   PASS2
 
-    DOWNOBS4:                   
+    DOWNOBS4:
                                 CMP                   STATE2,3
                                 JNZ                   PASS2
                                 MOV                   AX,320
@@ -3155,10 +3157,10 @@ CANCEL2:PASS2_1:JMP PASS2_2
 
                                 MOV                   DX,OBSHEIGHT
                                 MOV                   BX,320
-    ROWOBSDOWN:                 
+    ROWOBSDOWN:
                                 MOV                   DI,AX
                                 MOV                   CX,OBSWIDTH
-    LOOP24:                     
+    LOOP24:
                                 MOV                   AL, OBSTACLE_COLOR
                                 STOSB
                                 SUB                   DI,2
@@ -3171,12 +3173,12 @@ CANCEL2:PASS2_1:JMP PASS2_2
                                 JNZ                   ROWOBSDOWN
                                 POP                   AX
 
-    PASS2:                      
+    PASS2:
                                 CMP                   PASS_CAR2,1
                                 JNZ                   EXIT11
                                 MOV                   PASS_CAR2,0
                                 MOV                   CANPASS_CAR2,1
-    EXIT11:                     
+    EXIT11:
                                 RET
 
 ACTIVATE_POWER_UP_CAR2 ENDP
@@ -3200,7 +3202,7 @@ SPEEDUP1 PROC FAR
 
                                 MOV                   SI,TOP1
                                 MOV                   CX,WIDTH1
-    LOOP1:                      
+    LOOP1:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_UP_COLOR
                                 JE                    SPEED
@@ -3208,7 +3210,7 @@ SPEEDUP1 PROC FAR
                                 LOOP                  LOOP1
                                 JMP                   EXIT2
 
-    RIGHT5:                     
+    RIGHT5:
                                 CMP                   STATE1 , 1
                                 JNZ                   LEFT5
 
@@ -3216,7 +3218,7 @@ SPEEDUP1 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH1
 
-    LOOP2:                      
+    LOOP2:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_UP_COLOR
                                 JE                    SPEED
@@ -3225,7 +3227,7 @@ SPEEDUP1 PROC FAR
 
                                 JMP                   EXIT2
 
-    LEFT5:                      
+    LEFT5:
                                 CMP                   STATE1,2
                                 JNZ                   DOWN5
 
@@ -3233,7 +3235,7 @@ SPEEDUP1 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH1
 
-    LOOP3:                      
+    LOOP3:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_UP_COLOR
                                 JE                    SPEED
@@ -3242,13 +3244,13 @@ SPEEDUP1 PROC FAR
 
                                 JMP                   EXIT2
 
-    DOWN5:                      
+    DOWN5:
                                 CMP                   STATE1 , 3
                                 MOV                   AX,TOP1
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH1
 
-    LOOP4:                      
+    LOOP4:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_UP_COLOR
                                 JE                    SPEED
@@ -3257,12 +3259,12 @@ SPEEDUP1 PROC FAR
 
                                 JMP                   EXIT2
 
-    SPEED:                      
+    SPEED:
                                 MOV                   SPEEDUP_CAR1,1
                                 MOV                   SPEEDDOWN_CAR1,0
                                 MOV                   OBSTACLE_CAR1,0
 
-    EXIT2:                      
+    EXIT2:
                                 RET
 SPEEDUP1 ENDP
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -3277,7 +3279,7 @@ SPEEDUP2 PROC FAR
 
                                 MOV                   SI,TOP2
                                 MOV                   CX,WIDTH2
-    LOOP5:                      
+    LOOP5:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_UP_COLOR
                                 JE                    SPEED5
@@ -3285,7 +3287,7 @@ SPEEDUP2 PROC FAR
                                 LOOP                  LOOP5
                                 JMP                   EXIT3
 
-    RIGHT51:                    
+    RIGHT51:
                                 CMP                   STATE2 , 1
                                 JNZ                   LEFT51
 
@@ -3293,7 +3295,7 @@ SPEEDUP2 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH2
 
-    LOOP6:                      
+    LOOP6:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_UP_COLOR
                                 JE                    SPEED5
@@ -3302,7 +3304,7 @@ SPEEDUP2 PROC FAR
 
                                 JMP                   EXIT3
 
-    LEFT51:                     
+    LEFT51:
                                 CMP                   STATE2,2
                                 JNZ                   DOWN51
 
@@ -3310,7 +3312,7 @@ SPEEDUP2 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH2
 
-    LOOP7:                      
+    LOOP7:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_UP_COLOR
                                 JE                    SPEED5
@@ -3319,13 +3321,13 @@ SPEEDUP2 PROC FAR
 
                                 JMP                   EXIT3
 
-    DOWN51:                     
+    DOWN51:
                                 CMP                   STATE2 , 3
                                 MOV                   AX,TOP2
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH2
 
-    LOOP8:                      
+    LOOP8:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_UP_COLOR
                                 JE                    SPEED5
@@ -3334,11 +3336,11 @@ SPEEDUP2 PROC FAR
 
                                 JMP                   EXIT3
 
-    SPEED5:                     
+    SPEED5:
                                 MOV                   SPEEDUP_CAR2,1
                                 MOV                   SPEEDDOWN_CAR2,0
                                 MOV                   OBSTACLE_CAR2,0
-    EXIT3:                      
+    EXIT3:
                                 RET
 SPEEDUP2 ENDP
 
@@ -3354,7 +3356,7 @@ SPEEDDOWN1 PROC FAR
 
                                 MOV                   SI,TOP1
                                 MOV                   CX,WIDTH1
-    LOOP9:                      
+    LOOP9:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_DOWN_COLOR
                                 JE                    SPEED3
@@ -3362,7 +3364,7 @@ SPEEDDOWN1 PROC FAR
                                 LOOP                  LOOP9
                                 JMP                   EXIT4
 
-    RIGHTDOWN1:                 
+    RIGHTDOWN1:
                                 CMP                   STATE1 , 1
                                 JNZ                   LEFTDOWN1
 
@@ -3370,7 +3372,7 @@ SPEEDDOWN1 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH1
 
-    LOOP10:                     
+    LOOP10:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_DOWN_COLOR
                                 JE                    SPEED3
@@ -3379,7 +3381,7 @@ SPEEDDOWN1 PROC FAR
 
                                 JMP                   EXIT4
 
-    LEFTDOWN1:                  
+    LEFTDOWN1:
                                 CMP                   STATE1,2
                                 JNZ                   DOWNDOWN1
 
@@ -3387,7 +3389,7 @@ SPEEDDOWN1 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH1
 
-    LOOP11:                     
+    LOOP11:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_DOWN_COLOR
                                 JE                    SPEED3
@@ -3396,13 +3398,13 @@ SPEEDDOWN1 PROC FAR
 
                                 JMP                   EXIT4
 
-    DOWNDOWN1:                  
+    DOWNDOWN1:
                                 CMP                   STATE1 , 3
                                 MOV                   AX,TOP1
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH1
 
-    LOOP12:                     
+    LOOP12:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_DOWN_COLOR
                                 JE                    SPEED3
@@ -3411,13 +3413,13 @@ SPEEDDOWN1 PROC FAR
 
                                 JMP                   EXIT4
 
-    SPEED3:                     
+    SPEED3:
                                 CMP                   SPEED2 , 0
                                 JE                    EXIT4
                                 MOV                   SPEEDUP_CAR1,0
                                 MOV                   SPEEDDOWN_CAR1,1
                                 MOV                   OBSTACLE_CAR1,0
-    EXIT4:                      
+    EXIT4:
                                 RET
 SPEEDDOWN1 ENDP
 
@@ -3433,7 +3435,7 @@ SPEEDDOWN2 PROC FAR
 
                                 MOV                   SI,TOP2
                                 MOV                   CX,WIDTH2
-    LOOP13:                     
+    LOOP13:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_DOWN_COLOR
                                 JE                    SPEED6
@@ -3441,7 +3443,7 @@ SPEEDDOWN2 PROC FAR
                                 LOOP                  LOOP13
                                 JMP                   EXIT5
 
-    RIGHT55:                    
+    RIGHT55:
                                 CMP                   STATE2 , 1
                                 JNZ                   LEFT55
 
@@ -3449,7 +3451,7 @@ SPEEDDOWN2 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH2
 
-    LOOP14:                     
+    LOOP14:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_DOWN_COLOR
                                 JE                    SPEED6
@@ -3458,7 +3460,7 @@ SPEEDDOWN2 PROC FAR
 
                                 JMP                   EXIT5
 
-    LEFT55:                     
+    LEFT55:
                                 CMP                   STATE2,2
                                 JNZ                   DOWN55
 
@@ -3466,7 +3468,7 @@ SPEEDDOWN2 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH2
 
-    LOOP15:                     
+    LOOP15:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_DOWN_COLOR
                                 JE                    SPEED6
@@ -3475,13 +3477,13 @@ SPEEDDOWN2 PROC FAR
 
                                 JMP                   EXIT5
 
-    DOWN55:                     
+    DOWN55:
                                 CMP                   STATE2 , 3
                                 MOV                   AX,TOP2
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH2
 
-    LOOP16:                     
+    LOOP16:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,SPEED_DOWN_COLOR
                                 JE                    SPEED6
@@ -3490,13 +3492,13 @@ SPEEDDOWN2 PROC FAR
 
                                 JMP                   EXIT5
 
-    SPEED6:                     
+    SPEED6:
                                 CMP                   SPEED1,0
                                 JE                    EXIT5
                                 MOV                   SPEEDUP_CAR2,0
                                 MOV                   SPEEDDOWN_CAR2,1
                                 MOV                   OBSTACLE_CAR2,0
-    EXIT5:                      
+    EXIT5:
                                 RET
 
 SPEEDDOWN2 ENDP
@@ -3513,7 +3515,7 @@ OBSTACLECAR1 PROC FAR
 
                                 MOV                   SI,TOP1
                                 MOV                   CX,WIDTH1
-    LOOP17:                     
+    LOOP17:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,GENERATE_OBSTACLE_COLOR
                                 JE                    OBS11
@@ -3522,14 +3524,14 @@ OBSTACLECAR1 PROC FAR
 
                                 JMP                   EXIT6
 
-    OBS11:                      
+    OBS11:
                                 MOV                   SPEEDUP_CAR1,0
                                 MOV                   SPEEDDOWN_CAR1,0
                                 MOV                   OBSTACLE_CAR1,1
 
                                 JMP                   EXIT6
 
-    RIGHTOBS:                   
+    RIGHTOBS:
                                 CMP                   STATE1 , 1
                                 JNZ                   LEFTOBS
 
@@ -3537,14 +3539,14 @@ OBSTACLECAR1 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH1
 
-    LOOP19:                     
+    LOOP19:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,GENERATE_OBSTACLE_COLOR
                                 JE                    OBS12
                                 ADD                   SI,320
                                 LOOP                  LOOP19
                                 JMP                   EXIT6
-    OBS12:                      
+    OBS12:
 
                                 MOV                   SPEEDUP_CAR1,0
                                 MOV                   SPEEDDOWN_CAR1,0
@@ -3552,7 +3554,7 @@ OBSTACLECAR1 PROC FAR
 
                                 JMP                   EXIT6
 
-    LEFTOBS:                    
+    LEFTOBS:
                                 CMP                   STATE1,2
                                 JNZ                   DOWNOBS
 
@@ -3560,7 +3562,7 @@ OBSTACLECAR1 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH1
 
-    LOOP21:                     
+    LOOP21:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,GENERATE_OBSTACLE_COLOR
                                 JE                    OBS13
@@ -3568,7 +3570,7 @@ OBSTACLECAR1 PROC FAR
                                 LOOP                  LOOP21
                                 JMP                   EXIT6
 
-    OBS13:                      
+    OBS13:
 
                                 MOV                   SPEEDUP_CAR1,0
                                 MOV                   SPEEDDOWN_CAR1,0
@@ -3576,10 +3578,10 @@ OBSTACLECAR1 PROC FAR
 
                                 JMP                   EXIT6
 
-    DOWNOBS:                    
+    DOWNOBS:
                                 MOV                   SI,TOP1
                                 MOV                   CX,WIDTH1
-    LOOP23:                     
+    LOOP23:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,GENERATE_OBSTACLE_COLOR
                                 JE                    OBS14
@@ -3587,12 +3589,12 @@ OBSTACLECAR1 PROC FAR
                                 LOOP                  LOOP23
                                 JMP                   EXIT6
 
-    OBS14:                      
+    OBS14:
                                 MOV                   SPEEDUP_CAR1,0
                                 MOV                   SPEEDDOWN_CAR1,0
                                 MOV                   OBSTACLE_CAR1,1
 
-    EXIT6:                      
+    EXIT6:
                                 RET
 
 OBSTACLECAR1 ENDP
@@ -3608,7 +3610,7 @@ OBSTACLECAR2 PROC FAR
 
                                 MOV                   SI,TOP2
                                 MOV                   CX,WIDTH2
-    LOOP25:                     
+    LOOP25:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,GENERATE_OBSTACLE_COLOR
                                 JE                    OBS21
@@ -3617,14 +3619,14 @@ OBSTACLECAR2 PROC FAR
 
                                 JMP                   EXIT7
 
-    OBS21:                      
+    OBS21:
                                 MOV                   SPEEDUP_CAR2,0
                                 MOV                   SPEEDDOWN_CAR2,0
                                 MOV                   OBSTACLE_CAR2,1
 
                                 JMP                   EXIT7
 
-    RIGHTOBS2:                  
+    RIGHTOBS2:
                                 CMP                   STATE2 , 1
                                 JNZ                   LEFTOBS2
 
@@ -3632,7 +3634,7 @@ OBSTACLECAR2 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH2
 
-    LOOP27:                     
+    LOOP27:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,GENERATE_OBSTACLE_COLOR
                                 JE                    OBS22
@@ -3640,14 +3642,14 @@ OBSTACLECAR2 PROC FAR
                                 LOOP                  LOOP27
                                 JMP                   EXIT7
 
-    OBS22:                      
+    OBS22:
                                 MOV                   SPEEDUP_CAR2,0
                                 MOV                   SPEEDDOWN_CAR2,0
                                 MOV                   OBSTACLE_CAR2,1
 
                                 JMP                   EXIT7
 
-    LEFTOBS2:                   
+    LEFTOBS2:
                                 CMP                   STATE2,2
                                 JNZ                   DOWNOBS2
 
@@ -3655,7 +3657,7 @@ OBSTACLECAR2 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH2
 
-    LOOP29:                     
+    LOOP29:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,GENERATE_OBSTACLE_COLOR
                                 JE                    OBS23
@@ -3663,7 +3665,7 @@ OBSTACLECAR2 PROC FAR
                                 LOOP                  LOOP29
                                 JMP                   EXIT7
 
-    OBS23:                      
+    OBS23:
 
                                 MOV                   SPEEDUP_CAR2,0
                                 MOV                   SPEEDDOWN_CAR2,0
@@ -3671,10 +3673,10 @@ OBSTACLECAR2 PROC FAR
 
                                 JMP                   EXIT7
 
-    DOWNOBS2:                   
+    DOWNOBS2:
                                 MOV                   SI,TOP2
                                 MOV                   CX,WIDTH2
-    LOOP31:                     
+    LOOP31:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,GENERATE_OBSTACLE_COLOR
                                 JE                    OBS24
@@ -3682,13 +3684,13 @@ OBSTACLECAR2 PROC FAR
                                 LOOP                  LOOP31
                                 JMP                   EXIT7
 
-    OBS24:                      
+    OBS24:
 
                                 MOV                   SPEEDUP_CAR2,0
                                 MOV                   SPEEDDOWN_CAR2,0
                                 MOV                   OBSTACLE_CAR2,1
 
-    EXIT7:                      
+    EXIT7:
                                 RET
 
 OBSTACLECAR2 ENDP
@@ -3705,7 +3707,7 @@ PASSOBSTACLE_CAR1 PROC FAR
 
                                 MOV                   SI,TOP1
                                 MOV                   CX,WIDTH1
-    LOOP33:                     
+    LOOP33:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,PASS_OBSTACLE_COLOR
                                 JE                    PASSOBS11
@@ -3714,7 +3716,7 @@ PASSOBSTACLE_CAR1 PROC FAR
 
                                 JMP                   EXIT8
 
-    PASSOBS11:                  
+    PASSOBS11:
                                 MOV                   SPEEDUP_CAR1,0
                                 MOV                   SPEEDDOWN_CAR1,0
                                 MOV                   OBSTACLE_CAR1,0
@@ -3722,7 +3724,7 @@ PASSOBSTACLE_CAR1 PROC FAR
 
                                 JMP                   EXIT8
 
-    RIGHTPASSOBS:               
+    RIGHTPASSOBS:
                                 CMP                   STATE1 , 1
                                 JNZ                   LEFTPASSOBS
 
@@ -3730,14 +3732,14 @@ PASSOBSTACLE_CAR1 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH1
 
-    LOOP34:                     
+    LOOP34:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,PASS_OBSTACLE_COLOR
                                 JE                    PASSOBS12
                                 ADD                   SI,320
                                 LOOP                  LOOP34
                                 JMP                   EXIT8
-    PASSOBS12:                  
+    PASSOBS12:
 
                                 MOV                   SPEEDUP_CAR1,0
                                 MOV                   SPEEDDOWN_CAR1,0
@@ -3746,7 +3748,7 @@ PASSOBSTACLE_CAR1 PROC FAR
 
                                 JMP                   EXIT8
 
-    LEFTPASSOBS:                
+    LEFTPASSOBS:
                                 CMP                   STATE1,2
                                 JNZ                   DOWNPASSOBS
 
@@ -3754,7 +3756,7 @@ PASSOBSTACLE_CAR1 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH1
 
-    LOOP36:                     
+    LOOP36:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,PASS_OBSTACLE_COLOR
                                 JE                    PASSOBS13
@@ -3762,7 +3764,7 @@ PASSOBSTACLE_CAR1 PROC FAR
                                 LOOP                  LOOP36
                                 JMP                   EXIT8
 
-    PASSOBS13:                  
+    PASSOBS13:
 
                                 MOV                   SPEEDUP_CAR1,0
                                 MOV                   SPEEDDOWN_CAR1,0
@@ -3771,10 +3773,10 @@ PASSOBSTACLE_CAR1 PROC FAR
 
                                 JMP                   EXIT8
 
-    DOWNPASSOBS:                
+    DOWNPASSOBS:
                                 MOV                   SI,TOP1
                                 MOV                   CX,WIDTH1
-    LOOP37:                     
+    LOOP37:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,PASS_OBSTACLE_COLOR
                                 JE                    PASSOBS14
@@ -3782,13 +3784,13 @@ PASSOBSTACLE_CAR1 PROC FAR
                                 LOOP                  LOOP37
                                 JMP                   EXIT8
 
-    PASSOBS14:                  
+    PASSOBS14:
                                 MOV                   SPEEDUP_CAR1,0
                                 MOV                   SPEEDDOWN_CAR1,0
                                 MOV                   OBSTACLE_CAR1,0
                                 MOV                   PASS_CAR1 , 1
 
-    EXIT8:                      
+    EXIT8:
                                 RET
 
 PASSOBSTACLE_CAR1 ENDP
@@ -3806,7 +3808,7 @@ PASSOBSTACLE_CAR2 PROC FAR
 
                                 MOV                   SI,TOP2
                                 MOV                   CX,WIDTH2
-    LOOP38:                     
+    LOOP38:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,PASS_OBSTACLE_COLOR
                                 JE                    PASSOBS21
@@ -3815,7 +3817,7 @@ PASSOBSTACLE_CAR2 PROC FAR
 
                                 JMP                   EXIT9
 
-    PASSOBS21:                  
+    PASSOBS21:
                                 MOV                   SPEEDUP_CAR2,0
                                 MOV                   SPEEDDOWN_CAR2,0
                                 MOV                   OBSTACLE_CAR2,0
@@ -3823,7 +3825,7 @@ PASSOBSTACLE_CAR2 PROC FAR
 
                                 JMP                   EXIT9
 
-    RIGHTPASSOBS2:              
+    RIGHTPASSOBS2:
                                 CMP                   STATE2 , 1
                                 JNZ                   LEFTPASSOBS2
 
@@ -3831,7 +3833,7 @@ PASSOBSTACLE_CAR2 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH2
 
-    LOOP39:                     
+    LOOP39:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,PASS_OBSTACLE_COLOR
                                 JE                    PASSOBS22
@@ -3839,7 +3841,7 @@ PASSOBSTACLE_CAR2 PROC FAR
                                 LOOP                  LOOP39
                                 JMP                   EXIT9
 
-    PASSOBS22:                  
+    PASSOBS22:
                                 MOV                   SPEEDUP_CAR2,0
                                 MOV                   SPEEDDOWN_CAR2,0
                                 MOV                   OBSTACLE_CAR2,0
@@ -3847,7 +3849,7 @@ PASSOBSTACLE_CAR2 PROC FAR
 
                                 JMP                   EXIT9
 
-    LEFTPASSOBS2:               
+    LEFTPASSOBS2:
                                 CMP                   STATE2,2
                                 JNZ                   DOWNPASSOBS2
 
@@ -3855,7 +3857,7 @@ PASSOBSTACLE_CAR2 PROC FAR
                                 MOV                   SI,AX
                                 MOV                   CX,WIDTH2
 
-    LOOP40:                     
+    LOOP40:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,PASS_OBSTACLE_COLOR
                                 JE                    PASSOBS23
@@ -3863,7 +3865,7 @@ PASSOBSTACLE_CAR2 PROC FAR
                                 LOOP                  LOOP40
                                 JMP                   EXIT9
 
-    PASSOBS23:                  
+    PASSOBS23:
 
                                 MOV                   SPEEDUP_CAR2,0
                                 MOV                   SPEEDDOWN_CAR2,0
@@ -3872,10 +3874,10 @@ PASSOBSTACLE_CAR2 PROC FAR
 
                                 JMP                   EXIT9
 
-    DOWNPASSOBS2:               
+    DOWNPASSOBS2:
                                 MOV                   SI,TOP2
                                 MOV                   CX,WIDTH2
-    LOOP41:                     
+    LOOP41:
                                 MOV                   AL,ES:[SI]
                                 CMP                   AL,PASS_OBSTACLE_COLOR
                                 JE                    PASSOBS24
@@ -3883,14 +3885,14 @@ PASSOBSTACLE_CAR2 PROC FAR
                                 LOOP                  LOOP41
                                 JMP                   EXIT9
 
-    PASSOBS24:                  
+    PASSOBS24:
 
                                 MOV                   SPEEDUP_CAR2,0
                                 MOV                   SPEEDDOWN_CAR2,0
                                 MOV                   OBSTACLE_CAR2,0
                                 MOV                   PASS_CAR2 , 1
 
-    EXIT9:                      
+    EXIT9:
                                 RET
 
 PASSOBSTACLE_CAR2 ENDP
@@ -3948,16 +3950,16 @@ FillBackground PROC FAR
                                 MOV                   DX, SCREEN_HEIGHT
                                 MOV                   BX, 0
 
-    REPEAT:                     
+    REPEAT:
                                 MOV                   CX, SCREEN_WIDTH
 
-    FILL_LINE_OF_BACKGROUND:    
+    FILL_LINE_OF_BACKGROUND:
                                 CMP                   ES:[BX], BYTE PTR 01H                    ;If the pixel is black, fill it with the background color, if not do not fill it
                                 JL                    FILL
                                 JMP                   DONOT_FILL
-    FILL:                       
+    FILL:
                                 MOV                   ES:[BX], AL
-    DONOT_FILL:                 
+    DONOT_FILL:
                                 INC                   BX
                                 DEC                   CX
                                 JNZ                   FILL_LINE_OF_BACKGROUND
@@ -3992,10 +3994,10 @@ FillScreen PROC FAR
                                 MOV                   DX, heightToFill
                                 MOV                   BX, BP
 
-    REPEAT_S:                   
+    REPEAT_S:
                                 MOV                   CX, widthToFill
 
-    FILL_LINE_OF_SCREEN:        
+    FILL_LINE_OF_SCREEN:
                                 MOV                   ES:[BX], AL
                                 INC                   BX
                                 DEC                   CX
@@ -4033,7 +4035,7 @@ DrawLogo PROC FAR
 
                                 MOV                   DX, LOGO_IMAGE_HEIGHT
 
-    REPEAT_H:                   
+    REPEAT_H:
                                 MOV                   CX, LOGO_IMAGE_WIDTH
 
     DRAW_LINE_OF_IMG_H:                                                                        ;H stands for horizontal (horizontal component)
@@ -4075,24 +4077,24 @@ DrawCarImage PROC FAR
 
                                 MOV                   DX, CAR_IMAGE_HEIGHT
 
-    REPEAT_CAR_IMAGE:           
+    REPEAT_CAR_IMAGE:
                                 MOV                   CX, CAR_IMAGE_WIDTH
 
     DRAW_LINE_OF_IMG_CAR:                                                                      ;H stands for horizontal (horizontal component)
                                 CMP                   DS:[SI], BYTE PTR 1FH
                                 JLE                   DONT_DRAW_CHECK
                                 JMP                   DRAW
-    DONT_DRAW_CHECK:            
+    DONT_DRAW_CHECK:
                                 CMP                   DS:[SI], BYTE PTR 1dH
                                 JLE                   DRAW
                                 JMP                   DONT_DRAW
-    DRAW:                       
+    DRAW:
                                 MOVSB                                                          ;move ds:[si] to es:[di] and inc both
                                 JMP                   CONT_DCI
-    DONT_DRAW:                  
+    DONT_DRAW:
                                 INC                   SI
                                 INC                   DI
-    CONT_DCI:                   
+    CONT_DCI:
                                 DEC                   CX
                                 JNZ                   DRAW_LINE_OF_IMG_CAR
 
@@ -4130,7 +4132,7 @@ ValidateInput PROC FAR
                                 CMP                   user2ActualLen, 15
                                 JG                    EXCEED_15
 
-    CONT_VALD:                  
+    CONT_VALD:
 
                                 CMP                   user1Data, 'A'
                                 JL                    FIRST_CHAR_ERR
@@ -4138,13 +4140,13 @@ ValidateInput PROC FAR
                                 JG                    CHECK_LOWER_U1
                                 JMP                   CHECK_U2
 
-    CHECK_LOWER_U1:             
+    CHECK_LOWER_U1:
                                 CMP                   user1Data, 'a'
                                 JL                    FIRST_CHAR_ERR
                                 CMP                   user1Data, 'z'
                                 JG                    FIRST_CHAR_ERR
 
-    CHECK_U2:                   
+    CHECK_U2:
 
                                 CMP                   user2Data, 'A'
                                 JL                    FIRST_CHAR_ERR
@@ -4152,7 +4154,7 @@ ValidateInput PROC FAR
                                 JG                    CHECK_LOWER_U2
                                 JMP                   EXIT_V_I
 
-    CHECK_LOWER_U2:             
+    CHECK_LOWER_U2:
                                 CMP                   user2Data, 'a'
                                 JL                    FIRST_CHAR_ERR
                                 CMP                   user2Data, 'z'
@@ -4160,19 +4162,19 @@ ValidateInput PROC FAR
                                 JMP                   EXIT_V_I
 
 
-    EXCEED_15:                  
+    EXCEED_15:
                                 MOV                   errorOccured, 1
                                 SetCursor             8, 1
                                 DisplayString         errorOne
                                 JMP                   CONT_VALD
 
-    FIRST_CHAR_ERR:             
+    FIRST_CHAR_ERR:
                                 MOV                   errorOccured, 1
                                 SetCursor             9, 1
                                 DisplayString         errorTwo
                                 JMP                   EXIT_V_I
 
-    EXIT_V_I:                   
+    EXIT_V_I:
 
                                 RET
 
@@ -4215,18 +4217,18 @@ DisplayFirstPage PROC FAR
                                 CALL                  FAR PTR FillBackground
 
 
-    GET_NEW_INPUT:              
+    GET_NEW_INPUT:
 
                                 MOV                   CX, 200
                                 LEA                   BX, user1Data
-    LOOP_U1:                    
+    LOOP_U1:
                                 MOV                   [BX], '$'
                                 INC                   BX
                                 LOOP                  LOOP_U1
 
                                 MOV                   CX, 200
                                 LEA                   BX, user2Data
-    LOOP_U2:                    
+    LOOP_U2:
                                 MOV                   [BX], '$'
                                 INC                   BX
                                 LOOP                  LOOP_U2
@@ -4253,7 +4255,7 @@ DisplayFirstPage PROC FAR
                                 JE                    CONT_EXEC
                                 JMP                   GET_NEW_INPUT
 
-    CONT_EXEC:                  
+    CONT_EXEC:
                                 RET
 
 
@@ -4299,7 +4301,7 @@ GeneratePowerUps PROC FAR
                                 LEA                   BX, ArrX
                                 LEA                   BP, ArrY
 
-    LOOP_OVER_POWERUPS:         
+    LOOP_OVER_POWERUPS:
                                 CALL                  GeneratRandomNumber
 
                                 MOV                   AL, RandomValue
@@ -4308,14 +4310,14 @@ GeneratePowerUps PROC FAR
 
                                 JMP                   END_OF_POWERUPS_LOOP
 
-    CONT_GPU:                   
+    CONT_GPU:
                                 MOV                   SI, DS:[BX]
                                 ADD                   BX, 2
                                 CMP                   SI, DS:[BX]
                                 SUB                   BX, 2
                                 JNE                   HORIZONTAL_COMP_GPU
 
-    VERTICAL_COMP_GPU:          
+    VERTICAL_COMP_GPU:
                                 MOV                   CX, DS:[BP]
                                 ADD                   BP, 2
                                 MOV                   DX, DS:[BP]
@@ -4342,7 +4344,7 @@ GeneratePowerUps PROC FAR
 
                                 JMP                   CHECK_TYPE_POWERUP
 
-    HORIZONTAL_COMP_GPU:        
+    HORIZONTAL_COMP_GPU:
 
                                 MOV                   CX, DS:[BX]
                                 ADD                   BX, 2
@@ -4369,7 +4371,7 @@ GeneratePowerUps PROC FAR
                                 MOV                   powerUpPosY, AX
 
 
-    CHECK_TYPE_POWERUP:         
+    CHECK_TYPE_POWERUP:
                                 CMP                   RandomValue, 0
                                 JE                    SPEED_UP_POWERUP
                                 CMP                   RandomValue, 1
@@ -4379,27 +4381,27 @@ GeneratePowerUps PROC FAR
                                 CMP                   RandomValue, 3
                                 JE                    GENERATE_OBSTACLE_POWERUP
 
-    SPEED_UP_POWERUP:           
+    SPEED_UP_POWERUP:
                                 MOV                   powerUpColor, SPEED_UP_COLOR
                                 CALL                  FAR PTR DrawPowerUP
                                 JMP                   END_OF_POWERUPS_LOOP
 
-    SPEED_DOWN_POWERUP:         
+    SPEED_DOWN_POWERUP:
                                 MOV                   powerUpColor, SPEED_DOWN_COLOR
                                 CALL                  FAR PTR DrawPowerUP
                                 JMP                   END_OF_POWERUPS_LOOP
 
-    PASS_OBSTACLE_POWERUP:      
+    PASS_OBSTACLE_POWERUP:
                                 MOV                   powerUpColor, PASS_OBSTACLE_COLOR
                                 CALL                  FAR PTR DrawPowerUP
                                 JMP                   END_OF_POWERUPS_LOOP
 
-    GENERATE_OBSTACLE_POWERUP:  
+    GENERATE_OBSTACLE_POWERUP:
                                 MOV                   powerUpColor, GENERATE_OBSTACLE_COLOR
                                 CALL                  FAR PTR DrawPowerUP
                                 JMP                   END_OF_POWERUPS_LOOP
 
-    END_OF_POWERUPS_LOOP:       
+    END_OF_POWERUPS_LOOP:
                                 ADD                   BX, 2
                                 ADD                   BP, 2
                                 CMP                   DS:[BX + 2], WORD PTR 0ffh
@@ -4409,7 +4411,7 @@ GeneratePowerUps PROC FAR
                                 JMP                   LOOP_OVER_POWERUPS
 
 
-    EXIT_GPU:                   
+    EXIT_GPU:
 
                                 POP                   SI
                                 POP                   BP
@@ -4443,9 +4445,9 @@ DrawPowerUP PROC  FAR
                                 MOV                   BX, AX
                                 ADD                   BX, powerUpPosX
 
-    OUTER_LOOP_DPU:             
+    OUTER_LOOP_DPU:
                                 MOV                   CX, 4
-    INNER_LOOP_DPU:             
+    INNER_LOOP_DPU:
                                 MOV                   AL, powerUpColor
                                 MOV                   ES:[BX], AL
                                 INC                   BX
