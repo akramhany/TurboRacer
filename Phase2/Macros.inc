@@ -93,3 +93,86 @@ DisplayPromptMessages MACRO
 
 
 ENDM
+
+DISPLAYCHAR MACRO CHARACTER
+mov ah,2
+MOV DL,CHARACTER
+int 21h
+ENDM  
+
+DISPLAYTIMER MACRO ROW,COL,TIMER 
+
+SetCursor ROW,COL
+    MOV AX,TIMER
+    MOV DL,100
+    DIV DL
+    PUSH AX
+    ADD AL,30H
+    MOV DL,AL
+    DISPLAYCHAR DL
+    MOV DL,10
+    POP AX
+    MOV AL,AH
+    MOV AH,0
+    DIV DL
+    PUSH AX
+    ADD AL,30H
+    MOV DL,AL
+    DISPLAYCHAR DL
+    POP AX
+    MOV DL,AH
+    ADD DL,30H
+    DISPLAYCHAR DL
+
+ENDM
+
+ResetVariables MACRO
+
+    MOV playerOneWin, 0
+    MOV playerTwoWin, 0
+    MOV CENTER1, 130 * 320 + 21
+    MOV CENTER2, 140 * 320 + 21
+    MOV STATE1, 1
+    MOV STATE1, 2
+    MOV SPEED1, 1
+    MOV SPEED2, 1
+    MOV POWCAR1, 0
+    MOV POWCAR2, 0
+    MOV POWCAR1, 0
+    MOV POWCAR2, 0
+    MOV SPEEDUP_CAR1, 0
+    MOV SPEEDUP_CAR2, 0 
+    MOV SPEEDDOWN_CAR1, 0
+    MOV SPEEDDOWN_CAR2, 0
+    MOV OBSTACLE_CAR1, 0 
+    MOV OBSTACLE_CAR2, 0
+    MOV PASS_CAR1, 0
+    MOV PASS_CAR2, 0
+    MOV CANPASS_CAR1, 0
+    MOV CANPASS_CAR2, 0
+    MOV STARTTIME1, 0
+    MOV STARTTIME2, 0
+    MOV COUNT1, 0
+    MOV COUNT2, 0
+    MOV ACTIVEUP_CAR1, 0
+    MOV ACTIVEUP_CAR2, 0
+    MOV ACTIVEDOWN_CAR1, 0
+    MOV ACTIVEDOWN_CAR2, 0
+    MOV powerUpPosX, 0
+    MOV powerUpPosY, 0
+    MOV powerUpColor, 0
+    MOV playerOneWin, 0
+    MOV playerTwoWin, 0
+    MOV counterForPU, 0
+    MOV currentSecond, 0
+    MOV shouldExit, 0
+    MOV moveDirectionRightC1, 0
+    MOV moveDirectionUpC1, 0
+    MOV moveDirectionLeftC1, 0
+    MOV moveDirectionDownC1, 0
+    MOV moveDirectionRightC2, 0 
+    MOV moveDirectionUpC2, 0 
+    MOV moveDirectionLeftC2, 0
+    MOV moveDirectionDownC2, 0
+
+ENDM

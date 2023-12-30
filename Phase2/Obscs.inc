@@ -16,8 +16,8 @@ GenerateObstacles PROC FAR
                                 MOV           AX, StatingPointY                      ;Set the OB_StartY with the starting pointY
                                 MOV           OB_StartY, AX
 
-                                LEA           BX, ArrX
-                                LEA           BP, ArrY
+                                LEA           BX, ArrX2
+                                LEA           BP, ArrY2
 
 
     ;;loop to get a component in the track then draw obstacles in it then get then next component and so on, until the end
