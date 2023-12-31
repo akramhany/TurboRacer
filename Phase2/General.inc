@@ -714,3 +714,21 @@ DisplayMainPage ENDP
 ;----------------------------------------------------------------------------------------
 ;----------------------------------------------------------------------------------------
 ;----------------------------------------------------------------------------------------
+
+
+
+;description
+FillArrDirectionSmall PROC FAR
+
+    LEA SI, ArrDirectionSmall
+    MOV CX, 200
+FADS_LOOP:
+    MOV AL, '#'
+    MOV DS:[SI], AL
+    INC SI
+    DEC CX
+    JNZ FADS_LOOP
+
+
+    RET
+FillArrDirectionSmall ENDP

@@ -36,7 +36,7 @@ GenerateObstacles PROC FAR
                                 JG            OB_CONT
 
                                 CALL          FAR PTR DrawRandomObstacle             ;Draw A random obstacle in this segment of the track
-
+                                
     OB_CONT:                    
                                 CALL          FAR PTR GetNextDirection               ;Get the next direction on the track
 
