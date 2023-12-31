@@ -282,7 +282,7 @@ include ORIGINAL.inc
 include RESET.inc
 include DRAW.inc
 include Colision.inc
-include General.inc
+include General1.inc
 include PowerUps.inc
 include Obscs.inc
 include Game.inc
@@ -410,7 +410,7 @@ MAIN PROC FAR
                                 MOV           AX, CS
                                 MOV           DS, AX
                                 MOV           AX, 2509h
-                                LEA           DX, OverRideInt9
+                                LEA           DX, OverRideInt9_p1
                                 INT           21H
                                 POP           DS
 
