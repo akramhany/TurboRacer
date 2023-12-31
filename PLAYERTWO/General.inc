@@ -373,7 +373,7 @@ DrawCarImage ENDP
 
 
 ;description
-ValidateInputPlayerOne PROC FAR
+ValidateInput PROC FAR
 
     MOV AL, BACKGROUND_COLOR
     MOV BP, 60 * 320
@@ -384,123 +384,58 @@ ValidateInputPlayerOne PROC FAR
     MOV errorOccured, 0
 
     CMP user1ActualLen, 15
-    JG EXCEED_15_p1
-;    CMP user2ActualLen, 15
-;    JG EXCEED_15
+    JG EXCEED_15
+    CMP user2ActualLen, 15
+    JG EXCEED_15
 
-CONT_VALD_p1:
+CONT_VALD:
 
     CMP user1Data, 'A'
-    JL FIRST_CHAR_ERR_p1
+    JL FIRST_CHAR_ERR
     CMP user1Data, 'Z'
-    JG CHECK_LOWER_U1_p1
-    JMP EXIT_V_I_p1
+    JG CHECK_LOWER_U1
+    JMP CHECK_U2
 
-CHECK_LOWER_U1_p1:
+CHECK_LOWER_U1:
     CMP user1Data, 'a'
-    JL FIRST_CHAR_ERR_p1
+    JL FIRST_CHAR_ERR
     CMP user1Data, 'z'
-    JG FIRST_CHAR_ERR_p1
-    JMP EXIT_V_I_p1
+    JG FIRST_CHAR_ERR
 
-;CHECK_U2:
-;
-;    CMP user2Data, 'A'
-;    JL FIRST_CHAR_ERR
-;    CMP user2Data, 'Z'
-;    JG CHECK_LOWER_U2
-;    JMP EXIT_V_I
-;
-;CHECK_LOWER_U2:
-;    CMP user2Data, 'a'
-;    JL FIRST_CHAR_ERR
-;    CMP user2Data, 'z'
-;    JG FIRST_CHAR_ERR
-;    JMP EXIT_V_I
-
-
-EXCEED_15_p1:
-    MOV errorOccured, 1
-    SetCursor 8, 1
-    DisplayString errorOne
-    JMP EXIT_V_I_p1
-
-FIRST_CHAR_ERR_p1:
-    MOV errorOccured, 1
-    SetCursor 9, 1
-    DisplayString errorTwo
-    JMP EXIT_V_I_p1
-
-EXIT_V_I_p1:
-
-RET
-    
-ValidateInputPlayerOne ENDP 
-
-;description
-ValidateInputPlayerTwo PROC FAR
-
-    MOV AL, BACKGROUND_COLOR
-    MOV BP, 60 * 320
-    MOV widthToFill, 320
-    MOV heightToFill, 20
-    CALL FAR PTR FillScreen
-
-    MOV errorOccured, 0
-
-;    CMP user1ActualLen, 15
-;    JG EXCEED_15
-    CMP user2ActualLen, 15
-    JG EXCEED_15_p2
-
-;CONT_VALD:
-;
-;    CMP user1Data, 'A'
-;    JL FIRST_CHAR_ERR
-;    CMP user1Data, 'Z'
-;    JG CHECK_LOWER_U1
-;    JMP EXIT_V_I
-;
-;CHECK_LOWER_U1:
-;    CMP user1Data, 'a'
-;    JL FIRST_CHAR_ERR
-;    CMP user1Data, 'z'
-;    JG FIRST_CHAR_ERR
-;    JMP EXIT_V_I
-
-CHECK_U2_p2:
+CHECK_U2:
 
     CMP user2Data, 'A'
-    JL FIRST_CHAR_ERR_p2
+    JL FIRST_CHAR_ERR
     CMP user2Data, 'Z'
-    JG CHECK_LOWER_U2_p2
-    JMP EXIT_V_I_p2
+    JG CHECK_LOWER_U2
+    JMP EXIT_V_I
 
-CHECK_LOWER_U2_p2:
+CHECK_LOWER_U2:
     CMP user2Data, 'a'
-    JL FIRST_CHAR_ERR_p2
+    JL FIRST_CHAR_ERR
     CMP user2Data, 'z'
-    JG FIRST_CHAR_ERR_p2
-    JMP EXIT_V_I_p2
+    JG FIRST_CHAR_ERR
+    JMP EXIT_V_I
 
 
-EXCEED_15_p2:
+EXCEED_15:
     MOV errorOccured, 1
     SetCursor 8, 1
     DisplayString errorOne
-    JMP EXIT_V_I_p2
+    JMP CONT_VALD
 
-FIRST_CHAR_ERR_p2:
+FIRST_CHAR_ERR:
     MOV errorOccured, 1
     SetCursor 9, 1
     DisplayString errorTwo
-    JMP EXIT_V_I_p2
+    JMP EXIT_V_I
 
-EXIT_V_I_p2:
+EXIT_V_I:
 
 RET
     
-ValidateInputPlayerTwo ENDP 
+ValidateInput ENDP 
+
 
 
 ;----------------------------------------------------------------------------------------
@@ -513,7 +448,7 @@ ValidateInputPlayerTwo ENDP
 
 
 ;description
-DisplayFirstPagePlayerOne PROC FAR
+DisplayFirstPage PROC FAR
 
     OpenFile OPEN_ATTRIBUTE, logoFileName       ;open the logo image file
     ReadFile AX, BUFFER_SIZE_LOGO, logoBuffer   ;read all the bytes into the buffer
@@ -548,21 +483,21 @@ DisplayFirstPagePlayerOne PROC FAR
     CALL FAR PTR FillBackground
 
 
-GET_NEW_INPUT_p1:
+GET_NEW_INPUT:
 
     MOV CX, 200
     LEA BX, user1Data
- LOOP_U1_p1:   
+ LOOP_U1:   
     MOV [BX], '$'
     INC BX
-    LOOP LOOP_U1_p1
+    LOOP LOOP_U1
 
     MOV CX, 200
     LEA BX, user2Data
- LOOP_U2_p1:
+ LOOP_U2:
     MOV [BX], '$'
     INC BX
-    LOOP LOOP_U2_p1
+    LOOP LOOP_U2
 
 ;Fill Screen with a certain color
     MOV AL, BACKGROUND_COLOR
@@ -572,102 +507,24 @@ GET_NEW_INPUT_p1:
     CALL FAR PTR FillScreen
 
 
-    DisplayPromptMessagesPlayerOne
+    DisplayPromptMessages
 
     SetCursor INPUT_POS_ROW_1, INPUT_POS_COL_1
     GetUserInput userName1
-
-
-    CALL FAR PTR ValidateInputPlayerOne
-
-
-    CMP errorOccured, 0
-    JE CONT_EXEC_p1
-    JMP GET_NEW_INPUT_p1
-
-CONT_EXEC_p1:
-RET
-
-DisplayFirstPagePlayerOne ENDP 
-
-
-;description
-DisplayFirstPagePlayerTwo PROC FAR
-
-    OpenFile OPEN_ATTRIBUTE, logoFileName       ;open the logo image file
-    ReadFile AX, BUFFER_SIZE_LOGO, logoBuffer   ;read all the bytes into the buffer
-    CloseFile                                   ;close the file
-
-    OpenFile OPEN_ATTRIBUTE, carFileName        ;open the logo image file
-    ReadFile AX, BUFFER_SIZE_CAR, carBuffer     ;read all the bytes into the buffer
-    CloseFile                                   ;close the file
-    
-
-;;;;;;;;;;;;;;;;;CHANGE TO VIDEO MODE 320 * 200;;;;;;;;;;;;;;;;;
-    MOV AH, 0
-    MOV AL, 13H
-    INT 10H
-
-
-    MOV AX, 0A000h      ;the start of the screen in memory
-    MOV ES, AX          ;set the ES to point at the start of the screen
-
-;;Draw Logo
-    MOV DI, 320 * 10 + 80
-    CALL FAR PTR DrawLogo
-
-
-;;Draw Car
-    MOV DI, 320 * 140 + 120
-    CALL FAR PTR DrawCarImage
-
-
-;;Fill the background with a certain color
-    MOV AL, BACKGROUND_COLOR
-    CALL FAR PTR FillBackground
-
-
-GET_NEW_INPUT_p2:
-
-    MOV CX, 200
-    LEA BX, user1Data
- LOOP_U1_p2:   
-    MOV [BX], '$'
-    INC BX
-    LOOP LOOP_U1_p2
-
-    MOV CX, 200
-    LEA BX, user2Data
- LOOP_U2_p2:
-    MOV [BX], '$'
-    INC BX
-    LOOP LOOP_U2_p2
-
-;Fill Screen with a certain color
-    MOV AL, BACKGROUND_COLOR
-    MOV BP, 80 * 320
-    MOV widthToFill, 320
-    MOV heightToFill, 45
-    CALL FAR PTR FillScreen
-
-
-    DisplayPromptMessagesPlayerTwo
-
     SetCursor INPUT_POS_ROW_2, INPUT_POS_COL_2
     GetUserInput userName2
 
-
-    CALL FAR PTR ValidateInputPlayerTwo
+    CALL FAR PTR ValidateInput
 
 
     CMP errorOccured, 0
-    JE CONT_EXEC_p2
-    JMP GET_NEW_INPUT_p2
+    JE CONT_EXEC
+    JMP GET_NEW_INPUT
 
-CONT_EXEC_p2:
+CONT_EXEC:
 RET
 
-DisplayFirstPagePlayerTwo ENDP 
+DisplayFirstPage ENDP 
 
 
 
