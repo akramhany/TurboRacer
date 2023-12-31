@@ -80,20 +80,10 @@ GetUserInput MACRO inputS
 
 ENDM
 
-DisplayPromptMessagesPlayerOne MACRO
+DisplayPromptMessages MACRO
     
     SetCursor INPUT_POS_ROW_1, 7
     DisplayString userName1M
-    SetCursor 14, 2
-    DisplayString inputRules1
-    SetCursor 15, 2
-    DisplayString inputRules2
-
-
-ENDM
-
-DisplayPromptMessagesPlayerTwo MACRO
-    
     SetCursor INPUT_POS_ROW_2, 7
     DisplayString userName2M
     SetCursor 14, 2

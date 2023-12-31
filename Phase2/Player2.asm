@@ -28,7 +28,7 @@ include Macros.inc
     IsStarte             db      0
     TIMER DW ?
     STARTINGTIME DB ?
-    RACETIME EQU 20
+    RACETIME EQU 40
     FUp                  db      0
     FLeft                db      0
     FRgiht               db      0
@@ -69,6 +69,7 @@ include Macros.inc
     COUNTER_CHECK       DB 0
     COUNTER_CHECK2      DB 0
     COUNTER_CHECK3      DW 0
+    DrawPowerUpValidation DB 1
 
 
     ;---------------------------------------CAR DATA---------------------------------------
@@ -285,52 +286,117 @@ MAIN PROC FAR
                                 MOV           DX ,@data
                                 MOV           DS ,DX
 
-                                CALL FAR PTR DisplayFirstPage
-
+;                                CALL FAR PTR DisplayFirstPagePlayerTwo
+;
     CHECK_MODE:                 
-        MOV COUNTERARR, 0
-                                CALL FAR PTR DisplayMainPage
-                                MOV AH, 0
-                                INT 16H
-                                CMP AH, 3DH                                          ;CHECK IF THE PLAYER WANT TO EXIT
-                                JNE CHECK_FOR_PLAY
-                                JMP EXIT_PROGRAM
-    CHECK_FOR_PLAY:             CMP AH, 3BH
-                                JNE CHECK_MODE
-                                JMP CheckKey
+;        MOV COUNTERARR, 0
+;                                CALL FAR PTR DisplayMainPage
+;                                MOV AH, 0
+;                                INT 16H
+;                                CMP AH, 3DH                                          ;CHECK IF THE PLAYER WANT TO EXIT
+;                                JNE CHECK_FOR_PLAY
+;                                JMP EXIT_PROGRAM
+;    CHECK_FOR_PLAY:             CMP AH, 3BH
+;                                JNE CHECK_MODE
+;                                JMP CheckKey
 
-    CheckKey:                   
-                                mov           Status,0
-                                mov           Intersect,0
+;    CheckKey:                   
+;                                mov           Status,0
+;                                mov           Intersect,0
+;
+;                                MOV           AH ,00h                                ;check which key is being pressed
+;                                INT           16h                                    ;the pressed key in al
+;                                CMP           al,GenTrack                            ;if it enter so generate another track
+;                                JZ            TrackRandom
+;                                CMP           al ,EndKey                             ;check if it ESC to end the porgram
+;                                JZ            EndProgram                             ;go to hlt
+;                                CMP           AL, GenerateObstaclesKey               ;check if the track is finished and we want to generate obstacles
+;                                JZ            GenerateOb
+;                                JMP           CheckKey
+;    TrackRandom:                
+;                                CALL          far ptr GenerateTrack                  ;call to generate porcedure
+;                                CMP           CurrentBlock,25
+;                                JL            TrackRandom
+;                                CMP           Intersect ,1                           ;if if intersected go and generate another one
+;                                JZ            TrackRandom
+;                                CMP           Status ,1                              ;if if intersected go and generate another one
+;                                JZ            TrackRandom
+;    ;MOV  CL, RoadNum
+;    ;CMP  CurrentBlock,CL
+;                                CALL          FAR PTR ENDTRACK
+;                                JZ            CheckKey
+;                                JMP           CheckKey                               ;return to check key pressed
+;    EndProgram:                 
+;
+;    GenerateOb:                 
+;
+;                                CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
+;                                CALL FAR PTR GeneratePowerUps
+                                        MOV AH, 00H
+                                        MOV AL, 13H
+                                        INT 10H
+    ;SET DIVISOR LATCH ACCESS BIT
+    MOV DX, 3FBH
+    MOV AL, 10000000B
+    OUT DX, AL
 
-                                MOV           AH ,00h                                ;check which key is being pressed
-                                INT           16h                                    ;the pressed key in al
-                                CMP           al,GenTrack                            ;if it enter so generate another track
-                                JZ            TrackRandom
-                                CMP           al ,EndKey                             ;check if it ESC to end the porgram
-                                JZ            EndProgram                             ;go to hlt
-                                CMP           AL, GenerateObstaclesKey               ;check if the track is finished and we want to generate obstacles
-                                JZ            GenerateOb
-                                JMP           CheckKey
-    TrackRandom:                
-                                CALL          far ptr GenerateTrack                  ;call to generate porcedure
-                                CMP           CurrentBlock,25
-                                JL            TrackRandom
-                                CMP           Intersect ,1                           ;if if intersected go and generate another one
-                                JZ            TrackRandom
-                                CMP           Status ,1                              ;if if intersected go and generate another one
-                                JZ            TrackRandom
-    ;MOV  CL, RoadNum
-    ;CMP  CurrentBlock,CL
-                                CALL          FAR PTR ENDTRACK
-                                JZ            CheckKey
-                                JMP           CheckKey                               ;return to check key pressed
-    EndProgram:                 
+    ;SET LSB BYTE OF BAUD RATE
+    MOV DX, 3F8H
+    MOV AL, 0CH
+    OUT DX, AL
 
-    GenerateOb:                 
+    ;SET MSB BYTE
+    MOV DX, 3f9h
+    MOV AL, 00h
+    OUT DX, AL
 
-                                CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
-                                CALL FAR PTR GeneratePowerUps
+    ;SET PORT CONFIGURATION
+    MOV DX, 3FBH
+    MOV AL, 00011011B
+    OUT DX, AL
+                                        
+;                                        MOV CX, 0000
+;                                        MOV DX, 0000
+;
+;                                		mov dx , 3FDH		; Line Status Register
+;	CHK:	                            in al , dx
+;  		                                AND al , 1
+;  		                                JZ CHK
+;
+; ;If Ready read the VALUE in Receive data register
+;                                  		mov dx , 03F8H
+;                                  		in al , dx 
+;                                  		MOV AH, 0CH
+;                                        MOV BH, 0
+;                                        INT 10H
+;                                        INC CX
+;                                        CMP CX, 320
+;                                        JL DONT_ADD_LINE
+;                                        MOV CX, 0
+;                                        INC DX
+;    DONT_ADD_LINE:
+;                                        CMP DX, 200
+;                                        JL CHK
+
+                                        MOV AX, 0A000H
+                                        MOV ES, AX
+                                        MOV BX, 0H
+
+                                				; Line Status Register
+	CHK:	                            mov dx , 3FDH
+                                        in al , dx
+  		                                AND al , 1
+  		                                JZ CHK
+
+ ;If Ready read the VALUE in Receive data register
+                                  		mov dx , 03F8H
+                                  		in al , dx 
+                                        MOV ES:[BX], AL
+                                        INC BX
+                                        CMP BX, 0FA00H
+                                        JB CHK
+
+
 
     ;;Handle interrupt 9 procedure
                                 CLI
@@ -355,7 +421,7 @@ MAIN PROC FAR
                                 MOV           AX,0A000H
                                 MOV           ES,AX
 
-                                CALL FAR PTR Play
+            ;                    CALL FAR PTR Play
 
 
     
