@@ -1216,14 +1216,14 @@ GeneratePowerUps PROC FAR
     MOV BX, 777
     MUL BX
     ADD AX, COUNTER_CHECK3
-    ADD COUNTER_CHECK3, 7
+    ADD COUNTER_CHECK3, 17
 
 ;;MOD BY THE COUNTERARR TO GET A NUMBER IN ITS RANGE (IN DX)
     MOV BX, COUNTERARR
     MOV DX, 0
     DIV BX
 
-    CMP DX, 10
+    CMP DX, 15
     JG CONT_GPU_CODE
 
     JMP EXIT_GPU
@@ -1246,6 +1246,13 @@ CONT_GPU_CODE:
     MOV DX, WORD PTR DS:[SI]
     MOV powerUpPosY, DX
 
+    CALL FAR PTR ValidateThePowerUpPosition
+
+    CMP DrawPowerUpValidation, 1
+    JE DRAW_POWERUP_GPU
+    JMP EXIT_GPU
+
+DRAW_POWERUP_GPU:
 
     CMP DS:[DI], 0      ;UP
     JE VERTICAL_GPU
@@ -1387,3 +1394,57 @@ DrawPowerUP PROC  FAR
 RET
 
 DrawPowerUP ENDP
+
+;description
+ValidateThePowerUpPosition PROC
+
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    PUSH DI
+
+    MOV CX, powerUpPosX
+    MOV DX, powerUpPosY
+    SUB CX, 2
+    SUB DX, 2
+
+    MOV BH, 0
+    MOV AH, 0DH
+
+    MOV BL, 4
+    MOV DI, 4
+
+VTPUP_OUTER_LOOP:
+    MOV BL, 4
+    MOV CX, powerUpPosX
+    VTPUP_INNER_LOOP:
+        INT 10H
+        CMP AL, 8
+        JE CONT_VTPUP_CHECK
+        CMP AL, 0FH
+        JE CONT_VTPUP_CHECK
+        MOV DrawPowerUpValidation, 0
+        JMP EXIT_VTPUP
+
+        CONT_VTPUP_CHECK:
+        INC CX
+        DEC BL
+        JNZ VTPUP_INNER_LOOP
+    
+    INC DX
+    DEC DI
+    JNZ VTPUP_OUTER_LOOP
+
+    MOV DrawPowerUpValidation, 1
+
+EXIT_VTPUP:
+
+    POP DI
+    POP DX
+    POP CX
+    POP BX
+    POP AX
+
+    RET
+ValidateThePowerUpPosition ENDP

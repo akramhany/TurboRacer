@@ -28,7 +28,7 @@ include Macros.inc
     IsStarte             db      0
     TIMER DW ?
     STARTINGTIME DB ?
-    RACETIME EQU 20
+    RACETIME EQU 40
     FUp                  db      0
     FLeft                db      0
     FRgiht               db      0
@@ -69,6 +69,7 @@ include Macros.inc
     COUNTER_CHECK       DB 0
     COUNTER_CHECK2      DB 0
     COUNTER_CHECK3      DW 0
+    DrawPowerUpValidation DB 1
 
 
     ;---------------------------------------CAR DATA---------------------------------------
