@@ -1,7 +1,7 @@
 include Macros.inc
+include chat.inc
 
-
-.MODEL MEDIUM
+.MODEL LARGE
 .STACK 64
 
 .DATA
@@ -77,29 +77,27 @@ include Macros.inc
 
 
     ;---------------------------------------CAR DATA---------------------------------------
-                         dw      '0'
-                         dw      0
-                         dw      0
-                         dd      0
-                         dw      '0'
-                         dw      0
-                         dw      0
-                         dd      0
-                         INCLUDE IMAGE1.INC
-                         db      '0'
-
-                         dw      '0'
-                         dw      0
-                         dw      0
-                         dd      0
-                         INCLUDE IMAGE2.INC
-                         db      '1'
-
-                         dw      '0'
-                         dw      0
-                         dw      0
-                         dd      0
-                         db      ?
+                        dw      '0'
+                        dw      0
+                        dw      0
+                        dd      0
+                        dw      '0'
+                        dw      0
+                        dw      0
+                        dd      0
+                        INCLUDE IMAGE1.INC
+                        db      '0'
+                        dw      '0'
+                        dw      0
+                        dw      0
+                        dd      0
+                        INCLUDE IMAGE2.INC
+                        db      '1'
+                        dw      '0'
+                        dw      0
+                        dw      0
+                        dd      0
+                        db      ?
 
 
     WIDTH1              DW 5                        ;WIDTH OF CAR1                  
@@ -291,20 +289,25 @@ MAIN PROC FAR
                                 MOV           DX ,@data
                                 MOV           DS ,DX
 
-    ;                            CALL FAR PTR DisplayFirstPagePlayerOne
 ;
+                               CALL FAR PTR DisplayFirstPagePlayerOne
     CHECK_MODE:                 
-                                CALL FAR PTR FillArrDirectionSmall
+                                ;CALL FAR PTR FillArrDirectionSmall
     ;                            MOV COUNTERARR, 0
-    ;                            CALL FAR PTR DisplayMainPage
-    ;                            MOV AH, 0
-    ;                            INT 16H
-    ;                            CMP AH, 3DH                                          ;CHECK IF THE PLAYER WANT TO EXIT
-    ;                            JNE CHECK_FOR_PLAY
-    ;                            JMP EXIT_PROGRAM
-    ;CHECK_FOR_PLAY:             CMP AH, 3BH
-    ;                            JNE CHECK_MODE
-    ;                            JMP CheckKey
+                                CALL FAR PTR DisplayMainPage
+                                MOV AH, 0
+                                INT 16H
+                                CMP AH, 3DH                                          ;CHECK IF THE PLAYER WANT TO EXIT
+                                JNE CHECK_FOR_PLAY
+                                JMP EXIT_PROGRAM
+    CHECK_FOR_PLAY:             CMP AH, 3BH
+                                JNE CHECK_CHATING
+                                JMP CheckKey
+    CHECK_CHATING:                            
+                                CMP AH,3CH
+                                JNZ CHECK_MODE
+                                CALL FAR PTR CHATTING
+                                JMP CHECK_MODE
 
     CheckKey:                   
                                 mov           Status,0
