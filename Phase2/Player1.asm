@@ -294,7 +294,8 @@ MAIN PROC FAR
     ;                            CALL FAR PTR DisplayFirstPagePlayerOne
 ;
     CHECK_MODE:                 
-    ;    MOV COUNTERARR, 0
+                                CALL FAR PTR FillArrDirectionSmall
+    ;                            MOV COUNTERARR, 0
     ;                            CALL FAR PTR DisplayMainPage
     ;                            MOV AH, 0
     ;                            INT 16H
@@ -336,8 +337,8 @@ MAIN PROC FAR
 
     GenerateOb:                 
 
-                                ;CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
-                                CALL FAR PTR CHECKDIRECTION
+                                CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
+                                ;CALL FAR PTR CHECKDIRECTION
     ;SET DIVISOR LATCH ACCESS BIT
 ;    MOV DX, 3FBH
 ;    MOV AL, 10000000B
@@ -359,56 +360,29 @@ MAIN PROC FAR
 ;    OUT DX, AL
 
 
-                                ;Check that Transmitter Holding Register is Empty
-                                ;MOV AX, 0A000H
-                                ;MOV ES, AX
-                                ;MOV BX, 0000H
-;                                MOV CX, 0000H
-;                                MOV DX, 0000H
-;                                PUSH DX
-;                        		mov dx , 3FDH		; Line Status Register
-;    AGAIN_SENDER:  	            In al , dx 			;Read Line Status
-;                          		AND al , 00100000B
-;                          		JZ AGAIN_SENDER
-;                        
-;                        ;If empty put the VALUE in Transmit data register
-;                          		mov dx , 3F8H		; Transmit data register
-;                                POP DX
-;                                MOV AH, 0DH
-;                                MOV BH, 0
-;                                INT 10H
-;                                PUSH DX
-;                                MOV DX, 3FDH
-;                          		out dx , al
-;                                POP DX
-;                                INC CX
-;                                CMP CX, 320
-;                                JL DONT_ADD_LINE
-;                                MOV CX, 00
-;                                INC DX 
-;    DONT_ADD_LINE:
-;                                CMP DX, 200
-;                                JL AGAIN_SENDER
+                                MOV AX, 0A000H
+                                MOV ES, AX
+                                MOV BX, 0H
+                                LEA SI, ArrDirectionSmall
 
+    AGAIN_SENDER:  	            
+                                mov dx , 3FDH
+                                In al , dx 			;Read Line Status
+                          		AND al , 00100000B
+                          		JZ AGAIN_SENDER
+                        
+                        ;If empty put the VALUE in Transmit data register
+                          		mov dx , 3F8H		; Transmit data register
+                                MOV AL, DS:[SI]
+                          		out dx , al
+                                INC SI
+                                MOV CL, DS:[SI]
+                                CMP CL, '#'
+                                JNZ AGAIN_SENDER
 
-
-;                                MOV AX, 0A000H
-;                                MOV ES, AX
-;                                MOV BX, 0H
-;
-;    AGAIN_SENDER:  	            
-;                                mov dx , 3FDH
-;                                In al , dx 			;Read Line Status
-;                          		AND al , 00100000B
-;                          		JZ AGAIN_SENDER
-;                        
-;                        ;If empty put the VALUE in Transmit data register
-;                          		mov dx , 3F8H		; Transmit data register
-;                                MOV AL, ES:[BX]
-;                          		out dx , al
-;                                INC BX
-;                                CMP BX, 0FA00H
-;                                JB AGAIN_SENDER
+                                MOV DX, 3F8H
+                                MOV AL, '#'
+                                OUT DX, AL
 
                                 ;SetCursor 12, 12
                                 ;MOV TEMP_REG, BH

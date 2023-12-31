@@ -51,6 +51,10 @@ include Macros.inc
     ArrY2                 dW      100 dup(0ffffh)
     db ? 
     db ?
+    ArrDirectionSmall DB 200 DUP('#')
+    DB ?
+    CounterArrDirSmall DW 0
+    DB ?
     ;;;Obstacles Varaibles
 
     GenerateObstaclesKey equ     32H               ;NUMBER 2 IN KEYBOARD
@@ -288,7 +292,8 @@ MAIN PROC FAR
 
 ;                                CALL FAR PTR DisplayFirstPagePlayerTwo
 ;
-    CHECK_MODE:                 
+    CHECK_MODE:
+                                 CALL FAR PTR FillArrDirectionSmall                 
 ;        MOV COUNTERARR, 0
 ;                                CALL FAR PTR DisplayMainPage
 ;                                MOV AH, 0
@@ -332,9 +337,9 @@ MAIN PROC FAR
 ;
 ;                                CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
 ;                                CALL FAR PTR GeneratePowerUps
-                                        MOV AH, 00H
-                                        MOV AL, 13H
-                                        INT 10H
+    MOV AH, 00H
+    MOV AL, 13H
+    INT 10H
     ;SET DIVISOR LATCH ACCESS BIT
     MOV DX, 3FBH
     MOV AL, 10000000B
@@ -378,9 +383,8 @@ MAIN PROC FAR
 ;                                        CMP DX, 200
 ;                                        JL CHK
 
-                                        MOV AX, 0A000H
-                                        MOV ES, AX
-                                        MOV BX, 0H
+
+                                        LEA SI, ArrDirectionSmall
 
                                 				; Line Status Register
 	CHK:	                            mov dx , 3FDH
@@ -391,11 +395,15 @@ MAIN PROC FAR
  ;If Ready read the VALUE in Receive data register
                                   		mov dx , 03F8H
                                   		in al , dx 
-                                        MOV ES:[BX], AL
-                                        INC BX
-                                        CMP BX, 0FA00H
-                                        JB CHK
+                                        MOV DS:[SI], AL
+                                        INC SI
+                                        CMP AL, '#'
+                                        JNZ CHK
 
+    CALL FAR PTR CHECKDIRECTION
+
+    MOV AH, 00H
+    INT 16H
 
 
     ;;Handle interrupt 9 procedure
@@ -784,60 +792,69 @@ CheckBefore proc far
 CheckBefore endp
 
 
-    ; CHECKDIRECTION PROC FAR
+CHECKDIRECTION PROC FAR
 
-    ;                                 mov                   ah, 00h                                  ; Function 00h - Read character from standard input, wait if necessary
-    ;                                 int                   16h                                      ; BIOS interrupt 16h
-
-
-
-    ;                                 MOV                   AH ,00                                   ;video mode
-    ;                                 MOV                   AL,13H
-    ;                                 INT                   10H
-
-    ;                                 MOV                   AH ,08H                                  ;write in page0
-    ;                                 MOV                   BH ,00
-    ;                                 INT                   10H
-
-    ;                                 MOV                   CX,StatingPointX
-    ;                                 MOV                   DX , StatingPointY
-    ;                                 MOV                   SI ,0
-    ;                                 MOV                   DI, OFFSET ArrDirection
-
-    ;     LOOP111:
-    ;                                 mov                   al, 0
-    ;                                 CMP                   AL,[DI]
-    ;                                 JNZ                   CHECK1
-    ;                                 DEC                   DX
-    ;                                 call                  far ptr ColorRoadLanes
-    ;                                 jmp                   e
-    ;     Check1:
-    ;                                 mov                   al ,1
-    ;                                 cmp                   AL,[DI]
-    ;                                 JNZ                   CHECK2
-    ;                                 INC                   CX
-    ;                                 call                  far ptr ColorRoadLanes
-    ;                                 JMP                   e
-    ;     Check2:
-    ;                                 mov                   al ,2
-    ;                                 cmp                   AL,[DI]
-    ;                                 jnz                   Check3
-    ;                                 dec                   cx
-    ;                                 call                  far ptr ColorRoadLanes
-    ;                                 jmp                   e
-    ;     Check3:
-
-
-    ;                                 inc                   dx
-    ;                                 call                  far ptr ColorRoadLanes
-    ;     e:
-    ;                                 inc                   si
-    ;                                 inc                   DI
-    ;                                 cmp                   si ,COUNTERARR
-    ;                                 jnz                   loop111                                  ;
-    ;                                 ret
-
-    ; CHECKDIRECTION ENDP
+                                
+                                MOV LastDirection, 1
+                                MOV                   IsStarte,0
+                                MOV                   FUp,0
+                                MOV                   FRgiht,0
+                                MOV                   FLeft,0
+                                MOV                   FDown,0
+                                mov                   Intersect,0
+                                MOV                   CurrentBlock,0
+                                mov                   LastDirection,1
+                                mov           Status,0
+                                mov           Intersect,0
+                                
+                                 MOV                   AH ,00                                   ;video mode
+                                 MOV                   AL,13H
+                                 INT                   10H
+                                 MOV                   AH ,08H                                  ;write in page0
+                                 MOV                   BH ,00
+                                 INT                   10H
+                                 MOV                   CX,StatingPointX
+                                 MOV                   DX , StatingPointY
+                                 MOV XAxis, CX
+                                 MOV YAxis, DX
+                                 MOV IsStarte, 0
+                                 CALL FAR PTR ENDTRACK
+                                 MOV IsStarte, 1
+                                CALL FAR PTR RightDirection
+                                 MOV                   SI ,0
+                                 MOV                   DI, OFFSET ArrDirectionSmall
+     LOOP111:
+                                 mov                   al, 0
+                                 CMP                   AL,[DI]
+                                 JNZ                   CHECK1
+                                 CALL FAR PTR UpDirection
+                                 jmp                   e
+     Check1:
+                                 mov                   al ,1
+                                 cmp                   AL,[DI]
+                                 JNZ                   CHECK2
+                                 CALL FAR PTR RightDirection
+                                 JMP                   e
+     Check2:
+                                 mov                   al ,2
+                                 cmp                   AL,[DI]
+                                 jnz                   Check3
+                                CALL FAR PTR LeftDirection
+                                 jmp                   e
+     Check3:
+                                 MOV AL, 3
+                                 CMP AL, [DI]
+                                 JNZ e
+                                 CALL FAR PTR DownDirection
+     e:
+                                 inc                   si
+                                 inc                   DI
+                                 MOV                   AL, DS:[DI]
+                                 CMP                   AL, '#'
+                                 jNZ                   loop111        
+                                 CALL FAR PTR ENDTRACK                          ;
+                                 ret
+ CHECKDIRECTION ENDP
 
 
 
