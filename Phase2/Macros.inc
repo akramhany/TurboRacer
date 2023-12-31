@@ -33,6 +33,15 @@ DelaySmall MACRO
           INT 15H
 
 ENDM
+
+DelayVerySmall MACRO
+
+          MOV CX, 00H
+          MOV DX, 0240H
+          MOV AH, 86H
+          INT 15H
+ENDM
+
 OpenFile Macro openMode, filename
 
     mov ah, 03Dh
@@ -148,8 +157,8 @@ ResetVariables MACRO
 
     MOV playerOneWin, 0
     MOV playerTwoWin, 0
-    MOV CENTER1, 130 * 320 + 21
-    MOV CENTER2, 140 * 320 + 21
+    MOV CENTER1, InitialCar1Position
+    MOV CENTER2, InitialCar2Position
     MOV STATE1, 1
     MOV STATE1, 2
     MOV SPEED1, 1
@@ -192,5 +201,28 @@ ResetVariables MACRO
     MOV moveDirectionUpC2, 0 
     MOV moveDirectionLeftC2, 0
     MOV moveDirectionDownC2, 0
+
+ENDM
+
+InputOutput MACRO
+    LOCAL LOOP_RECIEVE_CAR_1, LOOP_SEND_CAR_1
+    LOOP_SEND_CAR_1:  	   
+                        mov dx , 3FDH
+                        In al , dx 
+                        AND AL, 00100000B
+                        JZ LOOP_SEND_CAR_1
+                    
+                    	mov dx, 3F8H
+                        MOV AL, BL
+                    	out dx, al         
+    LOOP_RECIEVE_CAR_1:
+    	                mov dx , 3FDH
+                        in al , dx
+                        AND AL, 1
+                        JZ LOOP_RECIEVE_CAR_1
+
+                        mov dx , 03F8H
+                        IN al , dx
+                        MOV BH, AL
 
 ENDM

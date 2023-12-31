@@ -28,7 +28,7 @@ include Macros.inc
     IsStarte             db      0
     TIMER DW ?
     STARTINGTIME DB ?
-    RACETIME EQU 40
+    RACETIME EQU 200
     FUp                  db      0
     FLeft                db      0
     FRgiht               db      0
@@ -106,8 +106,8 @@ include Macros.inc
     HEIGHT1             DW 9                       ;HEIGHT OF CAR1   
     WIDTH2              DW 5                        ;WIDTH OF CAR2
     HEIGHT2             DW 9                       ;HEIGHT OF CAR2
-    CENTER1             DW 140 * 320 + 21           ;CENTER  OF CAR1
-    CENTER2             DW 130 * 320 + 21           ;CENTER OF CAR2
+    CENTER1             DW InitialCar1Position           ;CENTER  OF CAR1
+    CENTER2             DW InitialCar2Position           ;CENTER OF CAR2
     TOP1                DW ?                        ;INITIALIZED IN ORIGINAL PROCEDURE IN THE BEFINNING
     TOP2                DW ?                        ;INITIALIZED IN ORIGINAL PROCEDURE IN THE BEGINNING
     STATE1              DB 1                        ; 0 => UP    1 => RIGHT  2=> LEFT  3=>DOWN
@@ -154,6 +154,8 @@ include Macros.inc
     playerTwoWin        DB 0
     counterForPU        DB 0
     currentSecond       DB 0
+    InitialCar1Position EQU 130 * 320 + 21
+    InitialCar2Position EQU 140 * 320 + 21
 
     ;-------------------HANDELING TAKING MORE THAN ONE KEY INPUT AT THE SAME TIME---------------------------
     DB ?
