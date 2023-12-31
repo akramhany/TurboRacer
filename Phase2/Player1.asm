@@ -337,7 +337,6 @@ MAIN PROC FAR
 
     GenerateOb:                 
 
-                                CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
                                 ;CALL FAR PTR CHECKDIRECTION
     ;SET DIVISOR LATCH ACCESS BIT
 ;    MOV DX, 3FBH
@@ -358,7 +357,7 @@ MAIN PROC FAR
 ;    MOV DX, 3FBH
 ;    MOV AL, 00011011B
 ;    OUT DX, AL
-
+                                                                
 
                                 MOV AX, 0A000H
                                 MOV ES, AX
@@ -384,10 +383,15 @@ MAIN PROC FAR
                                 MOV AL, '#'
                                 OUT DX, AL
 
-                                ;SetCursor 12, 12
+                                Delay
+                                Delay
+
+                                CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
+
+                                ;Se\tCursor 12, 12
                                 ;MOV TEMP_REG, BH
                                 ;ADD TEMP_REG, '0'
-                                ;DISPLAYCHAR TEMP_REG
+                                ;DISPLAYCHAR TEMP_REG                                
 
 
 

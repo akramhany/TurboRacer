@@ -341,24 +341,24 @@ MAIN PROC FAR
     MOV AL, 13H
     INT 10H
     ;SET DIVISOR LATCH ACCESS BIT
-    MOV DX, 3FBH
-    MOV AL, 10000000B
-    OUT DX, AL
-
-    ;SET LSB BYTE OF BAUD RATE
-    MOV DX, 3F8H
-    MOV AL, 0CH
-    OUT DX, AL
-
-    ;SET MSB BYTE
-    MOV DX, 3f9h
-    MOV AL, 00h
-    OUT DX, AL
-
-    ;SET PORT CONFIGURATION
-    MOV DX, 3FBH
-    MOV AL, 00011011B
-    OUT DX, AL
+;    MOV DX, 3FBH
+;    MOV AL, 10000000B
+;    OUT DX, AL
+;
+;    ;SET LSB BYTE OF BAUD RATE
+;    MOV DX, 3F8H
+;    MOV AL, 0CH
+;    OUT DX, AL
+;
+;    ;SET MSB BYTE
+;    MOV DX, 3f9h
+;    MOV AL, 00h
+;    OUT DX, AL
+;
+;    ;SET PORT CONFIGURATION
+;    MOV DX, 3FBH
+;    MOV AL, 00011011B
+;    OUT DX, AL
                                         
 ;                                        MOV CX, 0000
 ;                                        MOV DX, 0000
@@ -383,10 +383,9 @@ MAIN PROC FAR
 ;                                        CMP DX, 200
 ;                                        JL CHK
 
-
                                         LEA SI, ArrDirectionSmall
-
-                                				; Line Status Register
+    
+;                                				; Line Status Register
 	CHK:	                            mov dx , 3FDH
                                         in al , dx
   		                                AND al , 1
@@ -400,10 +399,55 @@ MAIN PROC FAR
                                         CMP AL, '#'
                                         JNZ CHK
 
-    CALL FAR PTR CHECKDIRECTION
 
-    MOV AH, 00H
-    INT 16H
+                                        CALL FAR PTR CHECKDIRECTION
+
+;
+                                        MOV BL, 0
+                                        MOV BH, 0
+    RECIEVE_OBS_COORDINATES:
+                                        MOV DX, 3FDH
+                                        IN AL, DX
+                                        AND AL, 1
+                                        JZ RECIEVE_OBS_COORDINATES
+
+                                        MOV DX, 03F8H
+                                        IN AL, DX
+                                        CMP AL, '#'
+                                        JE EXIT_ROC
+                                        CMP BH, 0
+                                        JNE RECIEVE_Y_COORDINATE
+                                        CMP BL, 0
+                                        JNE RECIEVE_OBS_SECOND_BIT_X
+                                        MOV CL, AL
+                                        MOV BL, 1
+                                        JMP CONT_ROC
+    RECIEVE_OBS_SECOND_BIT_X:
+                                        MOV CH, AL
+                                        MOV ObstaclePosX, CX
+                                        MOV BL, 0
+                                        MOV BH, 1
+                                        JMP CONT_ROC
+
+    RECIEVE_Y_COORDINATE:               
+                                        CMP BL, 0
+                                        JNE RECIEVE_OBS_SECOND_BIT_Y
+                                        MOV CL, AL
+                                        MOV BL, 1
+                                        JMP CONT_ROC
+    RECIEVE_OBS_SECOND_BIT_Y:
+                                        MOV CH, AL
+                                        MOV ObstaclePosY, CX
+                                        CALL FAR PTR DrawObstacle
+                                        MOV BL, 0
+                                        MOV BH, 0
+                                        JMP CONT_ROC
+    CONT_ROC:
+                                        JMP RECIEVE_OBS_COORDINATES
+
+    EXIT_ROC:
+
+
 
 
     ;;Handle interrupt 9 procedure
@@ -429,7 +473,7 @@ MAIN PROC FAR
                                 MOV           AX,0A000H
                                 MOV           ES,AX
 
-            ;                    CALL FAR PTR Play
+                                CALL FAR PTR Play
 
 
     

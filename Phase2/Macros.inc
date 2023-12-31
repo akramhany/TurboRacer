@@ -25,6 +25,14 @@ BigDelay MACRO
 
 ENDM
 
+DelaySmall MACRO
+
+          MOV CX, 00H
+          MOV DX, 02240H
+          MOV AH, 86H
+          INT 15H
+
+ENDM
 OpenFile Macro openMode, filename
 
     mov ah, 03Dh

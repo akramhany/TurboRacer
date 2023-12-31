@@ -16,18 +16,18 @@ GenerateObstacles PROC FAR
                                 MOV           AX, StatingPointY                      ;Set the OB_StartY with the starting pointY
                                 MOV           OB_StartY, AX
 
-                                LEA           BX, ArrX2
-                                LEA           BP, ArrY2
+                                ;LEA           BX, ArrX2
+                                ;LEA           BP, ArrY2
 
 
     ;;loop to get a component in the track then draw obstacles in it then get then next component and so on, until the end
     GENERATE_NEW_RANDOM_OB:     
-                                MOV           AX, OB_StartX
-                                MOV           DS:[BX], AX
-                                MOV           AX, OB_StartY
-                                MOV           DS:[BP], AX
-                                ADD           BX, 2
-                                ADD           BP, 2
+                                ;MOV           AX, OB_StartX
+                                ;MOV           DS:[BX], AX
+                                ;MOV           AX, OB_StartY
+                                ;MOV           DS:[BP], AX
+                                ;ADD           BX, 2
+                                ;ADD           BP, 2
                                 CALL          FAR PTR GetEndOfCurrentTrackComp       ;GET END OF CURRENT TRACK COMP AND STORE IN OB_EndX, OB_EndY
 
                                 CALL          GeneratRandomNumber                    ;generates a random variable between 0 - 9
@@ -35,8 +35,9 @@ GenerateObstacles PROC FAR
                                 CMP           RandomValue, 6                         ;CHECK IF THE RANDOM VALUE IS GREATER THAN 6 THEN DON'T DRAW AN OBSTACLE
                                 JG            OB_CONT
 
-                                CALL          FAR PTR DrawRandomObstacle             ;Draw A random obstacle in this segment of the track
                                 
+                                CALL          FAR PTR DrawRandomObstacle             ;Draw A random obstacle in this segment of the track
+
     OB_CONT:                    
                                 CALL          FAR PTR GetNextDirection               ;Get the next direction on the track
 
@@ -48,6 +49,18 @@ GenerateObstacles PROC FAR
 
                                 CMP           OB_Direction, OB_NO_DIRECTION          ;Check if there are no available directions (except the last direction I came from)
                                 JNE           GENERATE_NEW_RANDOM_OB
+
+
+    AGAIN_SENDER_CLOSING_BIT_OBS:  	            
+                                mov dx , 3FDH
+                                In al , dx 			;Read Line Status
+                                AND al , 00100000B
+                                JZ AGAIN_SENDER_CLOSING_BIT_OBS
+
+                                mov dx , 3F8H		
+                                MOV AL, '#'
+                                out dx , al
+
 
                                 POP           BP
                                 POP           CX
@@ -119,7 +132,7 @@ DrawRandomObstacle PROC FAR
                                 JMP           DRAW_OBSTACLE
 
     DRAW_OBSTACLE:              
-
+                                CALL          FAR PTR SendObstaclesPosition
                                 CALL          FAR PTR DrawObstacle                   ;Draw the obstacle using the generated random values in ObstaclePosX, and ObstaclePosY
 
 
@@ -359,3 +372,67 @@ DrawObstacle PROC FAR
 
                                 RET
 DrawObstacle ENDP
+
+;description
+SendObstaclesPosition PROC FAR
+    PUSH          AX
+    PUSH          BX
+    PUSH          CX
+    PUSH          DX
+    PUSH          ObstaclePosX
+    PUSH          ObstaclePosY
+    PUSH          DI
+
+    MOV CX, ObstaclePosX
+
+AGAIN_SENDER_OBS_X1:  	            
+    mov dx , 3FDH
+    In al , dx 			;Read Line Status
+    AND al , 00100000B
+    JZ AGAIN_SENDER_OBS_X1
+
+    mov dx , 3F8H		
+    MOV AL, CL
+    out dx , al
+
+
+AGAIN_SENDER_OBS_X2:  	            
+    mov dx , 3FDH
+    In al , dx 			;Read Line Status
+    AND al , 00100000B
+    JZ AGAIN_SENDER_OBS_X2
+
+    mov dx , 3F8H		
+    MOV AL, CH
+    out dx , al
+    MOV CX, ObstaclePosY
+
+AGAIN_SENDER_OBS_Y1:  	            
+    mov dx , 3FDH
+    In al , dx 			;Read Line Status
+    AND al , 00100000B
+    JZ AGAIN_SENDER_OBS_Y1
+
+    mov dx , 3F8H		
+    MOV AL, CL
+    out dx , al
+
+AGAIN_SENDER_OBS_Y2:  	            
+    mov dx , 3FDH
+    In al , dx 			;Read Line Status
+    AND al , 00100000B
+    JZ AGAIN_SENDER_OBS_Y2
+
+    mov dx , 3F8H		
+    MOV AL, CH
+    out dx , al
+
+    POP           DI
+    POP           ObstaclePosY
+    POP           ObstaclePosX
+    POP           DX
+    POP           CX
+    POP           BX
+    POP           AX
+    RET
+SendObstaclesPosition ENDP
