@@ -51,6 +51,10 @@ include Macros.inc
     ArrY2                 dW      100 dup(0ffffh)
     db ? 
     db ?
+    ArrDirectionSmall DB 1, 200 DUP(4)
+    DB ?
+    DB ?
+    CounterArrDirSmall DB 1
     ;;;Obstacles Varaibles
 
     GenerateObstaclesKey equ     32H               ;NUMBER 2 IN KEYBOARD
@@ -150,6 +154,7 @@ include Macros.inc
     playerTwoWin        DB 0
     counterForPU        DB 0
     currentSecond       DB 0
+    TEMP_REG            DB 0
 
     ;-------------------HANDELING TAKING MORE THAN ONE KEY INPUT AT THE SAME TIME---------------------------
     DB ?
@@ -286,34 +291,35 @@ MAIN PROC FAR
                                 MOV           DX ,@data
                                 MOV           DS ,DX
 
-                                CALL FAR PTR DisplayFirstPagePlayerOne
-
+    ;                            CALL FAR PTR DisplayFirstPagePlayerOne
+;
     CHECK_MODE:                 
-        MOV COUNTERARR, 0
-                                CALL FAR PTR DisplayMainPage
-                                MOV AH, 0
-                                INT 16H
-                                CMP AH, 3DH                                          ;CHECK IF THE PLAYER WANT TO EXIT
-                                JNE CHECK_FOR_PLAY
-                                JMP EXIT_PROGRAM
-    CHECK_FOR_PLAY:             CMP AH, 3BH
-                                JNE CHECK_MODE
-                                JMP CheckKey
+    ;    MOV COUNTERARR, 0
+    ;                            CALL FAR PTR DisplayMainPage
+    ;                            MOV AH, 0
+    ;                            INT 16H
+    ;                            CMP AH, 3DH                                          ;CHECK IF THE PLAYER WANT TO EXIT
+    ;                            JNE CHECK_FOR_PLAY
+    ;                            JMP EXIT_PROGRAM
+    ;CHECK_FOR_PLAY:             CMP AH, 3BH
+    ;                            JNE CHECK_MODE
+    ;                            JMP CheckKey
 
     CheckKey:                   
                                 mov           Status,0
                                 mov           Intersect,0
 
-                                MOV           AH ,00h                                ;check which key is being pressed
-                                INT           16h                                    ;the pressed key in al
-                                CMP           al,GenTrack                            ;if it enter so generate another track
-                                JZ            TrackRandom
-                                CMP           al ,EndKey                             ;check if it ESC to end the porgram
-                                JZ            EndProgram                             ;go to hlt
-                                CMP           AL, GenerateObstaclesKey               ;check if the track is finished and we want to generate obstacles
-                                JZ            GenerateOb
-                                JMP           CheckKey
+    ;                            MOV           AH ,00h                                ;check which key is being pressed
+    ;                            INT           16h                                    ;the pressed key in al
+    ;                            CMP           al,GenTrack                            ;if it enter so generate another track
+    ;                            JZ            TrackRandom
+    ;                            CMP           al ,EndKey                             ;check if it ESC to end the porgram
+    ;                            JZ            EndProgram                             ;go to hlt
+    ;                            CMP           AL, GenerateObstaclesKey               ;check if the track is finished and we want to generate obstacles
+    ;                            JZ            GenerateOb
+    ;                            JMP           CheckKey
     TrackRandom:                
+                                MOV CounterArrDirSmall, 1
                                 CALL          far ptr GenerateTrack                  ;call to generate porcedure
                                 CMP           CurrentBlock,25
                                 JL            TrackRandom
@@ -324,13 +330,93 @@ MAIN PROC FAR
     ;MOV  CL, RoadNum
     ;CMP  CurrentBlock,CL
                                 CALL          FAR PTR ENDTRACK
-                                JZ            CheckKey
-                                JMP           CheckKey                               ;return to check key pressed
+    ;                            JZ            CheckKey
+    ;                            JMP           CheckKey                               ;return to check key pressed
     EndProgram:                 
 
     GenerateOb:                 
 
                                 CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
+
+    ;SET DIVISOR LATCH ACCESS BIT
+;    MOV DX, 3FBH
+;    MOV AL, 10000000B
+;    OUT DX, AL
+;
+;    ;SET LSB BYTE OF BAUD RATE
+;    MOV DX, 3F8H
+;    MOV AL, 0CH
+;    OUT DX, AL
+;
+;    ;SET MSB BYTE
+;    MOV DX, 3f9h
+;    MOV AL, 00h
+;    OUT DX, AL
+;
+;    ;SET PORT CONFIGURATION
+;    MOV DX, 3FBH
+;    MOV AL, 00011011B
+;    OUT DX, AL
+
+
+                                ;Check that Transmitter Holding Register is Empty
+                                ;MOV AX, 0A000H
+                                ;MOV ES, AX
+                                ;MOV BX, 0000H
+;                                MOV CX, 0000H
+;                                MOV DX, 0000H
+;                                PUSH DX
+;                        		mov dx , 3FDH		; Line Status Register
+;    AGAIN_SENDER:  	            In al , dx 			;Read Line Status
+;                          		AND al , 00100000B
+;                          		JZ AGAIN_SENDER
+;                        
+;                        ;If empty put the VALUE in Transmit data register
+;                          		mov dx , 3F8H		; Transmit data register
+;                                POP DX
+;                                MOV AH, 0DH
+;                                MOV BH, 0
+;                                INT 10H
+;                                PUSH DX
+;                                MOV DX, 3FDH
+;                          		out dx , al
+;                                POP DX
+;                                INC CX
+;                                CMP CX, 320
+;                                JL DONT_ADD_LINE
+;                                MOV CX, 00
+;                                INC DX 
+;    DONT_ADD_LINE:
+;                                CMP DX, 200
+;                                JL AGAIN_SENDER
+
+
+
+                                MOV AX, 0A000H
+                                MOV ES, AX
+                                MOV BX, 0H
+
+    AGAIN_SENDER:  	            
+                                mov dx , 3FDH
+                                In al , dx 			;Read Line Status
+                          		AND al , 00100000B
+                          		JZ AGAIN_SENDER
+                        
+                        ;If empty put the VALUE in Transmit data register
+                          		mov dx , 3F8H		; Transmit data register
+                                MOV AL, ES:[BX]
+                          		out dx , al
+                                INC BX
+                                CMP BX, 0FA00H
+                                JB AGAIN_SENDER
+
+                                ;SetCursor 12, 12
+                                ;MOV TEMP_REG, BH
+                                ;ADD TEMP_REG, '0'
+                                ;DISPLAYCHAR TEMP_REG
+
+
+
                                 CALL FAR PTR GeneratePowerUps
 
     ;;Handle interrupt 9 procedure
@@ -492,6 +578,12 @@ GenerateTrack proc far
                                 MOV                   [BX], BYTE PTR 0
                                 INC                   BX
                                 PUSH                  BX
+                                PUSH DI
+                                LEA DI, ArrDirectionSmall
+                                ADD DI, CounterArrDirSmall
+                                MOV DS:[DI], 0
+                                INC CounterArrDirSmall
+                                POP DI
                                 call                  far ptr UpDirection                      ; calling move up
                                 POP                   BX
                                 jmp                   Road                                     ;return to creat randam number again
@@ -508,6 +600,12 @@ GenerateTrack proc far
                                 MOV                   [BX],BYTE PTR 3
                                 INC                   BX
                                 PUSH                  BX
+                                PUSH DI
+                                LEA DI, ArrDirectionSmall
+                                ADD DI, CounterArrDirSmall
+                                MOV DS:[DI], 3
+                                INC CounterArrDirSmall
+                                POP DI
                                 call                  far ptr DownDirection                    ; calling move down
                                 POP                   BX
                                 jmp                   Road                                     ;return to creat randam number again
@@ -524,6 +622,12 @@ GenerateTrack proc far
                                 MOV                   [BX], BYTE PTR 2
                                 INC                   BX
                                 PUSH                  BX
+                                PUSH DI
+                                LEA DI, ArrDirectionSmall
+                                ADD DI, CounterArrDirSmall
+                                MOV DS:[DI], 2
+                                INC CounterArrDirSmall
+                                POP DI
                                 call                  far ptr LeftDirection
                                 POP                   BX
                                 jmp                   Road                                     ;return to creat randam number again
@@ -542,6 +646,12 @@ GenerateTrack proc far
                                 MOV                   [BX], BYTE PTR 1H
                                 INC                   BX
                                 PUSH                  BX
+                                PUSH DI
+                                LEA DI, ArrDirectionSmall
+                                ADD DI, CounterArrDirSmall
+                                MOV DS:[DI], 1
+                                INC CounterArrDirSmall
+                                POP DI
                                 call                  far ptr RightDirection                   ; calling move up
                                 POP                   BX
                                 jmp                   Road                                     ;return to creat randam number again
@@ -1108,9 +1218,12 @@ DownDirection endp
     ;Regester: only AX
     ;***********************************************************************
 ColorRoad PROC FAR
+PUSH BX
                                 MOV                   AH ,0CH
-                                MOV                   AL ,8                                    ;gray
+                                MOV                   AL ,8
+                                MOV BH, 0                                    ;gray
                                 INT                   10H
+POP BX
                                 RET
 ColorRoad ENDP
     ;***********************************************************************
@@ -1118,9 +1231,12 @@ ColorRoad ENDP
     ;Regester: only AX
     ;***********************************************************************
 ColorWall PROC FAR
+                                PUSH BX
                                 MOV                   AH ,0CH
-                                MOV                   AL ,0eh                                  ;yellow
+                                MOV                   AL ,0eh       
+                                MOV BH, 0                           ;yellow
                                 INT                   10H
+                                POP BX
                                 RET
 ColorWall ENDP
     ;***********************************************************************
@@ -1128,9 +1244,12 @@ ColorWall ENDP
     ;Regester: only AX
     ;***********************************************************************
 ColorRoadLanes PROC FAR
+                                PUSH BX
                                 MOV                   AH ,0CH
-                                MOV                   AL ,0fh                                  ;white
+                                MOV                   AL ,0fh     
+                                MOV BH, 0                             ;white
                                 INT                   10H
+                                POP BX
                                 RET
 ColorRoadLanes ENDP
     ;***********************************************************************
@@ -1138,6 +1257,8 @@ ColorRoadLanes ENDP
     ;Regester: only AX
     ;***********************************************************************
 ColorRoadEnd PROC FAR
+                                PUSH BX
+                                MOV BH, 0
                                 MOV                   AH ,0CH
                                 CMP                   IsStarte,0
                                 JNZ                   End_track
@@ -1145,8 +1266,9 @@ ColorRoadEnd PROC FAR
                                 JMP                   CON10
     End_track:
                                 MOV                   AL ,ROAD_COLOR_END                       ;blue
-    con10:
+    con10:                      
                                 INT                   10H
+                                POP BX
                                 RET
 ColorRoadEnd ENDP
 
