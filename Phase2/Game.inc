@@ -42,7 +42,122 @@ Play PROC FAR
     MOV TIMER,RACETIME
 
    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 AGAIN:
+        DelaySmall
+                            MOV CX, CENTER1
+                            
+;        LOOP_RECIEVE_CAR_1:
+;        	                mov dx , 3FDH
+;                            in al , dx
+;  		                    ;AND al , 1
+;  		                    ;JZ LOOP_RECIEVE_CAR_1
+;
+;                            mov dx , 03F8H
+;                            IN al , dx 
+;                            MOV BL, AL
+;        LOOP_SEND_CAR_1:  	            
+;                            mov dx , 3FDH
+;                            In al , dx 			;Read Line Status
+;                          	;AND al , 00100000B
+;                          	;JZ LOOP_SEND_CAR_1
+;                        
+;                        ;If empty put the VALUE in Transmit data register
+;                        	mov dx, 3F8H		; Transmit data register
+;                            MOV AL, CL
+;                        	out dx, al
+;        LOOP_RECIEVE_CAR_2:
+;        	                mov dx , 3FDH
+;                            in al , dx
+;  		                    ;AND al , 1
+;  		                    ;JZ LOOP_RECIEVE_CAR_2
+;
+;                            mov dx , 03F8H
+;                            IN al , dx 
+;                            MOV BH, AL 
+;        LOOP_SEND_CAR_2:  	            
+;                            mov dx , 3FDH
+;                            In al , dx 			;Read Line Status
+;                          	;AND al , 00100000B
+;                          	;JZ LOOP_SEND_CAR_2
+;                        
+;                        ;If empty put the VALUE in Transmit data register
+;                        	mov dx, 3F8H		; Transmit data register
+;                            MOV AL, CH
+;                        	out dx, al
+;
+;                            MOV CENTER2, BX
+;                            CALL FAR PTR RESETCAR2
+;                            CALL FAR PTR ORIG2
+;                            CALL FAR PTR CAR2
+        MOV BL, 4
+        MOV moveDirectionUpC2, 0
+        MOV moveDirectionRightC2, 0
+        MOV moveDirectionDownC2, 0
+        MOV moveDirectionLeftC2, 0
+
+        CMP moveDirectionUpC1, 1
+        JNZ MDUC1 
+        MOV BL, 0
+        JMP CONT_MDUC1
+MDUC1:
+        CMP moveDirectionRightC1, 1
+        JNZ MDRC1
+        MOV BL, 1
+        JMP CONT_MDUC1
+MDRC1:
+        CMP moveDirectionDownC1, 1
+        JNZ MDDC1
+        MOV BL, 3
+        JMP CONT_MDUC1
+MDDC1:
+        CMP moveDirectionLeftC1, 1
+        JNZ CONT_MDUC1
+        MOV BL, 2
+
+CONT_MDUC1:
+
+        LOOP_RECIEVE_CAR_1:
+        	                mov dx , 3FDH
+                            in al , dx
+  		                    ;AND al , 1
+  		                    ;JZ LOOP_RECIEVE_CAR_1
+
+                            mov dx , 03F8H
+                            IN al , dx 
+                            MOV BH, AL
+        LOOP_SEND_CAR_1:  	            
+                            mov dx , 3FDH
+                            In al , dx 			;Read Line Status
+                          	;AND al , 00100000B
+                          	;JZ LOOP_SEND_CAR_1
+                        
+                        ;If empty put the VALUE in Transmit data register
+                        	mov dx, 3F8H		; Transmit data register
+                            MOV AL, BL
+                        	out dx, al
+
+        CMP BH, 0
+        JNZ MDUC2
+        MOV moveDirectionUpC2, 1
+        JMP CONT_MDUC2
+MDUC2:
+        CMP BH, 1
+        JNZ MDRC2
+        MOV moveDirectionRightC2, 1
+        JMP CONT_MDUC2
+MDRC2:
+        CMP BH, 2
+        JNZ MDLC2
+        MOV moveDirectionLeftC2, 1
+        JMP CONT_MDUC2
+MDLC2:  
+        CMP BH, 3
+        JNZ CONT_MDUC2
+        MOV moveDirectionDownC2, 1
+
+CONT_MDUC2:
+
     MOV AH,2CH
     INT 21H
     CMP DH,STARTINGTIME

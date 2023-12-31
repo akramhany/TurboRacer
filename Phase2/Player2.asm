@@ -106,8 +106,8 @@ include Macros.inc
     HEIGHT1             DW 9                       ;HEIGHT OF CAR1   
     WIDTH2              DW 5                        ;WIDTH OF CAR2
     HEIGHT2             DW 9                       ;HEIGHT OF CAR2
-    CENTER1             DW 130 * 320 + 21           ;CENTER  OF CAR1
-    CENTER2             DW 140 * 320 + 21           ;CENTER OF CAR2
+    CENTER1             DW 140 * 320 + 21           ;CENTER  OF CAR1
+    CENTER2             DW 130 * 320 + 21           ;CENTER OF CAR2
     TOP1                DW ?                        ;INITIALIZED IN ORIGINAL PROCEDURE IN THE BEFINNING
     TOP2                DW ?                        ;INITIALIZED IN ORIGINAL PROCEDURE IN THE BEGINNING
     STATE1              DB 1                        ; 0 => UP    1 => RIGHT  2=> LEFT  3=>DOWN
@@ -281,7 +281,7 @@ include ORIGINAL.inc
 include RESET.inc
 include DRAW.inc
 include Colision.inc
-include General2.inc
+include General1.inc
 include PowerUps.inc
 include Obscs.inc
 include Game.inc

@@ -2,63 +2,70 @@
 OverRideInt9_p1 PROC FAR
                                 IN            AL, 60H                                ;READ SCAN CODE
        
-                                CMP           AL, 11H                                ;CHECK UP PRESSED FOR CAR 2
-                                JNE           W_NOT_PRESSED_p1
-                                MOV           moveDirectionUpC2, 1
+                                CMP           AL, 48H                                ;CHECK UP KEY
+                                JNE           UP_NOT_PRESSED_p1
+                                MOV           moveDirectionUpC1, 1
                                 JMP           CONT_p1
 
-    W_NOT_PRESSED_p1:              
-                                CMP           AL, 11H + 80H                          ;CHECK UP RELEASED FOR CAR 2
-                                JNE           W_NOT_RELEASED_p1
-                                MOV           moveDirectionUpC2, 0
+    UP_NOT_PRESSED_p1:             
+                                CMP           AL, 48H + 80H
+                                JNE           UP_NOT_RELEASED_p1
+                                MOV           moveDirectionUpC1, 0
                                 JMP           CONT_p1
 
-    W_NOT_RELEASED_p1:             
-                                CMP           AL, 20H                                ;CHECK RIGHT PRESSED FOR CAR 2
-                                JNE           D_NOT_PRESSED_p1
-                                MOV           moveDirectionRightC2, 1
+    UP_NOT_RELEASED_p1:            
+                                CMP           AL, 4DH                                ;Check for right pressed
+                                JNE           RIGHT_NOT_PRESSED_p1
+                                MOV           moveDirectionRightC1, 1
                                 JMP           CONT_p1
 
-    D_NOT_PRESSED_p1:              
-                                CMP           AL, 20H + 80H                          ;CHECK RIGHT RELEASED FOR CAR 2
-                                JNE           D_NOT_RELEASED_p1
-                                MOV           moveDirectionRightC2, 0
+
+    RIGHT_NOT_PRESSED_p1:          
+                                CMP           AL, 4DH + 80H                          ;Check for right released
+                                JNE           RIGHT_NOT_RELEASED_p1
+                                MOV           moveDirectionRightC1, 0
                                 JMP           CONT_p1
 
-    D_NOT_RELEASED_p1:             
-                                CMP           AL, 1EH                                ;CHECK LEFT PRESSED FOR CAR 2
-                                JNE           A_NOT_PRESSED_p1
-                                MOV           moveDirectionLeftC2, 1
+    CONT_HELP_p1:                  
                                 JMP           CONT_p1
 
-    A_NOT_PRESSED_p1:              
-                                CMP           AL, 1EH + 80H                          ;CHECK LEFT RELEASED FOR CAR 2
-                                JNE           A_NOT_RELEASED_p1
-                                MOV           moveDirectionLeftC2, 0
+    HELPER_JUMP_p1:                
+                                JMP           DOWN_NOT_RELEASED_p1
+
+    RIGHT_NOT_RELEASED_p1:         
+                                CMP           AL, 4BH                                ;Check for left pressed
+                                JNE           LEFT_NOT_PRESSED_p1
+                                MOV           moveDirectionLeftC1, 1
                                 JMP           CONT_p1
 
-    A_NOT_RELEASED_p1:             
-                                CMP           AL, 1FH                                ;CHECK DOWN PRESSED FOR CAR 2
-                                JNE           S_NOT_PRESSED_p1
-                                MOV           moveDirectionDownC2, 1
+    LEFT_NOT_PRESSED_p1:           
+                                CMP           AL, 4BH + 80H                          ;Check for left released
+                                JNE           LEFT_NOT_RELEASED_p1
+                                MOV           moveDirectionLeftC1, 0
                                 JMP           CONT_p1
 
-    S_NOT_PRESSED_p1:              
-                                CMP           AL, 1FH + 80H                          ;CHECK DOWN RELEASED FOR CAR 2
-                                JNE           S_NOT_RELEASED_p1
-                                MOV           moveDirectionDownC2, 0
+    LEFT_NOT_RELEASED_p1:          
+                                CMP           AL, 50H                                ;Check for down pressed
+                                JNE           DOWN_NOT_PRESSED_p1
+                                MOV           moveDirectionDownC1, 1
                                 JMP           CONT_p1
 
-    S_NOT_RELEASED_p1:                          
+    DOWN_NOT_PRESSED_p1:           
+                                CMP           AL, 50H + 80H                          ;Check for down released
+                                JNE           DOWN_NOT_RELEASED_p1
+                                MOV           moveDirectionDownC1, 0
+                                JMP           CONT_p1
+
+    DOWN_NOT_RELEASED_p1:                         
                                 CMP           AL,10H
                                 JNE           Q_NOT_PRESSED_p1
-                                MOV           POWCAR2,1
+                                MOV           POWCAR1,1
                                 JMP           CONT_p1
 
     Q_NOT_PRESSED_p1:              
                                 CMP           AL,10H+80H
                                 JNE           Q_NOT_RELEASED_p1
-                                MOV           POWCAR2,0
+                                MOV           POWCAR1,0
                                 JMP           CONT_p1
 
     Q_NOT_RELEASED_p1:             
