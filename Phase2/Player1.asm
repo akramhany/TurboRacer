@@ -25,9 +25,9 @@ include Macros.inc
     seed                 dw      12                ;used in generating random nubmer
     notvalid             DB      0                 ; flage to indicat if there is any intersection will happen before going to that dirction or will go out of window
     IsStarte             db      0
-    TIMER DW ?
+    TIMER DB ?
     STARTINGTIME DB ?
-    RACETIME EQU 10
+    RACETIME EQU 100
     FUp                  db      0
     FLeft                db      0
     FRgiht               db      0
@@ -53,7 +53,7 @@ DW        1000 DUP(?)
     ISWITE                  DB        ?
                             db        ?
                             db        ?
-    Percentage1             dW        0
+    Percentage1             dB        0
                             db        ?
                             db        ?
     percentage2             dW        0
@@ -178,6 +178,7 @@ DW        1000 DUP(?)
     currentSecond       DB 0
     TEMP_REG            DB 0
     MustGeneratePowerUp DB 0
+    timeOutFlag         DB 0
 
     ;-------------------HANDELING TAKING MORE THAN ONE KEY INPUT AT THE SAME TIME---------------------------
     DB ?
@@ -241,6 +242,10 @@ DW        1000 DUP(?)
     carBuffer db BUFFER_SIZE_CAR dup(?)
 
     tt db ?
+
+    TIMEOUTMSG DB 'TIMEOUT, BOTH PLAYERS LOST!$'
+    db ?
+    db ?
 
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2026,7 +2031,8 @@ FIXPERCENTAAGE1 PROC FAR
                             DIV           DI
 
 
-                            MOV           Percentage1,AX
+                            MOV           Percentage1,AL
+                            MOV AH, 0
 
                             SetCursor     24,0
                             DISPLAYCHAR   '%'

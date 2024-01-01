@@ -48,6 +48,7 @@ Play PROC FAR
         MOV moveDirectionLeftC2, 0
 
 AGAIN:
+
         CALL FAR PTR MakeScore1
         
         DelaySmall
@@ -171,9 +172,10 @@ DelaySmallSmall
     DISPLAYTIMER 20,18,TIMER
     CMP TIMER,0
     JNE CONTINUERACE
-    JMP CAR_EXIT
     SetCursor 15,15
-;    DisplayString TIMEOUTMSG
+    DisplayString TIMEOUTMSG
+    BigDelay
+    JMP CAR_EXIT
 CONTINUERACE:
 
     CMP SPEEDUP_CAR1, 1
