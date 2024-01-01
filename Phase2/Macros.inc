@@ -160,6 +160,21 @@ SetCursor ROW,COL
 
 ENDM
 
+
+
+drawline MACRO ROWLINE
+LOCAL LINE
+    MOV CL,0
+    LINE:
+    SETCURSOR ROWLINE,CL
+    MOV DL,HYPHEN
+    DISPLAYCHAR DL
+    INC CL
+    CMP CL,80
+    JNZ LINE
+ 
+ENDM
+
 ResetVariables MACRO
 
     MOV playerOneWin, 0

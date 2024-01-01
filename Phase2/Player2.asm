@@ -28,7 +28,7 @@ include Macros.inc
     IsStarte             db      0
     TIMER DW ?
     STARTINGTIME DB ?
-    RACETIME EQU 200
+    RACETIME EQU 10
     FUp                  db      0
     FLeft                db      0
     FRgiht               db      0
@@ -282,10 +282,6 @@ DW        1000 DUP(?)
     user1ActualLen DB ?
     user1Data DB 200 DUP('$')
 
-    db ?
-    db ?
-    db ?
-
     ;;The actual string is stored at user2Data or at userName2 + 2
     userName2 LABEL BYTE
     user2MaxLen DB 200
@@ -295,6 +291,16 @@ DW        1000 DUP(?)
     db ?
     db ?
     db ?
+
+    DataOut DB ?
+    DataIn  DB '8'
+    SRX     db 0
+    SRY     db 13
+    SSendX  db 0
+    SSendY  db 1
+    HYPHEN DB "-"
+    MSG DB '-TO END CHATTING WITH $'
+    PRESSMSG DB ' PRESS F3$'
 
     org 900
 
@@ -309,26 +315,73 @@ include General1.inc
 include PowerUps.inc
 include Obscs.inc
 include Game.inc
+include CHAT.inc
+
 
 MAIN PROC FAR
                                 MOV           DX ,@data
                                 MOV           DS ,DX
 
-                                CALL FAR PTR DisplayFirstPagePlayerTwo
+                                CALL FAR PTR DisplayFirstPagePlayerOne
+    mov cl,0
+                 LEA     DI , USER2DATA                
+     LOP232:            MOV     DX,3FDH
+                        IN      AL,DX
+                        AND     AL,1
+                        JZ      LOP232
+    ;If Ready read the VALUE in Receive data register
+                        MOV     DX,03F8H
+                        IN      AL,DX
+                        SetCursor 24, cl
+                        displaychar AL
+                        inc cl
+                        CMP     AL,10
+                        JE      CHECK_MODE1
+                        CMP     AL,13
+                        JE      CHECK_MODE1
+                        mov [di],al
+                        inc di    
+                        JMP     LOP232
+  CHECK_MODE1:
+
+  mov cl,0
+                        MOV     SI,OFFSET user1Data
+    USER1SEND:          
+                        MOV     BL,[SI]
+                        MOV     DX,3FDH
+    LOP11:              IN      AL,DX
+                        AND     AL,00100000B
+                        JZ      LOP11
+                        MOV     DX,3F8H
+                        MOV     AL,bl
+                        OUT     DX,AL
+                        SetCursor 23,cl
+                        displaychar al
+                        inc cl
+                        INC     SI
+                        MOV     BL,[SI]
+                        CMP     BL,'$'
+                        JNE     USER1SEND
 ;
     CHECK_MODE:
                                 CALL FAR PTR FillArrDirectionSmall                 
                                 CALL FAR PTR DisplayMainPage
-                                MOV AH, 0
-                                INT 16H
-                                CMP AH, 3DH                                          ;CHECK IF THE PLAYER WANT TO EXIT
-                                JNE CHECK_FOR_PLAY
-                                JMP EXIT_PROGRAM
-    CHECK_FOR_PLAY:             CMP AH, 3BH
-                                JNE CHECK_MODE
+                        MOV     AH, 0
+                        INT     16H
+                        CMP     AH, 3DH                              ;CHECK IF THE PLAYER WANT TO EXIT
+                        JNE     CHECK_FOR_PLAY
+                        JMP     EXIT_PROGRAM
+    CHECK_FOR_PLAY:     CMP     AH, 3BH
+                        JNE     CHECK_CHATING
+                        JMP     CheckKey
+    CHECK_CHATING:      
+                        CMP     AH,3CH
+                        JNZ     CHECK_MODE
+                        CALL    FAR PTR CHATTING
+                        JMP     CHECK_MODE
                                 
 
-;\    CheckKey:                   
+    CheckKey:                   
 ;                                mov           Status,0
 ;                                mov           Intersect,0
 ;
