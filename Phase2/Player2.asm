@@ -28,7 +28,7 @@ include Macros.inc
     IsStarte             db      0
     TIMER DB ?
     STARTINGTIME DB ?
-    RACETIME EQU 100
+    RACETIME EQU 120
     FUp                  db      0
     FLeft                db      0
     FRgiht               db      0
@@ -372,8 +372,25 @@ MAIN PROC FAR
                         JNE     USER1SEND
 ;
     CHECK_MODE:
+
                                 CALL FAR PTR FillArrDirectionSmall                 
                                 CALL FAR PTR DisplayMainPage
+                mov cx,0
+                        mov dx,180
+
+                        mov al ,0
+                        mov ah,0ch
+                    kkk:
+                        int 10h
+                        inc cx
+                        cmp cx,320
+                        jnz kkk
+                        mov cx, 0
+                        inc dx
+                        cmp dx,200
+                        jnz kkk
+                        DRAWLINE 22
+                
                         MOV     AH, 0
                         INT     16H
                         CMP     AH, 3DH                              ;CHECK IF THE PLAYER WANT TO EXIT
