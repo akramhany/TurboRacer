@@ -39,13 +39,34 @@ include Macros.inc
     db ?
                             db        ?
                             db        ?
+DW        1000 DUP(?)
     ArrX                    dW        2000 dup('#')                                 ;store x direction of track
-     DW 2000 DUP('?')
+                            DW        1000 DUP(?)
+                            DW        1000 DUP(?)
     ArrY                    dW        2000 dup('#')                                 ;strore y axis of track
-    DW 2000 DUP('?')
-    ArrDirection            dB        1000 dup('#')
+                            DW        1000 DUP(?)
+    ArrDirection            dB        1000 dup(?)
     COUNTERARR              DW        0                                             ;store direction for every point
+    TOPX1                   DW        ?
+    TOPY1                   DW        ?
+    TOPX2                   DW        ?
+    TOPY2                   DW        ?
+    ISWITE                  DB        ?
                             db        ?
+                            db        ?
+    Percentage1             dW        0
+                            db        ?
+                            db        ?
+    percentage2             dW        0
+                            db        ?
+                            db        ?
+    ISFound1                db        0
+
+    ISFound2                db        0
+    arrP1                   db        '%','0','0','0','$','$'
+    arrP2                   db        '%','0','0','0','$','$'
+    POINTX1                 DW        ?
+    POINTY1            DW    ?
     db ?
     ArrX2                 dW      100 dup(0ffffh)
     ArrY2                 dW      100 dup(0ffffh)
@@ -157,6 +178,7 @@ include Macros.inc
     counterForPU        DB 0
     currentSecond       DB 0
     TEMP_REG            DB 0
+    MustGeneratePowerUp DB 0
 
     ;-------------------HANDELING TAKING MORE THAN ONE KEY INPUT AT THE SAME TIME---------------------------
     DB ?
@@ -293,20 +315,20 @@ MAIN PROC FAR
                                 MOV           DX ,@data
                                 MOV           DS ,DX
 
-    ;                            CALL FAR PTR DisplayFirstPagePlayerOne
+                                CALL FAR PTR DisplayFirstPagePlayerOne
 ;
+    ;                            MOV COUNTERARR, 0
     CHECK_MODE:                 
                                 CALL FAR PTR FillArrDirectionSmall
-    ;                            MOV COUNTERARR, 0
-    ;                            CALL FAR PTR DisplayMainPage
-    ;                            MOV AH, 0
-    ;                            INT 16H
-    ;                            CMP AH, 3DH                                          ;CHECK IF THE PLAYER WANT TO EXIT
-    ;                            JNE CHECK_FOR_PLAY
-    ;                            JMP EXIT_PROGRAM
-    ;CHECK_FOR_PLAY:             CMP AH, 3BH
-    ;                            JNE CHECK_MODE
-    ;                            JMP CheckKey
+                                CALL FAR PTR DisplayMainPage
+                                MOV AH, 0
+                                INT 16H
+                                CMP AH, 3DH                                          ;CHECK IF THE PLAYER WANT TO EXIT
+                                JNE CHECK_FOR_PLAY
+                                JMP EXIT_PROGRAM
+    CHECK_FOR_PLAY:             CMP AH, 3BH
+                                JNE CHECK_MODE
+                                JMP CheckKey
 
     CheckKey:                   
                                 mov           Status,0
@@ -385,12 +407,17 @@ MAIN PROC FAR
                                 MOV AL, '#'
                                 OUT DX, AL
 
-                                Delay
-                                Delay
+    WAIT_FOR_OBS:               MOV DX, 3FDH
+                                IN AL, DX
+                                AND AL, 1
+                                JZ WAIT_FOR_OBS
+
+                                MOV DX, 03F8H
+                                IN AL, DX
 
 
                                 CALL          FAR PTR GenerateObstacles              ;Generate Random Obstacles
-
+                                Delay
                                 ;Se\tCursor 12, 12
                                 ;MOV TEMP_REG, BH
                                 ;ADD TEMP_REG, '0'
@@ -423,7 +450,6 @@ MAIN PROC FAR
                                 MOV           AX,0A000H
                                 MOV           ES,AX
 
-                                Delay
                                 Delay
                                 Delay
 
@@ -482,6 +508,8 @@ GeneratRandomNumber endp
     ;Regester: AX
     ;***********************************************************************
 GenerateTrack proc far
+                                CALL FAR PTR FIILARRX_ARRY_DIRECTION
+                                MOV COUNTERARR, 0
                                 MOV                   AX,StatingPointX                         ;put the value of x-axis with inintial point
                                 MOV                   XAxis,AX
 
@@ -1768,6 +1796,225 @@ KeepTrackWithAxis proc far
                                 POP                   SI
                                 ret
 KeepTrackWithAxis endp
+
+MakeScore1 PROC FAR
+                            PUSH          SI
+                            PUSH          DI
+                            PUSH          BX
+                            PUSH          AX
+                            PUSH          CX
+                            PUSH          DX
+
+
+                            MOV           ISFound1,0
+
+                            MOV           AX, TOP1
+                            MOV           CX ,320
+                            xor           dx,dx
+
+                            DIV           CX
+                            MOV           TOPX1,DX
+                            MOV           TOPY1,AX
+
+                            CALL          FAR PTR VirticalSearch1
+                            CMP           ISFound1,1
+                            JZ            EXIT19
+                            CALL          FAR PTR HorizontalSearch1
+
+    EXIT19:
+                            POP           DX
+                            POP           CX
+                            POP           AX
+                            POP           BX
+                            POP           DI
+                            POP           SI
+                            RET
+MakeScore1 ENDP
+VirticalSearch1 proc far
+                            MOV           CX, TOPX1
+                            MOV           DX ,TOPY1
+                            mov           si ,0
+
+
+    loopx:
+                            MOV           AH , 0DH
+                            INT           10H
+                            CMP           AL, 0fh
+                            JZ            IS
+                            CMP           AL, 0eh
+                            JZ            JMPHERE0
+                            INC           DX
+                            INC           SI
+                            CMP           SI ,15
+                            JNZ           loopx
+
+    JMPHERE0:
+                            MOV           CX, TOPX1
+                            MOV           DX ,TOPY1
+                            mov           si ,0
+
+
+    loopx2:
+                            MOV           AH , 0DH
+                            INT           10H
+                            CMP           AL, 0fh
+                            JZ            IS
+                            CMP           AL, 0eh
+                            JZ            EXIT13
+                            DEC           DX
+                            INC           SI
+                            CMP           SI ,15
+                            JNZ           loopx2
+                            JMP           EXIT13
+    IS:                     mov           ISFound1,1
+                            MOV           POINTX1,CX
+                            MOV           POINTY1,DX
+                            CALL          FAR PTR  FIXPERCENTAAGE1
+    EXIT13:
+
+
+                            RET
+VirticalSearch1 endp
+HorizontalSearch1 proc far
+
+                            MOV           CX, TOPX1
+                            MOV           DX ,TOPY1
+                            mov           si ,0
+
+    loopY5:
+                            MOV           AH , 0DH
+                            INT           10H
+                            CMP           AL, 0fh
+                            JZ            IS3
+                            CMP           AL, 0eh
+                            JZ            JMPHERE1
+                            INC           CX
+                            INC           SI
+                            CMP           SI ,15
+                            JNZ           loopY5
+    JMPHERE1:
+                            MOV           CX, TOPX1
+                            MOV           DX ,TOPY1
+                            mov           si ,0
+    loopY6:
+                            MOV           AH , 0DH
+                            INT           10H
+                            CMP           AL, 0fh
+                            JZ            IS3
+                            CMP           AL, 0eh
+                            JZ            EXIT17
+
+                            DEC           CX
+                            INC           SI
+                            CMP           SI ,15
+                            JNZ           loopY6
+                            JMP           EXIT17
+    IS3:
+                            MOV           POINTX1,CX
+                            MOV           POINTY1,DX
+                            mov           ISFound1,1
+                            CALL          FAR PTR  FIXPERCENTAAGE1
+    EXIT17:
+                            RET
+
+                            ret
+HorizontalSearch1 endp
+
+FIXPERCENTAAGE1 PROC FAR
+                            mov           si ,offset ArrX
+                            MOV           DI ,OFFSET ArrY
+
+                            MOV           BX, 0
+                            MOV           CX, POINTX1
+                            MOV           DX, POINTY1
+    LOOPCHECK:
+                            CMP           CX,[SI]
+                            JNE           C1
+                            CMP           DX,[DI]
+                            JE            C
+    C1:
+                            ADD           SI,2
+                            ADD           DI ,2
+                            INC           BX
+                            CMP           BX, COUNTERARR
+
+                            JNZ           LOOPCHECK
+                            JMP           EXIT14
+    C:
+
+
+
+                            MOV           AX, COUNTERARR
+                            mov           di,4
+                            xor           dx, dx
+                            DIV           DI
+                            MOV           DI,AX
+
+
+
+
+                            MOV           AX, BX
+                            MOV           SI,4
+                            xor           dx, dx
+                            DIV           SI
+
+
+
+                            MOV           SI, 100
+                            xor           dx,dx
+                            MUL           SI
+
+
+
+                            xor           dx,dx
+                            DIV           DI
+
+
+                            MOV           Percentage1,AX
+
+                            SetCursor     24,0
+                            DISPLAYCHAR   '%'
+
+                            DISPLAYTIMER  24,2,Percentage1
+                            MOV           Percentage1,0
+    EXIT14:
+                            RET
+FIXPERCENTAAGE1 ENDP
+
+FIILARRX_ARRY_DIRECTION PROC FAR
+
+                            MOV           DI ,OFFSET ArrX
+                            MOV           CX,2000
+    FAX_FILL:
+                            MOV           AL, '#'
+                            MOV           [DI],AL
+                            INC           DI
+                            DEC           CX
+                            JNZ           FAX_FILL
+
+                            MOV           DI ,OFFSET ArrY
+                            MOV           CX,2000
+    FAX_FILL2:
+                            MOV           AL, '#'
+                            MOV           [DI],AL
+                            INC           DI
+                            DEC           CX
+                            JNZ           FAX_FILL2
+
+                            MOV           DI ,OFFSET ArrDirection
+                            MOV           CX,1000
+    FAX_FILL3:
+                            MOV           AL, '#'
+                            MOV           [DI],AL
+                            INC           DI
+                            DEC           CX
+                            JNZ           FAX_FILL3
+
+
+
+
+                            RET
+FIILARRX_ARRY_DIRECTION ENDP
 
 end main
 

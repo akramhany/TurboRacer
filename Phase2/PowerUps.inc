@@ -1206,6 +1206,62 @@ GeneratePowerUps PROC FAR
     PUSH DI
     PUSH SI
     
+
+;    CMP MustGeneratePowerUp, 1
+;    JZ CONT_RPOW_COORD
+;    JMP EXIT_RPOW_2
+;    CONT_RPOW_COORD:
+;                                        MOV SI, 4
+;                                        MOV BL, 0
+;                                        MOV BH, 0
+;    RECIEVE_POW_COORDINATES:
+;                                        MOV DX, 3FDH
+;                                        IN AL, DX
+;                                        AND AL, 1
+;                                        
+;
+;                                        MOV DX, 03F8H
+;                                        IN AL, DX
+;                                        DEC SI
+;                                        JZ EXIT_RPOW
+;                                        CMP BH, 0
+;                                        JNE RECIEVE_Y_COORDINATE_POW
+;                                        CMP BL, 0
+;                                        JNE RECIEVE_POW_SECOND_BIT_X
+;                                        MOV CL, AL
+;                                        MOV BL, 1
+;                                        JMP CONT_RPOW
+;    RECIEVE_POW_SECOND_BIT_X:
+;                                        MOV CH, AL
+;                                        MOV powerUpPosX, CX
+;                                        MOV BL, 0
+;                                        MOV BH, 1
+;                                        JMP CONT_RPOW
+;
+;    RECIEVE_Y_COORDINATE_POW:               
+;                                        CMP BL, 0
+;                                        JNE RECIEVE_POW_SECOND_BIT_Y
+;                                        MOV CL, AL
+;                                        MOV BL, 1
+;                                        JMP CONT_RPOW
+;    RECIEVE_POW_SECOND_BIT_Y:
+;                                        MOV CH, AL
+;                                        MOV powerUpPosY, CX
+;                                        MOV BL, 0
+;                                        MOV BH, 0
+;                                        JMP CONT_RPOW
+;    CONT_RPOW:
+;                                        JMP RECIEVE_POW_COORDINATES
+;
+;    EXIT_RPOW:
+;         CALL FAR PTR DrawPowerUP
+;         RET
+;
+;    EXIT_RPOW_2:
+;
+;
+;
+;
     CALL GeneratRandomNumber
 
 ;;GENERATE A RANDOM NUMBER AND USE IT TO GET A BIG NUMBER IN AX
@@ -1396,7 +1452,7 @@ RET
 DrawPowerUP ENDP
 
 ;description
-ValidateThePowerUpPosition PROC
+ValidateThePowerUpPosition PROC FAR
 
     PUSH AX
     PUSH BX
@@ -1448,3 +1504,71 @@ EXIT_VTPUP:
 
     RET
 ValidateThePowerUpPosition ENDP
+
+;description
+SendPowerUpPosition PROC FAR
+    PUSH          AX
+    PUSH          BX
+    PUSH          CX
+    PUSH          DX
+    PUSH          powerUpPosX
+    PUSH          powerUpPosY
+    PUSH          DI
+
+    MOV CX, powerUpPosX
+
+AGAIN_SENDER_POW_X1:  	            
+    mov dx , 3FDH
+    In al , dx 			;Read Line Status
+    AND al , 00100000B
+    
+
+    mov dx , 3F8H		
+    MOV AL, CL
+    out dx , al
+
+
+AGAIN_SENDER_POW_X2:  	            
+    mov dx , 3FDH
+    In al , dx 			;Read Line Status
+    AND al , 00100000B
+    
+
+    mov dx , 3F8H		
+    MOV AL, CH
+    out dx , al
+    MOV CX, powerUpPosY
+
+AGAIN_SENDER_POW_Y1:  	            
+    mov dx , 3FDH
+    In al , dx 			;Read Line Status
+    AND al , 00100000B
+    
+
+    mov dx , 3F8H		
+    MOV AL, CL
+    out dx , al
+
+AGAIN_SENDER_POW_Y2:  	            
+    mov dx , 3FDH
+    In al , dx 			;Read Line Status
+    AND al , 00100000B
+    
+
+    mov dx , 3F8H		
+    MOV AL, CH
+    out dx , al
+
+    MOV DX, 3F8H
+    MOV AL, '#'
+    OUT DX, AL
+
+    POP           DI
+    POP           powerUpPosY
+    POP           powerUpPosX
+    POP           DX
+    POP           CX
+    POP           BX
+    POP           AX
+    RET
+SendPowerUpPosition ENDP

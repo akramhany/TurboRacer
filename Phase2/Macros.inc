@@ -28,10 +28,17 @@ ENDM
 DelaySmall MACRO
 
           MOV CX, 00H
-          MOV DX, 02240H
+          MOV DX, 01240H
           MOV AH, 86H
           INT 15H
 
+ENDM
+
+DelaySmallSmall MACRO
+          MOV CX, 00H
+          MOV DX, 0540H
+          MOV AH, 86H
+          INT 15H
 ENDM
 
 DelayVerySmall MACRO

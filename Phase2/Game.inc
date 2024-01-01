@@ -48,6 +48,8 @@ Play PROC FAR
         MOV moveDirectionLeftC2, 0
 
 AGAIN:
+        CALL FAR PTR MakeScore1
+        
         DelaySmall
                             ;MOV CX, CENTER1
                             
@@ -99,27 +101,66 @@ AGAIN:
         InputOutput
         MOV moveDirectionUpC2, BH
 
-        DelaySmall
+DelaySmallSmall
 
         MOV BL, moveDirectionRightC1
         InputOutput
         MOV moveDirectionRightC2, BH
 
-        DelaySmall
+DelaySmallSmall
 
         MOV BL, moveDirectionLeftC1
         InputOutput
         MOV moveDirectionLeftC2, BH
 
-        DelaySmall
+        DelaySmallSmall
 
         MOV BL, moveDirectionDownC1
         InputOutput
         MOV moveDirectionDownC2, BH
 
+DelaySmallSmall
 
 
+        MOV BL, SPEEDUP_CAR1
+        InputOutput
+        MOV SPEEDUP_CAR2, BH
 
+DelaySmallSmall
+
+        MOV BL, SPEEDDOWN_CAR1
+        InputOutput
+        MOV SPEEDDOWN_CAR2, BH
+
+DelaySmallSmall
+
+        MOV BL, OBSTACLE_CAR1
+        InputOutput
+        MOV OBSTACLE_CAR2, BH
+
+DelaySmallSmall
+
+        MOV BL, PASS_CAR1
+        InputOutput
+        MOV PASS_CAR2, BH
+
+DelaySmallSmall
+
+        MOV BL, CANPASS_CAR1
+        InputOutput
+        MOV CANPASS_CAR2, BH
+
+DelaySmallSmall
+
+        MOV BL, POWCAR1
+        InputOutput
+        MOV POWCAR2, BH
+
+DelaySmallSmall
+
+        MOV BL, playerOneWin
+        InputOutput
+        MOV playerTwoWin, BH
 
     MOV AH,2CH
     INT 21H
