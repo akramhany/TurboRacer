@@ -552,8 +552,6 @@ MAIN PROC FAR
                                 
                                JMP CHECK_MODE
     EXIT_PROGRAM:
-                               MOV           AH, 0
-                               INT           16H
                                MOV           AH, 04CH
                                INT           21H
 MAIN ENDP
@@ -601,6 +599,14 @@ GenerateTrack proc far
                                 MOV                   AH ,08H                                  ;write in page0
                                 MOV                   BH ,00
                                 INT                   10H
+
+                                MOV                   AL, BACKGROUND_COLOR
+                                MOV                   BP, 00
+                                MOV                   widthToFill, 320
+                                MOV                   heightToFill, 160
+                                CALL                  FAR PTR FillScreen
+
+                                drawline              19
 
                                 MOV                   IsStarte,0
                                 MOV                   FUp,0

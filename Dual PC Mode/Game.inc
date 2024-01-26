@@ -18,23 +18,6 @@ Play PROC FAR
     SetCursor 22,21
     DisplayString powerups2
 
-    MOV CX,10
-    MOV DI,2000
-    MOV AL,SPEED_UP_COLOR
-    REP STOSB
-
-    MOV CX,10
-    MOV DI,2150
-    MOV AL,SPEED_DOWN_COLOR
-    REP STOSB
-    MOV CX,10
-    MOV DI,2100
-    MOV AL,GENERATE_OBSTACLE_COLOR
-    REP STOSB
-    MOV CX,10
-    MOV DI,2200
-    MOV AL,PASS_OBSTACLE_COLOR
-    REP STOSB
 
     MOV AH,2CH
     INT 21H
@@ -299,17 +282,17 @@ KOBRY0:
     JMP CONT1
 
 KOBRY1:
-    SetCursor 16, 12
+    SetCursor 0, 17
     DisplayString user1Data
-    SetCursor 17, 12 
+    SetCursor 1, 17 
     DisplayString msg4
     BigDelay
     JMP AA2_1
 
 KOBRY2:
-    SetCursor 16, 12
+    SetCursor 0, 17
     DisplayString user2Data
-    SetCursor 17, 12
+    SetCursor 1, 17
     DisplayString msg4
     BigDelay
     JMP AA2_1
