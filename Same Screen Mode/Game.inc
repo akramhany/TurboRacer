@@ -9,32 +9,14 @@ Play PROC FAR
     CALL FAR PTR ORIG1
     CALL FAR PTR CAR1
 
-    SetCursor 21,0
-    DisplayString user1Data
     SetCursor 22,0
+    DisplayString user1Data
+    SetCursor 23,0
     DisplayString powerups1
-    SetCursor 21,21
-    DisplayString user2Data
     SetCursor 22,21
+    DisplayString user2Data
+    SetCursor 23,21
     DisplayString powerups2
-
-    MOV CX,10
-    MOV DI,2000
-    MOV AL,SPEED_UP_COLOR
-    REP STOSB
-
-    MOV CX,10
-    MOV DI,2150
-    MOV AL,SPEED_DOWN_COLOR
-    REP STOSB
-    MOV CX,10
-    MOV DI,2100
-    MOV AL,GENERATE_OBSTACLE_COLOR
-    REP STOSB
-    MOV CX,10
-    MOV DI,2200
-    MOV AL,PASS_OBSTACLE_COLOR
-    REP STOSB
 
     MOV AH,2CH
     INT 21H
@@ -59,80 +41,80 @@ CONTINUERACE:
 
     CMP SPEEDUP_CAR1, 1
     JNE KOBRY120
-    SetCursor 22, 10
+    SetCursor 23, 10
     DisplayString spaceMsg
-    SetCursor 22, 10
+    SetCursor 23, 10
     DisplayString msgUP
 
     JMP KOBRY124
 KOBRY120:
     CMP SPEEDDOWN_CAR1, 1
     JNE KOBRY121
-    SetCursor 22, 10
+    SetCursor 23, 10
     DisplayString spaceMsg
-    SetCursor 22, 10
+    SetCursor 23, 10
     DisplayString msgDown
 
     JMP KOBRY124
 KOBRY121:
     CMP OBSTACLE_CAR1, 1
     JNE KOBRY122
-    SetCursor 22, 10
+    SetCursor 23, 10
     DisplayString spaceMsg
-    SetCursor 22, 10
+    SetCursor 23, 10
     DisplayString msgGOB
 
     JMP KOBRY124
 KOBRY122:
     CMP PASS_CAR1, 1
     JNE KOBRY123
-    SetCursor 22, 10
+    SetCursor 23, 10
     DisplayString spaceMsg
-    SetCursor 22, 10
+    SetCursor 23, 10
     DisplayString msgOB
     JMP KOBRY124
 KOBRY123:
-    SetCursor 22, 10
+    SetCursor 23, 10
     DisplayString spaceMsg
 
 KOBRY124:
 
     CMP SPEEDUP_CAR2, 1
     JNE KOBRY220
-    SetCursor 22, 31
+    SetCursor 23, 31
     DisplayString spaceMsg
-    SetCursor 22, 31
+    SetCursor 23, 31
     DisplayString msgUP
 
     JMP KOBRY224
 KOBRY220:
     CMP SPEEDDOWN_CAR2, 1
     JNE KOBRY221
-    SetCursor 22, 31
+    SetCursor 23, 31
     DisplayString spaceMsg
-    SetCursor 22, 31
+    SetCursor 23, 31
     DisplayString msgDown
 
     JMP KOBRY224
 KOBRY221:
     CMP OBSTACLE_CAR2, 1
     JNE KOBRY222
-    SetCursor 22, 31
+    SetCursor 23, 31
     DisplayString spaceMsg
-    SetCursor 22, 31
+    SetCursor 23, 31
     DisplayString msgGOB
 
     JMP KOBRY224
 KOBRY222:
     CMP PASS_CAR2, 1
     JNE KOBRY223
-    SetCursor 22, 31
+    SetCursor 23, 31
     DisplayString spaceMsg
-    SetCursor 22, 31
+    SetCursor 23, 31
     DisplayString msgOB
     JMP KOBRY224
 KOBRY223:
-    SetCursor 22, 31
+    SetCursor 23, 31
     DisplayString spaceMsg
 
 KOBRY224:
@@ -153,7 +135,7 @@ KOBRY4:
     CMP playerOneWin, 1
     JE KOBRY1
     CMP playerTwoWin, 1
-    JE KOBRY2
+    JE KOBRYKOBRY2
     CMP COUNT1,0
     JE KOBRY0
     MOV  AH, 2ch                   ;get sysytem time to get the dx mellisecond
@@ -177,18 +159,21 @@ CONT2:
 KOBRY0:
     JMP CONT1
 
+KOBRYKOBRY2:
+    JMP KOBRY2
+
 KOBRY1:
-    SetCursor 16, 12
+    SetCursor 0, 17
     DisplayString user1Data
-    SetCursor 17, 12 
+    SetCursor 1, 17 
     DisplayString msg4
     BigDelay
     JMP AA2_1
 
 KOBRY2:
-    SetCursor 16, 12
+    SetCursor 0, 17
     DisplayString user2Data
-    SetCursor 17, 12
+    SetCursor 1, 17
     DisplayString msg4
     BigDelay
     JMP AA2_1

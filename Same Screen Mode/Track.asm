@@ -52,6 +52,7 @@ include Macros.inc
     db ? 
     db ?
     ;;;Obstacles Varaibles
+    HYPHEN DB "-"
 
     GenerateObstaclesKey equ     32H               ;NUMBER 2 IN KEYBOARD
     ObstaclePosX         DW      0
@@ -424,6 +425,14 @@ GenerateTrack proc far
                                 MOV                   AH ,08H                                  ;write in page0
                                 MOV                   BH ,00
                                 INT                   10H
+
+                                MOV                   AL, BACKGROUND_COLOR
+                                MOV                   BP, 00
+                                MOV                   widthToFill, 320
+                                MOV                   heightToFill, 160
+                                CALL                  FAR PTR FillScreen
+
+                                drawline              19
 
                                 MOV                   IsStarte,0
                                 MOV                   FUp,0
