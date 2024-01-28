@@ -1,4 +1,4 @@
-# Turbo Racer Assembly Project
+# Turbo Racer Assembly Project 🏎️
 
 Welcome to Turbo Racer, an exhilarating cars racing game crafted in x86 assembly language. Developed as part of the Microprocessors course at Cairo University, Faculty of Engineering, this project combines creativity and programming expertise to deliver an exciting and enjoyable experience.
 
