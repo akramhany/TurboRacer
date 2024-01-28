@@ -47,3 +47,9 @@ Turbo Racer offers a thrilling gaming experience where two cars compete on a dyn
 2. **Controls:**
     - Default Controls: Use the *arrow* keys to move the car, and the *m* key to activate powerups.
     - Same Screen Controls: Player one would use the default controls, and Player two would use *WASD* keys and would activate powerups using *Q* key.
+
+3. **How to Play:**
+    - Same Screen Mode: After writing user1 and user2 names then pressing F1 to start the game, pressing the *1* key would generate a random track, then if you want to start the game press *2* key.
+    - Dual PC Mode: Due to unforeseen errors, it is necessary to initiate the game in a specific sequence.
+        1. The PC running *Player2* file should write his name first then press *enter*, then *Player1* would write his name and also press *enter*.
+        2. To start playing, *Player2* would press *F1* first, then *Player1* would press *F1*.
